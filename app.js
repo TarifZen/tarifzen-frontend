@@ -1095,7 +1095,7 @@ if (gainEl) {
 
     // Texte normal + valeur colorée et semi-bold
     gainEl.innerHTML =
-      `Gain potentiel de cette recommandation : <span class="reco-gain-value">${gainFormatted}</span>`;
+      `Gain potentiel : <span class="reco-gain-value">${gainFormatted}</span>`;
 
     const gainValueEl = gainEl.querySelector('.reco-gain-value');
 
