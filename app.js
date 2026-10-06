@@ -582,9 +582,9 @@ if (targetBtn) {
         sendData(targetBtn, 'VRAI');
     } else {
         sendData(targetBtn, 'FAUX');
-    }
 }
 
+});
     function updateCalendarVisuals() {
         const today = new Date();
         const currentDay = today.getDate();
