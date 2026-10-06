@@ -862,7 +862,7 @@ function renderRecommandations(data) {
     );
 
     if (shortMsgEl) {
-      shortMsgEl.textContent = item.short_message || '';
+     shortMsgEl.textContent = formatShortMessage(item.short_message);
     }
 
     // ============================================================
