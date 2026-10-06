@@ -649,10 +649,7 @@ function formatGainPotential(val) {
   if (val === null || val === undefined || isNaN(val)) return "0 €";
 
   const rounded = Math.round(val);
-
-  const formatted = Math.abs(rounded)
-    .toLocaleString('fr-FR')
-    .replace(/\s/g, ' ');
+  const formatted = Math.abs(rounded).toString();
 
   if (rounded > 0) return `+${formatted} €`;
   if (rounded < 0) return `-${formatted} €`;
