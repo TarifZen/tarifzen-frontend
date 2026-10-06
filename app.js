@@ -748,32 +748,32 @@ function formatShortMessage(message) {
   let formattedMessage = String(message);
 
   // ============================================================
-  // MONTANTS EN €
-  // ============================================================
-  formattedMessage = formattedMessage.replace(
-    /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
-    (match, value) => {
-      const number = parseFloat(String(value).replace(',', '.'));
+// MONTANTS EN €
+// ============================================================
+formattedMessage = formattedMessage.replace(
+  /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
+  (match, value) => {
+    const number = parseFloat(String(value).replace(',', '.'));
 
-      if (isNaN(number)) return match;
+    if (isNaN(number)) return match;
 
-      const rounded = Math.round(number);
+    const rounded = Math.round(number);
+    const valueString = String(value).trim();
 
-      // Positif
-      if (number > 0) {
-        return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
-      }
-
-      // Négatif
-      if (number < 0) {
-        return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
-      }
-
-      // Tarif cible / valeur sans signe
-      return `<span style="font-weight:600;">${rounded}€</span>`;
+    // Montant explicitement positif avec "+"
+    if (valueString.startsWith('+')) {
+      return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
     }
-  );
 
+    // Montant explicitement négatif avec "-"
+    if (valueString.startsWith('-')) {
+      return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
+    }
+
+    // Tarif cible : aucun signe → semi-bold uniquement
+    return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+  }
+);
   // ============================================================
   // PICK-UP EN CHAMBRES
   // ============================================================
