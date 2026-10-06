@@ -847,7 +847,6 @@ function formatShortMessage(message) {
 
   return formattedMessage;
 }
-
   
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
