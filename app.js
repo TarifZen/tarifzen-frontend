@@ -435,6 +435,41 @@ function initPreviousYearText() {
         targetEl.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
     }
 }
+/**
+ * 9. ANIMATION FERMETURE CARTE RECOMMANDATION
+ */
+function animateRecoCardClose(card, callback) {
+    if (!card) {
+        if (callback) callback();
+        return;
+    }
+
+    // Évite de lancer l'animation plusieurs fois
+    if (card.dataset.closing === 'true') return;
+
+    card.dataset.closing = 'true';
+
+    // Prépare la carte pour l'animation
+    card.style.transition =
+        'opacity 0.45s ease, transform 0.45s ease';
+
+    // Lance l'animation :
+    // la carte monte légèrement et disparaît progressivement
+    requestAnimationFrame(() => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(-24px)';
+    });
+
+    // Une fois l'animation terminée
+    setTimeout(() => {
+        if (callback) {
+            callback();
+        } else {
+            card.style.display = 'none';
+        }
+    }, 450);
+}
+
 
 /**
  * =============================================
