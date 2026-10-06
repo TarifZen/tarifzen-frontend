@@ -786,15 +786,16 @@ setTimeout(() => {
 
 
 $('.tabs-menu-5 a').on('click', function() {
-
     setTimeout(
         updateCalendarVisuals,
         150
     );
-
 });
 
-});
+}); // fermeture du document.addEventListener('click', ...)
+
+}); // fermeture du document.addEventListener('DOMContentLoaded', ...)
+
 
 /**
  * FORMULAIRE AJOUT ÉVÉNEMENT COMPLÉMENTAIRE
