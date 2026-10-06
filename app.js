@@ -698,6 +698,7 @@ year: 'numeric'
 }).format(d);
 return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
+  
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
 // ============================================================
@@ -706,8 +707,12 @@ function renderRecommandations(data) {
   const template = document.querySelector('#recommandation-template');
   if (!container || !template) return;
 
+  // Le template reste caché : il sert uniquement de modèle
   template.style.display = 'none';
 
+  // ============================================================
+  // RÉCUPÉRATION DES RECOMMANDATIONS DÉJÀ TRAITÉES / IGNORÉES
+  // ============================================================
   const rawProcessed = getProcessedItems() || [];
   const rawDismissed = getDismissedItems() || [];
 
@@ -723,24 +728,35 @@ function renderRecommandations(data) {
       : item
   );
 
+  // ============================================================
+  // FILTRAGE DES RECOMMANDATIONS VISIBLES
+  // ============================================================
   const visibleData = (data || []).filter(item => {
     const id = item.recommendation_id || item.row_id || item.id;
     return !processedIds.includes(id) && !dismissedIds.includes(id);
   });
 
-  // Supprime uniquement les cartes générées dynamiquement
+  // Supprime uniquement les cartes générées précédemment
   container.querySelectorAll('.reco-card-item').forEach(el => el.remove());
 
+  // ============================================================
+  // CRÉATION DES CARTES
+  // ============================================================
   visibleData.forEach(item => {
     const newCard = template.cloneNode(true);
 
+    // Le clone ne doit plus avoir l'ID du template
     newCard.removeAttribute('id');
+
+    // Classe permettant d'identifier les cartes générées
     newCard.classList.add('reco-card-item');
+
+    // Affichage du clone
     newCard.style.display = '';
 
-    // ========================================================
-    // STATUT / PRIORITÉ
-    // ========================================================
+    // ============================================================
+    // DÉTERMINATION URGENT / ANALYSE
+    // ============================================================
     const isAnalyse =
       Number(item.priority) >= 6 ||
       item.action_type === 'ANALYSE';
@@ -763,9 +779,9 @@ function renderRecommandations(data) {
 
     newCard.setAttribute('data-id', recoId);
 
-    // ========================================================
+    // ============================================================
     // TITRE
-    // ========================================================
+    // ============================================================
     const titleEl = newCard.querySelector(
       '.reco-title, [data-field="title"], #titre-action, .titre-action'
     );
@@ -774,9 +790,9 @@ function renderRecommandations(data) {
       titleEl.textContent = item.title || '';
     }
 
-    // ========================================================
+    // ============================================================
     // MESSAGE COURT
-    // ========================================================
+    // ============================================================
     const shortMsgEl = newCard.querySelector(
       '.reco-short-message, [data-field="short_message"], #message-hotelier, .message-hotelier'
     );
@@ -785,9 +801,9 @@ function renderRecommandations(data) {
       shortMsgEl.textContent = item.short_message || '';
     }
 
-    // ========================================================
+    // ============================================================
     // MESSAGE LONG
-    // ========================================================
+    // ============================================================
     const longMsgEl = newCard.querySelector(
       '.reco-long-message, [data-field="long_message"], #info-text, .info-text'
     );
@@ -796,9 +812,9 @@ function renderRecommandations(data) {
       longMsgEl.textContent = item.long_message || '';
     }
 
-    // ========================================================
+    // ============================================================
     // DATE PRINCIPALE
-    // ========================================================
+    // ============================================================
     const dateFormatted = formatDateFR(item.date);
 
     const dateEl = newCard.querySelector(
@@ -806,15 +822,15 @@ function renderRecommandations(data) {
     );
 
     if (dateEl) {
-      dateEl.textContent =
-        dateFormatted || item.date || '';
+      dateEl.textContent = dateFormatted || item.date || '';
     }
 
-    // ========================================================
+    // ============================================================
     // DATE DU BAS DE CARTE
-    // ========================================================
+    // ID WEBFLOW : #reco-date-bottom
+    // ============================================================
     const dateBottomEl = newCard.querySelector(
-      '.reco-date-bottom, #reco-date-bottom'
+      '#reco-date-bottom'
     );
 
     if (dateBottomEl) {
@@ -822,26 +838,24 @@ function renderRecommandations(data) {
         dateFormatted || item.date || '';
     }
 
-    // ========================================================
+    // ============================================================
     // ÉVÉNEMENT
-    // ========================================================
+    // LAISSÉ EN PLACE POUR L'INJECTION FUTURE API EVENTS
+    // ============================================================
     const eventEl = newCard.querySelector(
-      '.reco-event, #reco-event, [data-field="event"]'
+      '#reco-event'
     );
 
     if (eventEl) {
-      eventEl.textContent =
-        item.event ||
-        item.event_name ||
-        item.evenement ||
-        '';
+      eventEl.textContent = item.event || '';
     }
 
-    // ========================================================
+    // ============================================================
     // RESTRICTION
-    // ========================================================
+    // ID WEBFLOW : #reco-restriction
+    // ============================================================
     const restrEl = newCard.querySelector(
-      '.reco-restriction, #reco-restriction, [data-field="restriction_code"]'
+      '#reco-restriction'
     );
 
     if (restrEl) {
@@ -849,9 +863,9 @@ function renderRecommandations(data) {
         item.restriction_code || '';
     }
 
-    // ========================================================
+    // ============================================================
     // SCORE RM
-    // ========================================================
+    // ============================================================
     const scoreEl = newCard.querySelector(
       '.reco-score, [data-field="score_rm"], #reco-score-rm'
     );
@@ -864,11 +878,12 @@ function renderRecommandations(data) {
           : '';
     }
 
-    // ========================================================
+    // ============================================================
     // GAIN POTENTIEL
-    // ========================================================
+    // ID WEBFLOW : #reco-gain-potentiel
+    // ============================================================
     const gainEl = newCard.querySelector(
-      '.reco-gain, .reco-gain-potentiel, [data-field="gain_potential"], #reco-gain-potentiel'
+      '#reco-gain-potentiel'
     );
 
     if (gainEl) {
@@ -876,9 +891,9 @@ function renderRecommandations(data) {
         formatGainPotential(item.gain_potential);
     }
 
-    // ========================================================
-    // PRIX RECOMMANDÉ
-    // ========================================================
+    // ============================================================
+    // VARIATION DE PRIX
+    // ============================================================
     const priceEl = newCard.querySelector(
       '.reco-price, [data-field="recommended_price_change"]'
     );
@@ -891,9 +906,9 @@ function renderRecommandations(data) {
           : '';
     }
 
-    // ========================================================
-    // ID
-    // ========================================================
+    // ============================================================
+    // ID DE RECOMMANDATION
+    // ============================================================
     const idInput = newCard.querySelector(
       '#reco-id-champ, input[name="reco-id"], input[name="reco_id"]'
     );
@@ -902,11 +917,12 @@ function renderRecommandations(data) {
       idInput.value = recoId;
     }
 
-    // ========================================================
-    // STOCKAGE CMS / IDENTIFIANTS
-    // ========================================================
-    const cmsStorage =
-      newCard.querySelector('.cms-data-storage');
+    // ============================================================
+    // STOCKAGE DES IDs
+    // ============================================================
+    const cmsStorage = newCard.querySelector(
+      '.cms-data-storage'
+    );
 
     if (cmsStorage) {
       cmsStorage.setAttribute(
@@ -916,24 +932,25 @@ function renderRecommandations(data) {
 
       cmsStorage.setAttribute(
         'data-excel-id',
-        item.excel_id ||
-        item.row_id ||
-        recoId
+        item.excel_id || item.row_id || recoId
       );
     }
 
-    // ========================================================
-    // BANDEAU SCORE RM
-    // ========================================================
+    // ============================================================
+    // BANDEAUX SCORE RM
+    // IDs WEBFLOW :
+    // #bandeau-score-rm-rouge
+    // #bandeau-score-rm-orange
+    // ============================================================
     const bandeauUrgent = newCard.querySelector(
-      '.bandeau-score-rm-rouge, #bandeau-score-rm-rouge'
+      '#bandeau-score-rm-rouge'
     );
 
     const bandeauAnalyse = newCard.querySelector(
-      '.bandeau-score-rm-orange, #bandeau-score-rm-orange'
+      '#bandeau-score-rm-orange'
     );
 
-    // On force d'abord l'état des deux bandeaux
+    // On masque d'abord les deux
     if (bandeauUrgent) {
       bandeauUrgent.style.display = 'none';
     }
@@ -942,7 +959,9 @@ function renderRecommandations(data) {
       bandeauAnalyse.style.display = 'none';
     }
 
+    // Puis on affiche uniquement le bon
     if (isAnalyse) {
+
       if (bandeauAnalyse) {
         bandeauAnalyse.style.display = '';
       }
@@ -951,6 +970,7 @@ function renderRecommandations(data) {
       newCard.classList.remove('is-urgent');
 
     } else {
+
       if (bandeauUrgent) {
         bandeauUrgent.style.display = '';
       }
@@ -959,39 +979,9 @@ function renderRecommandations(data) {
       newCard.classList.remove('is-analyse');
     }
 
-    // ========================================================
-    // BOTTOM ROUGE / ORANGE
-    // ========================================================
-    const bottomRouge = newCard.querySelector(
-      '.bottom-rouge, #bottom-rouge'
-    );
-
-    const bottomOrange = newCard.querySelector(
-      '.bottom-orange, #bottom-orange'
-    );
-
-    // Important : on masque toujours les deux avant de choisir
-    if (bottomRouge) {
-      bottomRouge.style.display = 'none';
-    }
-
-    if (bottomOrange) {
-      bottomOrange.style.display = 'none';
-    }
-
-    if (isAnalyse) {
-      if (bottomOrange) {
-        bottomOrange.style.display = 'block';
-      }
-    } else {
-      if (bottomRouge) {
-        bottomRouge.style.display = 'block';
-      }
-    }
-
-    // ========================================================
-    // AJOUT DE LA CARTE
-    // ========================================================
+    // ============================================================
+    // AJOUT DE LA CARTE AU CONTENEUR
+    // ============================================================
     container.appendChild(newCard);
   });
 }
