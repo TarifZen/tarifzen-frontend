@@ -748,93 +748,105 @@ function formatShortMessage(message) {
   let formattedMessage = String(message);
 
   // ============================================================
-  // MONTANTS EN €
+  // 1. MONTANT DE L'AUGMENTATION
+  //
+  // Exemple backend :
+  // "Augmentation de 16.56 € préconisée."
+  //
+  // Affichage :
+  // "+17€" → vert + semi-bold
   // ============================================================
   formattedMessage = formattedMessage.replace(
-    /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
-    (match, value, offset, fullText) => {
+    /(augmentation\s+de\s+)([+-]?\d+(?:[.,]\d+)?)\s*€/gi,
+    (match, prefix, value) => {
 
-      const number = parseFloat(String(value).replace(',', '.'));
+      const number = parseFloat(
+        String(value).replace(',', '.')
+      );
 
       if (isNaN(number)) return match;
 
       const rounded = Math.round(number);
-      const valueString = String(value).trim();
 
-      // ============================================================
-      // CONTEXTE IMMÉDIAT AUTOUR DU MONTANT
-      // ============================================================
-      const textBefore = fullText
-        .substring(Math.max(0, offset - 40), offset)
-        .toLowerCase();
-
-      const textAfter = fullText
-        .substring(offset + match.length, offset + match.length + 40)
-        .toLowerCase();
-
-      // ============================================================
-      // 1. TARIF CIBLE
-      // Exemple :
-      // 112.70€ (tarif cible)
-      //
-      // → 113€
-      // → noir
-      // → semi-bold
-      // → aucun "+"
-      // ============================================================
-      if (
-        textAfter.includes('tarif cible') ||
-        textBefore.includes('tarif cible')
-      ) {
-        return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+      if (number > 0) {
+        return `${prefix}<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
       }
 
-      // ============================================================
-      // 2. MONTANT DE L'AUGMENTATION
-      // Exemple :
-      // 16.56€ (montant de l'augmentation)
-      //
-      // → +17€
-      // → vert
-      // → semi-bold
-      // ============================================================
-      if (
-        textAfter.includes('montant de l\'augmentation') ||
-        textAfter.includes("montant de l’augmentation") ||
-        textAfter.includes('montant de augmentation') ||
-        textAfter.includes('augmentation')
-      ) {
-        if (number > 0) {
-          return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
-        }
-
-        if (number < 0) {
-          return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
-        }
-
-        return `<span style="font-weight:600;">0€</span>`;
+      if (number < 0) {
+        return `${prefix}<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
       }
 
-      // ============================================================
-      // 3. SIGNE EXPLICITE
-      // ============================================================
-      if (valueString.startsWith('+')) {
-        return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
-      }
-
-      if (valueString.startsWith('-')) {
-        return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
-      }
-
-      // ============================================================
-      // 4. MONTANT NEUTRE
-      // ============================================================
-      return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+      return `${prefix}<span style="font-weight:600;">0€</span>`;
     }
   );
 
   // ============================================================
-  // PICK-UP EN CHAMBRES
+  // 2. TARIF CIBLE
+  //
+  // Exemple backend :
+  // "Tarif cible : 112.7 €."
+  //
+  // Affichage :
+  // "113€" → noir + semi-bold
+  // Aucun "+"
+  // Aucune couleur
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
+    /(tarif\s+cible\s*:\s*)([+-]?\d+(?:[.,]\d+)?)\s*€/gi,
+    (match, prefix, value) => {
+
+      const number = parseFloat(
+        String(value).replace(',', '.')
+      );
+
+      if (isNaN(number)) return match;
+
+      const rounded = Math.round(number);
+
+      return `${prefix}<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+    }
+  );
+
+  // ============================================================
+  // 3. AUTRES MONTANTS EN €
+  //
+  // Exemple :
+  // "+5€" → vert
+  // "-5€" → rouge
+  //
+  // Les montants déjà traités ci-dessus sont protégés
+  // dans des <span>, donc on ne les retraitera pas.
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
+    /([+-]\d+(?:[.,]\d+)?)\s*€/g,
+    (match, value) => {
+
+      const number = parseFloat(
+        String(value).replace(',', '.')
+      );
+
+      if (isNaN(number)) return match;
+
+      const rounded = Math.round(number);
+
+      if (number > 0) {
+        return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
+      }
+
+      if (number < 0) {
+        return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
+      }
+
+      return `<span style="font-weight:600;">0€</span>`;
+    }
+  );
+
+  // ============================================================
+  // 4. PICK-UP EN CHAMBRES
+  //
+  // Exemple :
+  // "+6 chambres" → vert + semi-bold
+  // "-3 chambres" → rouge + semi-bold
   // ============================================================
   formattedMessage = formattedMessage.replace(
     /([+-]\d+)(\s+chambres?)/gi,
@@ -860,7 +872,6 @@ function formatShortMessage(message) {
 
   return formattedMessage;
 }
-
   
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
