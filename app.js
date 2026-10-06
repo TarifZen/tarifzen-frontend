@@ -813,9 +813,6 @@ function formatShortMessage(message) {
   // Exemple :
   // "+5€" → vert
   // "-5€" → rouge
-  //
-  // Les montants déjà traités ci-dessus sont protégés
-  // dans des <span>, donc on ne les retraitera pas.
   // ============================================================
   formattedMessage = formattedMessage.replace(
     /([+-]\d+(?:[.,]\d+)?)\s*€/g,
@@ -844,12 +841,12 @@ function formatShortMessage(message) {
   // ============================================================
   // 4. PICK-UP EN CHAMBRES
   //
-  // Exemple :
-  // "+6 chambres" → vert + semi-bold
-  // "-3 chambres" → rouge + semi-bold
+  // "+6 chambres vendues" → bloc insécable
+  // "+6" → vert + semi-bold
+  // "-3" → rouge + semi-bold
   // ============================================================
   formattedMessage = formattedMessage.replace(
-    /([+-]\d+)(\s+chambres?)/gi,
+    /([+-]\d+)(\s+chambres?\s+vendues?)/gi,
     (match, value, label) => {
 
       const number = parseInt(value, 10);
@@ -858,12 +855,12 @@ function formatShortMessage(message) {
 
       // Positif
       if (number > 0) {
-        return `<span style="color:#27ae60;font-weight:600;">+${number}</span>${label}`;
+        return `<span style="white-space:nowrap;"><span style="color:#27ae60;font-weight:600;">+${number}</span>${label}</span>`;
       }
 
       // Négatif
       if (number < 0) {
-        return `<span style="color:#e74c3c;font-weight:600;">${number}</span>${label}`;
+        return `<span style="white-space:nowrap;"><span style="color:#e74c3c;font-weight:600;">${number}</span>${label}</span>`;
       }
 
       return match;
@@ -873,11 +870,11 @@ function formatShortMessage(message) {
   // ============================================================
   // 5. RETOURS À LA LIGNE
   //
-  // Les messages Supabase utilisent déjà <br><br>.
-  // On conserve une séparation claire entre chaque information.
+  // Chaque information commence sur sa propre ligne.
+  // Les <br><br> venant de Supabase sont normalisés en <br>.
   // ============================================================
   formattedMessage = formattedMessage.replace(
-    /(?:<br\s*\/?>\s*){2,}/gi,
+    /(?:<br\s*\/?>\s*)+/gi,
     '<br>'
   );
 
