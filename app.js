@@ -699,6 +699,7 @@ year: 'numeric'
 return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
+```js
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
 // ============================================================
@@ -729,73 +730,273 @@ function renderRecommandations(data) {
     return !processedIds.includes(id) && !dismissedIds.includes(id);
   });
 
+  // Supprime uniquement les cartes générées dynamiquement
   container.querySelectorAll('.reco-card-item').forEach(el => el.remove());
 
   visibleData.forEach(item => {
     const newCard = template.cloneNode(true);
+
     newCard.removeAttribute('id');
     newCard.classList.add('reco-card-item');
     newCard.style.display = '';
 
-    const isAnalyse = (item.priority >= 6) || (item.action_type === 'ANALYSE');
-    newCard.setAttribute('data-status', isAnalyse ? 'analyse' : 'urgent');
+    // ========================================================
+    // STATUT / PRIORITÉ
+    // ========================================================
+    const isAnalyse =
+      Number(item.priority) >= 6 ||
+      item.action_type === 'ANALYSE';
 
-    const recoId = item.recommendation_id || item.row_id || item.id || '';
+    newCard.setAttribute(
+      'data-status',
+      isAnalyse ? 'analyse' : 'urgent'
+    );
+
+    newCard.setAttribute(
+      'data-priorite',
+      isAnalyse ? 'analyse' : 'urgent'
+    );
+
+    const recoId =
+      item.recommendation_id ||
+      item.row_id ||
+      item.id ||
+      '';
+
     newCard.setAttribute('data-id', recoId);
 
-    const titleEl = newCard.querySelector('.reco-title, [data-field="title"], #titre-action, .titre-action');
-    if (titleEl) titleEl.textContent = item.title || '';
+    // ========================================================
+    // TITRE
+    // ========================================================
+    const titleEl = newCard.querySelector(
+      '.reco-title, [data-field="title"], #titre-action, .titre-action'
+    );
 
-    const shortMsgEl = newCard.querySelector('.reco-short-message, [data-field="short_message"], #message-hotelier, .message-hotelier');
-    if (shortMsgEl) shortMsgEl.textContent = item.short_message || '';
-
-    const longMsgEl = newCard.querySelector('.reco-long-message, [data-field="long_message"], #info-text, .info-text');
-    if (longMsgEl) longMsgEl.textContent = item.long_message || '';
-
-    const dateFormatted = formatDateFR(item.date);
-    const dateEl = newCard.querySelector('.reco-date, [data-field="date"], #reco-date');
-    if (dateEl) dateEl.textContent = dateFormatted || item.date || '';
-
-    const restrEl = newCard.querySelector('.reco-restriction, [data-field="restriction_code"], #reco-restriction');
-    if (restrEl) restrEl.textContent = item.restriction_code || '';
-
-    const scoreEl = newCard.querySelector('.reco-score, [data-field="score_rm"], #reco-score-rm');
-    if (scoreEl) scoreEl.textContent = item.score_rm !== undefined && item.score_rm !== null ? item.score_rm : '';
-
-    const gainEl = newCard.querySelector('.reco-gain, [data-field="gain_potential"], #reco-gain-potentiel');
-    if (gainEl) gainEl.textContent = formatGainPotential(item.gain_potential);
-
-    const priceEl = newCard.querySelector('.reco-price, [data-field="recommended_price_change"]');
-    if (priceEl) priceEl.textContent = item.recommended_price_change !== undefined && item.recommended_price_change !== null ? item.recommended_price_change : '';
-
-    const idInput = newCard.querySelector('#reco-id-champ, input[name="reco-id"], input[name="reco_id"]');
-    if (idInput) idInput.value = recoId;
-
-    const cmsStorage = newCard.querySelector('.cms-data-storage');
-    if (cmsStorage) {
-      cmsStorage.setAttribute('data-webflow-id', recoId);
-      cmsStorage.setAttribute('data-excel-id', item.excel_id || item.row_id || recoId);
+    if (titleEl) {
+      titleEl.textContent = item.title || '';
     }
 
-    const bandeauUrgent = newCard.querySelector('.bandeau-rouge, .bandeau-urgent, .bandeau-score-rm-rouge, #bandeau-score-rm-rouge');
-    const bandeauAnalyse = newCard.querySelector('.bandeau-orange, .bandeau-analyse, .bandeau-score-rm-orange, #bandeau-score-rm-orange');
+    // ========================================================
+    // MESSAGE COURT
+    // ========================================================
+    const shortMsgEl = newCard.querySelector(
+      '.reco-short-message, [data-field="short_message"], #message-hotelier, .message-hotelier'
+    );
+
+    if (shortMsgEl) {
+      shortMsgEl.textContent = item.short_message || '';
+    }
+
+    // ========================================================
+    // MESSAGE LONG
+    // ========================================================
+    const longMsgEl = newCard.querySelector(
+      '.reco-long-message, [data-field="long_message"], #info-text, .info-text'
+    );
+
+    if (longMsgEl) {
+      longMsgEl.textContent = item.long_message || '';
+    }
+
+    // ========================================================
+    // DATE PRINCIPALE
+    // ========================================================
+    const dateFormatted = formatDateFR(item.date);
+
+    const dateEl = newCard.querySelector(
+      '.reco-date, [data-field="date"], #reco-date'
+    );
+
+    if (dateEl) {
+      dateEl.textContent =
+        dateFormatted || item.date || '';
+    }
+
+    // ========================================================
+    // DATE DU BAS DE CARTE
+    // ========================================================
+    const dateBottomEl = newCard.querySelector(
+      '.reco-date-bottom, #reco-date-bottom'
+    );
+
+    if (dateBottomEl) {
+      dateBottomEl.textContent =
+        dateFormatted || item.date || '';
+    }
+
+    // ========================================================
+    // ÉVÉNEMENT
+    // ========================================================
+    const eventEl = newCard.querySelector(
+      '.reco-event, #reco-event, [data-field="event"]'
+    );
+
+    if (eventEl) {
+      eventEl.textContent =
+        item.event ||
+        item.event_name ||
+        item.evenement ||
+        '';
+    }
+
+    // ========================================================
+    // RESTRICTION
+    // ========================================================
+    const restrEl = newCard.querySelector(
+      '.reco-restriction, #reco-restriction, [data-field="restriction_code"]'
+    );
+
+    if (restrEl) {
+      restrEl.textContent =
+        item.restriction_code || '';
+    }
+
+    // ========================================================
+    // SCORE RM
+    // ========================================================
+    const scoreEl = newCard.querySelector(
+      '.reco-score, [data-field="score_rm"], #reco-score-rm'
+    );
+
+    if (scoreEl) {
+      scoreEl.textContent =
+        item.score_rm !== undefined &&
+        item.score_rm !== null
+          ? item.score_rm
+          : '';
+    }
+
+    // ========================================================
+    // GAIN POTENTIEL
+    // ========================================================
+    const gainEl = newCard.querySelector(
+      '.reco-gain, .reco-gain-potentiel, [data-field="gain_potential"], #reco-gain-potentiel'
+    );
+
+    if (gainEl) {
+      gainEl.textContent =
+        formatGainPotential(item.gain_potential);
+    }
+
+    // ========================================================
+    // PRIX RECOMMANDÉ
+    // ========================================================
+    const priceEl = newCard.querySelector(
+      '.reco-price, [data-field="recommended_price_change"]'
+    );
+
+    if (priceEl) {
+      priceEl.textContent =
+        item.recommended_price_change !== undefined &&
+        item.recommended_price_change !== null
+          ? item.recommended_price_change
+          : '';
+    }
+
+    // ========================================================
+    // ID
+    // ========================================================
+    const idInput = newCard.querySelector(
+      '#reco-id-champ, input[name="reco-id"], input[name="reco_id"]'
+    );
+
+    if (idInput) {
+      idInput.value = recoId;
+    }
+
+    // ========================================================
+    // STOCKAGE CMS / IDENTIFIANTS
+    // ========================================================
+    const cmsStorage =
+      newCard.querySelector('.cms-data-storage');
+
+    if (cmsStorage) {
+      cmsStorage.setAttribute(
+        'data-webflow-id',
+        recoId
+      );
+
+      cmsStorage.setAttribute(
+        'data-excel-id',
+        item.excel_id ||
+        item.row_id ||
+        recoId
+      );
+    }
+
+    // ========================================================
+    // BANDEAU SCORE RM
+    // ========================================================
+    const bandeauUrgent = newCard.querySelector(
+      '.bandeau-score-rm-rouge, #bandeau-score-rm-rouge'
+    );
+
+    const bandeauAnalyse = newCard.querySelector(
+      '.bandeau-score-rm-orange, #bandeau-score-rm-orange'
+    );
+
+    // On force d'abord l'état des deux bandeaux
+    if (bandeauUrgent) {
+      bandeauUrgent.style.display = 'none';
+    }
+
+    if (bandeauAnalyse) {
+      bandeauAnalyse.style.display = 'none';
+    }
 
     if (isAnalyse) {
-      if (bandeauUrgent) bandeauUrgent.style.display = 'none';
-      if (bandeauAnalyse) bandeauAnalyse.style.display = '';
+      if (bandeauAnalyse) {
+        bandeauAnalyse.style.display = '';
+      }
+
       newCard.classList.add('is-analyse');
       newCard.classList.remove('is-urgent');
+
     } else {
-      if (bandeauUrgent) bandeauUrgent.style.display = '';
-      if (bandeauAnalyse) bandeauAnalyse.style.display = 'none';
+      if (bandeauUrgent) {
+        bandeauUrgent.style.display = '';
+      }
+
       newCard.classList.add('is-urgent');
       newCard.classList.remove('is-analyse');
     }
 
+    // ========================================================
+    // BOTTOM ROUGE / ORANGE
+    // ========================================================
+    const bottomRouge = newCard.querySelector(
+      '.bottom-rouge, #bottom-rouge'
+    );
+
+    const bottomOrange = newCard.querySelector(
+      '.bottom-orange, #bottom-orange'
+    );
+
+    // Important : on masque toujours les deux avant de choisir
+    if (bottomRouge) {
+      bottomRouge.style.display = 'none';
+    }
+
+    if (bottomOrange) {
+      bottomOrange.style.display = 'none';
+    }
+
+    if (isAnalyse) {
+      if (bottomOrange) {
+        bottomOrange.style.display = 'block';
+      }
+    } else {
+      if (bottomRouge) {
+        bottomRouge.style.display = 'block';
+      }
+    }
+
+    // ========================================================
+    // AJOUT DE LA CARTE
+    // ========================================================
     container.appendChild(newCard);
   });
 }
-
 // ============================================================
 // RESOLUTION EXACTE DU SLUG HOTEL — FOUNDER
 // ============================================================
