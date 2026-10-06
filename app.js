@@ -873,10 +873,12 @@ function formatShortMessage(message) {
   // Chaque information est placée dans son propre bloc.
   // Cela garantit une ligne distincte dans Webflow.
   // ============================================================
-  formattedMessage = formattedMessage
-    .split(/(?:<br\s*\/?>\s*)+/gi)
-    .map(line => `<div>${line}</div>`)
-    .join('');
+  
+formattedMessage = formattedMessage
+  .split(/(?:<br\s*\/?>\s*)+/gi)
+  .map(line => `<div style="white-space:nowrap;">${line}</div>`)
+  .join('');
+
 
   return formattedMessage;
 }
