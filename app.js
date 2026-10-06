@@ -861,25 +861,27 @@ function renderRecommandations(data) {
     if (eventEl) {
       eventEl.textContent = item.event || '';
     }
+// ============================================================
+// RESTRICTION
+// ID WEBFLOW : #reco-restriction
+// ============================================================
+const restrEl = newCard.querySelector(
+  '#reco-restriction'
+);
 
-    // ============================================================
-    // RESTRICTION
-    // ID WEBFLOW : #reco-restriction
-    // ============================================================
-    const restrEl = newCard.querySelector(
-      '#reco-restriction'
-    );
+if (restrEl) {
+  restrEl.textContent =
+    formatRestrictionCode(item.restriction_code);
 
-    restrEl.textContent = formatRestrictionCode(item.restriction_code);
+  // Webflow masque cet élément par défaut.
+  // On l'affiche uniquement lorsqu'une restriction existe.
+  if (item.restriction_code) {
+    restrEl.style.display = 'block';
+  } else {
+    restrEl.style.display = 'none';
+  }
+}
 
-      // Webflow masque cet élément par défaut.
-      // On l'affiche uniquement lorsqu'une restriction existe.
-      if (item.restriction_code) {
-        restrEl.style.display = 'block';
-      } else {
-        restrEl.style.display = 'none';
-      }
-    }
 
     // ============================================================
     // SCORE RM
