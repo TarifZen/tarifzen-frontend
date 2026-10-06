@@ -698,11 +698,25 @@ year: 'numeric'
 }).format(d);
 return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
+
 function formatRestrictionCode(code) {
   if (!code) return '';
 
-  if (code === 'MIN_STAY_2') return 'Minimum Stay 2 nuits conseillé';
-  if (code === 'CTA') return 'Fermeture aux arrivées conseillée';
+  if (code === 'MIN_STAY_2') {
+    return 'Minimum Stay 2 nuits conseillé';
+  }
+
+  if (code === 'MIN_STAY_2_OR_CTA') {
+    return 'Minimum Stay 2 nuits ou fermeture aux arrivées conseillée';
+  }
+
+  if (code === 'MIN_STAY_2_OPTIONAL') {
+    return 'Minimum Stay 2 nuits optionnel';
+  }
+
+  if (code === 'CTA') {
+    return 'Fermeture aux arrivées conseillée';
+  }
 
   return code;
 }
