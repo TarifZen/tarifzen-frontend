@@ -748,59 +748,78 @@ function formatShortMessage(message) {
   let formattedMessage = String(message);
 
   // ============================================================
-// MONTANTS EN €
-// ============================================================
-formattedMessage = formattedMessage.replace(
-  /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
-  (match, value, offset, fullText) => {
-    const number = parseFloat(String(value).replace(',', '.'));
+  // MONTANTS EN €
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
+    /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
+    (match, value, offset, fullText) => {
+      const number = parseFloat(String(value).replace(',', '.'));
 
-    if (isNaN(number)) return match;
+      if (isNaN(number)) return match;
 
-    const rounded = Math.round(number);
-    const valueString = String(value).trim();
+      const rounded = Math.round(number);
+      const valueString = String(value).trim();
 
-    // Texte situé avant le montant
-    const textBefore = fullText
-      .substring(0, offset)
-      .toLowerCase();
+      // Texte proche du montant
+      const textBefore = fullText
+        .substring(Math.max(0, offset - 60), offset)
+        .toLowerCase();
 
-    // ============================================================
-    // MONTANT DE L'AUGMENTATION
-    // ============================================================
-    if (
-      textBefore.includes('augmentation') ||
-      textBefore.includes('montant de l')
-    ) {
-      if (number > 0) {
+      const textAfter = fullText
+        .substring(offset + match.length, offset + match.length + 60)
+        .toLowerCase();
+
+      // ============================================================
+      // TARIF CIBLE
+      // Prioritaire :
+      // - aucun "+"
+      // - aucune couleur
+      // - semi-bold
+      // ============================================================
+      if (
+        textAfter.includes('tarif cible') ||
+        textBefore.includes('tarif cible')
+      ) {
+        return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+      }
+
+      // ============================================================
+      // MONTANT DE L'AUGMENTATION
+      // ============================================================
+      if (
+        textAfter.includes('augmentation') ||
+        textBefore.includes('augmentation')
+      ) {
+        if (number > 0) {
+          return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
+        }
+
+        if (number < 0) {
+          return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
+        }
+
+        return `<span style="font-weight:600;">0€</span>`;
+      }
+
+      // ============================================================
+      // SI LE SIGNE EST PRÉSENT EXPLICITEMENT
+      // ============================================================
+      if (valueString.startsWith('+')) {
         return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
       }
 
-      if (number < 0) {
+      if (valueString.startsWith('-')) {
         return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
       }
 
-      return `<span style="font-weight:600;">0€</span>`;
+      // ============================================================
+      // MONTANT NEUTRE
+      // Aucun signe + aucune couleur
+      // ============================================================
+      return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
     }
+  );
 
-    // ============================================================
-    // SI LE SIGNE EST PRÉSENT EXPLICITEMENT
-    // ============================================================
-    if (valueString.startsWith('+')) {
-      return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
-    }
-
-    if (valueString.startsWith('-')) {
-      return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
-    }
-
-    // ============================================================
-    // TARIF CIBLE
-    // Aucun signe + aucune couleur
-    // ============================================================
-    return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
-  }
-);
   // ============================================================
   // PICK-UP EN CHAMBRES
   // ============================================================
