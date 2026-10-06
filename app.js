@@ -965,16 +965,24 @@ if (gainEl) {
     item.gain_potential !== undefined &&
     item.gain_potential !== null
   ) {
-    gainEl.textContent =
-      `Gain potentiel de cette recommandation : ${formatGainPotential(item.gain_potential)}`;
+    const gainFormatted = formatGainPotential(item.gain_potential);
 
-    // Couleur selon le signe du gain potentiel
-    if (Number(item.gain_potential) > 0) {
-      gainEl.style.color = '#27ae60';
-    } else if (Number(item.gain_potential) < 0) {
-      gainEl.style.color = '#e74c3c';
-    } else {
-      gainEl.style.color = '';
+    // Texte normal + valeur colorée et semi-bold
+    gainEl.innerHTML =
+      `Gain potentiel de cette recommandation : <span class="reco-gain-value">${gainFormatted}</span>`;
+
+    const gainValueEl = gainEl.querySelector('.reco-gain-value');
+
+    if (gainValueEl) {
+      if (Number(item.gain_potential) > 0) {
+        gainValueEl.style.color = '#27ae60';
+      } else if (Number(item.gain_potential) < 0) {
+        gainValueEl.style.color = '#e74c3c';
+      } else {
+        gainValueEl.style.color = '';
+      }
+
+      gainValueEl.style.fontWeight = '600';
     }
 
     // Webflow masque cet élément par défaut.
