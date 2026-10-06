@@ -698,6 +698,14 @@ year: 'numeric'
 }).format(d);
 return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
+function formatRestrictionCode(code) {
+  if (!code) return '';
+
+  if (code === 'MS2') return 'Minimum Stay 2 nuits conseillé';
+  if (code === 'CTA') return 'Fermeture aux arrivées conseillée';
+
+  return code;
+}
   
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
@@ -862,9 +870,7 @@ function renderRecommandations(data) {
       '#reco-restriction'
     );
 
-    if (restrEl) {
-      restrEl.textContent =
-        item.restriction_code || '';
+    restrEl.textContent = formatRestrictionCode(item.restriction_code);
 
       // Webflow masque cet élément par défaut.
       // On l'affiche uniquement lorsqu'une restriction existe.
@@ -905,7 +911,7 @@ function renderRecommandations(data) {
         item.gain_potential !== null
       ) {
         gainEl.textContent =
-          formatGainPotential(item.gain_potential);
+  `Gain potentiel de cette recommandation : ${formatGainPotential(item.gain_potential)}`;
 
         // Webflow masque cet élément par défaut.
         gainEl.style.display = 'block';
