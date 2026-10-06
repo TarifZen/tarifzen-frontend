@@ -535,15 +535,18 @@ const targetBtn = e.target.closest(
 if (targetBtn) {
 
     // ============================================================
-    // FERMETURE D'UNE CARTE DE RECOMMANDATION
+    // CARTE DE RECOMMANDATION
     // ============================================================
     const recoCard = targetBtn.closest('.reco-card-item');
 
     if (recoCard) {
 
-        // La croix ferme uniquement la carte
-        if (targetBtn.matches('.close-reco, .btn-fermer')) {
-
+        // --------------------------------------------------------
+        // FERMETURE DE LA CARTE
+        // --------------------------------------------------------
+        if (
+            targetBtn.matches('.close-reco, .btn-fermer')
+        ) {
             animateRecoCardClose(recoCard, () => {
                 recoCard.remove();
             });
@@ -551,9 +554,9 @@ if (targetBtn) {
             return;
         }
 
-        // ========================================================
+        // --------------------------------------------------------
         // AUTRES ACTIONS DE LA CARTE
-        // ========================================================
+        // --------------------------------------------------------
         e.preventDefault();
 
         if (
@@ -570,7 +573,7 @@ if (targetBtn) {
     }
 
     // ============================================================
-    // COMPORTEMENT EXISTANT POUR LES AUTRES BOUTONS / BULLE
+    // AUTRES BOUTONS / BULLE
     // ============================================================
     e.preventDefault();
 
@@ -582,81 +585,215 @@ if (targetBtn) {
         sendData(targetBtn, 'VRAI');
     } else {
         sendData(targetBtn, 'FAUX');
+    }
 }
 
-});
-    function updateCalendarVisuals() {
-        const today = new Date();
-        const currentDay = today.getDate();
-        const currentMonthIndex = today.getMonth(); 
-        const monthNames = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
 
-        document.querySelectorAll('.w-tab-pane').forEach(pane => {
-            const tabId = pane.getAttribute('data-w-tab');
-            const tabLink = document.querySelector(`.tabs-menu-5 a[data-w-tab="${tabId}"]`);
-            const paneMonthName = tabLink ? tabLink.innerText.trim().toLowerCase() : "";
-            const paneMonthIndex = monthNames.indexOf(paneMonthName);
+// ============================================================
+// CALENDRIER
+// ============================================================
+function updateCalendarVisuals() {
 
-            pane.querySelectorAll('.calendrier-case, .calendrier-case-1').forEach(item => {
-                const dayEl = item.querySelector('.text-block-35') || item.querySelector('.text-4');
-                if (!dayEl) return;
-                const dayValue = parseInt(dayEl.innerText.trim());
-                const pastOverlay = item.querySelector('.past-days');
-                const dayCircle = item.querySelector('.pastille-jour-j');
+    const today = new Date();
+    const currentDay = today.getDate();
+    const currentMonthIndex = today.getMonth();
 
-                if (!isNaN(dayValue)) {
-                    if (pastOverlay) {
-                        if (paneMonthIndex < currentMonthIndex) {
-                            pastOverlay.style.setProperty('display', 'block', 'important');
-                        } else if (paneMonthIndex === currentMonthIndex) {
-                            pastOverlay.style.setProperty('display', (dayValue < currentDay) ? 'block' : 'none', 'important');
-                        } else {
-                            pastOverlay.style.setProperty('display', 'none', 'important');
-                        }
-                    }
-                    if (dayCircle) {
-                        if (paneMonthIndex === currentMonthIndex && dayValue === currentDay) {
-                            dayCircle.classList.add('is-active');
-                            dayCircle.style.setProperty('display', 'flex', 'important');
-                        } else {
-                            dayCircle.classList.remove('is-active');
-                            dayCircle.style.setProperty('display', 'none', 'important');
-                        }
+    const monthNames = [
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre"
+    ];
+
+    document.querySelectorAll('.w-tab-pane').forEach(pane => {
+
+        const tabId = pane.getAttribute('data-w-tab');
+
+        const tabLink = document.querySelector(
+            `.tabs-menu-5 a[data-w-tab="${tabId}"]`
+        );
+
+        const paneMonthName = tabLink
+            ? tabLink.innerText.trim().toLowerCase()
+            : "";
+
+        const paneMonthIndex =
+            monthNames.indexOf(paneMonthName);
+
+        pane.querySelectorAll(
+            '.calendrier-case, .calendrier-case-1'
+        ).forEach(item => {
+
+            const dayEl =
+                item.querySelector('.text-block-35') ||
+                item.querySelector('.text-4');
+
+            if (!dayEl) return;
+
+            const dayValue =
+                parseInt(dayEl.innerText.trim());
+
+            const pastOverlay =
+                item.querySelector('.past-days');
+
+            const dayCircle =
+                item.querySelector('.pastille-jour-j');
+
+            if (!isNaN(dayValue)) {
+
+                // ------------------------------------------------
+                // JOURS PASSÉS
+                // ------------------------------------------------
+                if (pastOverlay) {
+
+                    if (
+                        paneMonthIndex <
+                        currentMonthIndex
+                    ) {
+
+                        pastOverlay.style.setProperty(
+                            'display',
+                            'block',
+                            'important'
+                        );
+
+                    } else if (
+                        paneMonthIndex ===
+                        currentMonthIndex
+                    ) {
+
+                        pastOverlay.style.setProperty(
+                            'display',
+                            dayValue < currentDay
+                                ? 'block'
+                                : 'none',
+                            'important'
+                        );
+
+                    } else {
+
+                        pastOverlay.style.setProperty(
+                            'display',
+                            'none',
+                            'important'
+                        );
                     }
                 }
-            });
-        });
-    }
 
-    function autoSelectCurrentMonth() {
-        const monthNames = ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"];
-        const currentMonthName = monthNames[new Date().getMonth()];
-        const tabs = document.querySelectorAll('.tabs-menu-5 a');
+                // ------------------------------------------------
+                // JOUR ACTUEL
+                // ------------------------------------------------
+                if (dayCircle) {
 
-        let tabFound = false;
-        tabs.forEach(tab => {
-            const tabText = tab.innerText.trim().toLowerCase();
-            if (tabText === currentMonthName) {
-                tabFound = true;
-                if (!tab.classList.contains('w--current')) {
-                    tab.click();
+                    if (
+                        paneMonthIndex ===
+                            currentMonthIndex &&
+                        dayValue === currentDay
+                    ) {
+
+                        dayCircle.classList.add(
+                            'is-active'
+                        );
+
+                        dayCircle.style.setProperty(
+                            'display',
+                            'flex',
+                            'important'
+                        );
+
+                    } else {
+
+                        dayCircle.classList.remove(
+                            'is-active'
+                        );
+
+                        dayCircle.style.setProperty(
+                            'display',
+                            'none',
+                            'important'
+                        );
+                    }
                 }
             }
         });
-
-        if (!tabFound && tabs.length === 0) {
-            setTimeout(autoSelectCurrentMonth, 300);
-        }
-    }
-    
-    setTimeout(() => {
-        autoSelectCurrentMonth();
-        updateCalendarVisuals();
-    }, 200);
-    
-    $('.tabs-menu-5 a').on('click', function() {
-        setTimeout(updateCalendarVisuals, 150);
     });
+}
+
+
+function autoSelectCurrentMonth() {
+
+    const monthNames = [
+        "janvier",
+        "février",
+        "mars",
+        "avril",
+        "mai",
+        "juin",
+        "juillet",
+        "août",
+        "septembre",
+        "octobre",
+        "novembre",
+        "décembre"
+    ];
+
+    const currentMonthName =
+        monthNames[new Date().getMonth()];
+
+    const tabs =
+        document.querySelectorAll('.tabs-menu-5 a');
+
+    let tabFound = false;
+
+    tabs.forEach(tab => {
+
+        const tabText =
+            tab.innerText.trim().toLowerCase();
+
+        if (tabText === currentMonthName) {
+
+            tabFound = true;
+
+            if (!tab.classList.contains('w--current')) {
+                tab.click();
+            }
+        }
+    });
+
+    if (!tabFound && tabs.length === 0) {
+        setTimeout(
+            autoSelectCurrentMonth,
+            300
+        );
+    }
+}
+
+
+setTimeout(() => {
+
+    autoSelectCurrentMonth();
+    updateCalendarVisuals();
+
+}, 200);
+
+
+$('.tabs-menu-5 a').on('click', function() {
+
+    setTimeout(
+        updateCalendarVisuals,
+        150
+    );
+
+});
+
 });
 
 /**
