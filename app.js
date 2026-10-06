@@ -780,6 +780,7 @@ function formatShortMessage(message) {
     }
   );
 
+
   // ============================================================
   // 2. TARIF CIBLE
   //
@@ -790,6 +791,8 @@ function formatShortMessage(message) {
   // "113€" → noir + semi-bold
   // Aucun "+"
   // Aucune couleur
+  //
+  // "Tarif cible : 113€" reste solidaire
   // ============================================================
   formattedMessage = formattedMessage.replace(
     /(tarif\s+cible\s*:\s*)([+-]?\d+(?:[.,]\d+)?)\s*€/gi,
@@ -803,7 +806,7 @@ function formatShortMessage(message) {
 
       const rounded = Math.round(number);
 
-      return `${prefix}<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
+      return `<span style="white-space:nowrap;">${prefix}<span style="font-weight:600;">${Math.abs(rounded)}€</span></span>`;
     }
   );
 
