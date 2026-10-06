@@ -449,24 +449,21 @@ function animateRecoCardClose(card, callback) {
 
     card.dataset.closing = 'true';
 
-    // Animation douce de disparition vers le haut
+    // Fade doux vers le haut
     card.style.transition =
-        'opacity 0.35s ease-in-out, transform 0.35s ease-in-out';
+        'opacity 0.4s ease, transform 0.4s ease';
 
-    // Lance l'animation
     requestAnimationFrame(() => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(-15px)';
+        card.style.transform = 'translateY(-12px)';
     });
 
-    // Supprime la carte une fois l'animation terminée
+    // Suppression uniquement après la fin du fade
     setTimeout(() => {
         if (callback) {
             callback();
-        } else {
-            card.remove();
         }
-    }, 350);
+    }, 400);
 }
 
 /**
