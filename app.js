@@ -870,19 +870,19 @@ function formatShortMessage(message) {
   // ============================================================
   // 5. RETOURS À LA LIGNE
   //
-  // Chaque information est placée dans son propre bloc.
-  // Cela garantit une ligne distincte dans Webflow.
+  // Chaque information commence sur sa propre ligne.
+  // On utilise un bloc simple sans white-space: nowrap
+  // afin de rester contenu dans la carte Webflow.
   // ============================================================
-  
-formattedMessage = formattedMessage
-  .split(/(?:<br\s*\/?>\s*)+/gi)
-  .map(line => `<div style="white-space:nowrap;">${line}</div>`)
-  .join('');
 
+  formattedMessage = formattedMessage
+    .split(/(?:<br\s*\/?>\s*)+/gi)
+    .map(line => `<div>${line}</div>`)
+    .join('');
 
   return formattedMessage;
 }
-  
+
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
 // ============================================================
