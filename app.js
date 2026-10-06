@@ -870,13 +870,13 @@ function formatShortMessage(message) {
   // ============================================================
   // 5. RETOURS À LA LIGNE
   //
-  // Chaque information commence sur sa propre ligne.
-  // Les <br><br> venant de Supabase sont normalisés en <br>.
+  // Chaque information est placée dans son propre bloc.
+  // Cela garantit une ligne distincte dans Webflow.
   // ============================================================
-  formattedMessage = formattedMessage.replace(
-    /(?:<br\s*\/?>\s*)+/gi,
-    '<br>'
-  );
+  formattedMessage = formattedMessage
+    .split(/(?:<br\s*\/?>\s*)+/gi)
+    .map(line => `<div>${line}</div>`)
+    .join('');
 
   return formattedMessage;
 }
