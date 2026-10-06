@@ -534,22 +534,26 @@ const targetBtn = e.target.closest(
 
 if (targetBtn) {
 
-    if (targetBtn.closest('#ma-bulle')) {
+    // ============================================================
+    // FERMETURE D'UNE CARTE DE RECOMMANDATION
+    // ============================================================
+    const recoCard = targetBtn.closest('.reco-card-item');
 
-        const recoCard = targetBtn.closest('.reco-card-item');
+    if (recoCard) {
 
-        if (recoCard) {
+        // La croix ferme uniquement la carte
+        if (targetBtn.matches('.close-reco, .btn-fermer')) {
+
             animateRecoCardClose(recoCard, () => {
                 recoCard.remove();
             });
-        } else {
-            $(bulle).fadeOut();
+
+            return;
         }
 
-        if (overlay) $(overlay).fadeOut();
-
-    } else {
-
+        // ========================================================
+        // AUTRES ACTIONS DE LA CARTE
+        // ========================================================
         e.preventDefault();
 
         if (
@@ -561,9 +565,25 @@ if (targetBtn) {
         } else {
             sendData(targetBtn, 'FAUX');
         }
+
+        return;
+    }
+
+    // ============================================================
+    // COMPORTEMENT EXISTANT POUR LES AUTRES BOUTONS / BULLE
+    // ============================================================
+    e.preventDefault();
+
+    if (
+        targetBtn.matches(
+            '.btn-valider, .btn-traiter, [data-action="vrai"]'
+        )
+    ) {
+        sendData(targetBtn, 'VRAI');
+    } else {
+        sendData(targetBtn, 'FAUX');
     }
 }
-
 
     function updateCalendarVisuals() {
         const today = new Date();
