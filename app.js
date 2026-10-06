@@ -894,16 +894,17 @@ function renderRecommandations(data) {
       titleEl.textContent = item.title || '';
     }
 
-    // ============================================================
-    // MESSAGE COURT
-    // ============================================================
-    const shortMsgEl = newCard.querySelector(
-      '.reco-short-message, [data-field="short_message"], #message-hotelier, .message-hotelier'
-    );
+   
+// ============================================================
+// MESSAGE COURT
+// ============================================================
+const shortMsgEl = newCard.querySelector(
+  '.reco-short-message, [data-field="short_message"], #message-hotelier, .message-hotelier'
+);
 
-    if (shortMsgEl) {
-     shortMsgEl.textContent = formatShortMessage(item.short_message);
-    }
+if (shortMsgEl) {
+  shortMsgEl.innerHTML = formatShortMessage(item.short_message);
+}
 
     // ============================================================
     // MESSAGE LONG
