@@ -753,6 +753,7 @@ function formatShortMessage(message) {
   formattedMessage = formattedMessage.replace(
     /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
     (match, value, offset, fullText) => {
+
       const number = parseFloat(String(value).replace(',', '.'));
 
       if (isNaN(number)) return match;
@@ -760,21 +761,26 @@ function formatShortMessage(message) {
       const rounded = Math.round(number);
       const valueString = String(value).trim();
 
-      // Texte proche du montant
+      // ============================================================
+      // CONTEXTE IMMÉDIAT AUTOUR DU MONTANT
+      // ============================================================
       const textBefore = fullText
-        .substring(Math.max(0, offset - 60), offset)
+        .substring(Math.max(0, offset - 40), offset)
         .toLowerCase();
 
       const textAfter = fullText
-        .substring(offset + match.length, offset + match.length + 60)
+        .substring(offset + match.length, offset + match.length + 40)
         .toLowerCase();
 
       // ============================================================
-      // TARIF CIBLE
-      // Prioritaire :
-      // - aucun "+"
-      // - aucune couleur
-      // - semi-bold
+      // 1. TARIF CIBLE
+      // Exemple :
+      // 112.70€ (tarif cible)
+      //
+      // → 113€
+      // → noir
+      // → semi-bold
+      // → aucun "+"
       // ============================================================
       if (
         textAfter.includes('tarif cible') ||
@@ -784,11 +790,19 @@ function formatShortMessage(message) {
       }
 
       // ============================================================
-      // MONTANT DE L'AUGMENTATION
+      // 2. MONTANT DE L'AUGMENTATION
+      // Exemple :
+      // 16.56€ (montant de l'augmentation)
+      //
+      // → +17€
+      // → vert
+      // → semi-bold
       // ============================================================
       if (
-        textAfter.includes('augmentation') ||
-        textBefore.includes('augmentation')
+        textAfter.includes('montant de l\'augmentation') ||
+        textAfter.includes("montant de l’augmentation") ||
+        textAfter.includes('montant de augmentation') ||
+        textAfter.includes('augmentation')
       ) {
         if (number > 0) {
           return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
@@ -802,7 +816,7 @@ function formatShortMessage(message) {
       }
 
       // ============================================================
-      // SI LE SIGNE EST PRÉSENT EXPLICITEMENT
+      // 3. SIGNE EXPLICITE
       // ============================================================
       if (valueString.startsWith('+')) {
         return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
@@ -813,8 +827,7 @@ function formatShortMessage(message) {
       }
 
       // ============================================================
-      // MONTANT NEUTRE
-      // Aucun signe + aucune couleur
+      // 4. MONTANT NEUTRE
       // ============================================================
       return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
     }
@@ -847,6 +860,7 @@ function formatShortMessage(message) {
 
   return formattedMessage;
 }
+
   
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
