@@ -952,30 +952,38 @@ if (restrEl) {
           : '';
     }
 
-    // ============================================================
-    // GAIN POTENTIEL
-    // ID WEBFLOW : #reco-gain-potentiel
-    // ============================================================
-    const gainEl = newCard.querySelector(
-      '#reco-gain-potentiel'
-    );
+// ============================================================
+// GAIN POTENTIEL
+// ID WEBFLOW : #reco-gain-potentiel
+// ============================================================
+const gainEl = newCard.querySelector(
+  '#reco-gain-potentiel'
+);
 
-    if (gainEl) {
-      if (
-        item.gain_potential !== undefined &&
-        item.gain_potential !== null
-      ) {
-        gainEl.textContent =
-  `Gain potentiel de cette recommandation : ${formatGainPotential(item.gain_potential)}`;
+if (gainEl) {
+  if (
+    item.gain_potential !== undefined &&
+    item.gain_potential !== null
+  ) {
+    gainEl.textContent =
+      `Gain potentiel de cette recommandation : ${formatGainPotential(item.gain_potential)}`;
 
-        // Webflow masque cet élément par défaut.
-        gainEl.style.display = 'block';
-      } else {
-        gainEl.textContent = '';
-        gainEl.style.display = 'none';
-      }
+    // Couleur selon le signe du gain potentiel
+    if (Number(item.gain_potential) > 0) {
+      gainEl.style.color = '#27ae60';
+    } else if (Number(item.gain_potential) < 0) {
+      gainEl.style.color = '#e74c3c';
+    } else {
+      gainEl.style.color = '';
     }
 
+    // Webflow masque cet élément par défaut.
+    gainEl.style.display = 'block';
+  } else {
+    gainEl.textContent = '';
+    gainEl.style.display = 'none';
+  }
+}
     // ============================================================
     // VARIATION DE PRIX
     // ============================================================
