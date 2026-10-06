@@ -449,27 +449,25 @@ function animateRecoCardClose(card, callback) {
 
     card.dataset.closing = 'true';
 
-    // Prépare la carte pour l'animation
+    // Animation douce de disparition vers le haut
     card.style.transition =
-        'opacity 0.45s ease, transform 0.45s ease';
+        'opacity 0.35s ease-in-out, transform 0.35s ease-in-out';
 
-    // Lance l'animation :
-    // la carte monte légèrement et disparaît progressivement
+    // Lance l'animation
     requestAnimationFrame(() => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(-24px)';
+        card.style.transform = 'translateY(-15px)';
     });
 
-    // Une fois l'animation terminée
+    // Supprime la carte une fois l'animation terminée
     setTimeout(() => {
         if (callback) {
             callback();
         } else {
-            card.style.display = 'none';
+            card.remove();
         }
-    }, 450);
+    }, 350);
 }
-
 
 /**
  * =============================================
