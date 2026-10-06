@@ -745,7 +745,12 @@ function formatRestrictionCode(code) {
 function formatShortMessage(message) {
   if (!message) return '';
 
-  return String(message).replace(
+  let formattedMessage = String(message);
+
+  // ============================================================
+  // MONTANTS EN €
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
     /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
     (match, value) => {
       const number = parseFloat(String(value).replace(',', '.'));
@@ -754,9 +759,47 @@ function formatShortMessage(message) {
 
       const rounded = Math.round(number);
 
-      return `${rounded}€`;
+      // Positif
+      if (number > 0) {
+        return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
+      }
+
+      // Négatif
+      if (number < 0) {
+        return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
+      }
+
+      // Tarif cible / valeur sans signe
+      return `<span style="font-weight:600;">${rounded}€</span>`;
     }
   );
+
+  // ============================================================
+  // PICK-UP EN CHAMBRES
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
+    /([+-]\d+)(\s+chambres?)/gi,
+    (match, value, label) => {
+
+      const number = parseInt(value, 10);
+
+      if (isNaN(number)) return match;
+
+      // Positif
+      if (number > 0) {
+        return `<span style="color:#27ae60;font-weight:600;">+${number}</span>${label}`;
+      }
+
+      // Négatif
+      if (number < 0) {
+        return `<span style="color:#e74c3c;font-weight:600;">${number}</span>${label}`;
+      }
+
+      return match;
+    }
+  );
+
+  return formattedMessage;
 }
 
   
