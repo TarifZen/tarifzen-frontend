@@ -903,7 +903,8 @@ const shortMsgEl = newCard.querySelector(
 );
 
 if (shortMsgEl) {
-  shortMsgEl.innerHTML = formatShortMessage(item.short_message);
+  shortMsgEl.innerHTML =
+    `<span class="reco-short-message-inner">${formatShortMessage(item.short_message)}</span>`;
 }
 
     // ============================================================
