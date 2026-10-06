@@ -641,62 +641,81 @@ const supabaseClient = window.supabaseClient;
 // FONCTIONS DE FORMATAGE FRONTEND
 // ============================================================
 function formatFrenchNumber(num) {
-if (num === null || num === undefined || isNaN(num)) return "0";
-return Math.round(num).toLocaleString('fr-FR').replace(/\s/g, ' ');
+  if (num === null || num === undefined || isNaN(num)) return "0";
+  return Math.round(num).toLocaleString('fr-FR').replace(/\s/g, ' ');
 }
+
 function formatGainPotential(val) {
-if (val === null || val === undefined || isNaN(val)) return "0 €";
-const rounded = Math.round(val);
-const formatted = Math.abs(rounded)
-.toLocaleString('fr-FR')
-.replace(/\s/g, ' ');
-if (rounded > 0) return `+${formatted} €`;
-if (rounded < 0) return `-${formatted} €`;
-return "0 €";
+  if (val === null || val === undefined || isNaN(val)) return "0 €";
+
+  const rounded = Math.round(val);
+
+  const formatted = Math.abs(rounded)
+    .toLocaleString('fr-FR')
+    .replace(/\s/g, ' ');
+
+  if (rounded > 0) return `+${formatted} €`;
+  if (rounded < 0) return `-${formatted} €`;
+
+  return "0 €";
 }
+
 function formatGainReal(val) {
-if (val === null || val === undefined || isNaN(val)) return "- €";
-return `${formatFrenchNumber(val)} €`;
+  if (val === null || val === undefined || isNaN(val)) return "- €";
+  return `${formatFrenchNumber(val)} €`;
 }
+
 function formatPrice(val) {
-if (val === null || val === undefined || isNaN(val)) return "- €";
-return `${formatFrenchNumber(val)} €`;
+  if (val === null || val === undefined || isNaN(val)) return "- €";
+  return `${formatFrenchNumber(val)} €`;
 }
+
 function formatPercent(val) {
-if (val === null || val === undefined || isNaN(val)) return "0 %";
-return `${Math.round(val)} %`;
+  if (val === null || val === undefined || isNaN(val)) return "0 %";
+  return `${Math.round(val)} %`;
 }
+
 function formatUrgentActions(count) {
-const n = count || 0;
-return `${n} action${n > 1 ? 's' : ''} urgente${n > 1 ? 's' : ''}`;
+  const n = count || 0;
+  return `${n} action${n > 1 ? 's' : ''} urgente${n > 1 ? 's' : ''}`;
 }
+
 function formatAnalysisActions(count) {
-const n = count || 0;
-return `${n} analyse${n > 1 ? 's' : ''}`;
+  const n = count || 0;
+  return `${n} analyse${n > 1 ? 's' : ''}`;
 }
+
 function formatRecommendationsTotal(count) {
-const n = count || 0;
-return `${n} recommandation${n > 1 ? 's' : ''} aujourd'hui`;
+  const n = count || 0;
+  return `${n} recommandation${n > 1 ? 's' : ''} aujourd'hui`;
 }
+
 function formatProfitability(val) {
-if (val === null || val === undefined || isNaN(val)) return "-";
-if (val >= 0) {
-return "TarifZen rentabilisé ";
+  if (val === null || val === undefined || isNaN(val)) return "-";
+
+  if (val >= 0) {
+    return "TarifZen rentabilisé ";
+  }
+
+  const remaining = formatFrenchNumber(Math.abs(val));
+  return `Encore ${remaining} € pour rentabiliser`;
 }
-const remaining = formatFrenchNumber(Math.abs(val));
-return `Encore ${remaining} € pour rentabiliser`;
-}
+
 function formatDateFR(dateStr) {
-if (!dateStr) return '';
-const d = new Date(dateStr);
-if (isNaN(d.getTime())) return dateStr;
-const formatted = new Intl.DateTimeFormat('fr-FR', {
-weekday: 'short',
-day: 'numeric',
-month: 'short',
-year: 'numeric'
-}).format(d);
-return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  if (!dateStr) return '';
+
+  const d = new Date(dateStr);
+
+  if (isNaN(d.getTime())) return dateStr;
+
+  const formatted = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  }).format(d);
+
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
 
 function formatRestrictionCode(code) {
@@ -722,6 +741,27 @@ function formatRestrictionCode(code) {
 
   return cleanCode;
 }
+
+// ============================================================
+// API02 — FORMATAGE DU MESSAGE COURT
+// ============================================================
+function formatShortMessage(message) {
+  if (!message) return '';
+
+  return String(message).replace(
+    /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
+    (match, value) => {
+      const number = parseFloat(String(value).replace(',', '.'));
+
+      if (isNaN(number)) return match;
+
+      const rounded = Math.round(number);
+
+      return `${rounded}€`;
+    }
+  );
+}
+
   
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
