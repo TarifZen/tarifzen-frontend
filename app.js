@@ -836,6 +836,10 @@ function renderRecommandations(data) {
     if (dateBottomEl) {
       dateBottomEl.textContent =
         dateFormatted || item.date || '';
+
+      // L'élément est visible par défaut dans Webflow.
+      // On s'assure simplement qu'il reste visible.
+      dateBottomEl.style.display = 'block';
     }
 
     // ============================================================
@@ -861,13 +865,22 @@ function renderRecommandations(data) {
     if (restrEl) {
       restrEl.textContent =
         item.restriction_code || '';
+
+      // Webflow masque cet élément par défaut.
+      // On l'affiche uniquement lorsqu'une restriction existe.
+      if (item.restriction_code) {
+        restrEl.style.display = 'block';
+      } else {
+        restrEl.style.display = 'none';
+      }
     }
 
     // ============================================================
     // SCORE RM
+    // ID WEBFLOW : #reco-score-rm
     // ============================================================
     const scoreEl = newCard.querySelector(
-      '.reco-score, [data-field="score_rm"], #reco-score-rm'
+      '#reco-score-rm'
     );
 
     if (scoreEl) {
@@ -887,8 +900,19 @@ function renderRecommandations(data) {
     );
 
     if (gainEl) {
-      gainEl.textContent =
-        formatGainPotential(item.gain_potential);
+      if (
+        item.gain_potential !== undefined &&
+        item.gain_potential !== null
+      ) {
+        gainEl.textContent =
+          formatGainPotential(item.gain_potential);
+
+        // Webflow masque cet élément par défaut.
+        gainEl.style.display = 'block';
+      } else {
+        gainEl.textContent = '';
+        gainEl.style.display = 'none';
+      }
     }
 
     // ============================================================
@@ -959,11 +983,16 @@ function renderRecommandations(data) {
       bandeauAnalyse.style.display = 'none';
     }
 
-    // Puis on affiche uniquement le bon
+    // ============================================================
+    // AFFICHAGE DU BON BANDEAU
+    // IMPORTANT :
+    // On utilise "block" et non "" car Webflow impose
+    // display:none sur les classes des deux bandeaux.
+    // ============================================================
     if (isAnalyse) {
 
       if (bandeauAnalyse) {
-        bandeauAnalyse.style.display = '';
+        bandeauAnalyse.style.display = 'block';
       }
 
       newCard.classList.add('is-analyse');
@@ -972,7 +1001,7 @@ function renderRecommandations(data) {
     } else {
 
       if (bandeauUrgent) {
-        bandeauUrgent.style.display = '';
+        bandeauUrgent.style.display = 'block';
       }
 
       newCard.classList.add('is-urgent');
