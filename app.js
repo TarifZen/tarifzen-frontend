@@ -698,8 +698,6 @@ year: 'numeric'
 }).format(d);
 return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 }
-
-```js
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
 // ============================================================
