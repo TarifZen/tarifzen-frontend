@@ -530,10 +530,21 @@ document.addEventListener('DOMContentLoaded', () => {
         // 2. Boutons d'action Webhook Make
         const targetBtn = e.target.closest('.btn-valider, .btn-refuser, .btn-traiter, .btn-fermer, [data-action="vrai"], [data-action="faux"], .close-reco');
         if (targetBtn) {
-            if (targetBtn.closest('#ma-bulle')) { 
-                $(bulle).fadeOut(); 
-                if (overlay) $(overlay).fadeOut(); 
-            } else {
+            ```js
+if (targetBtn.closest('#ma-bulle')) {
+
+    const recoCard = targetBtn.closest('.reco-card-item');
+
+    if (recoCard) {
+        animateRecoCardClose(recoCard, () => {
+            recoCard.remove();
+        });
+    } else {
+        $(bulle).fadeOut();
+    }
+
+    if (overlay) $(overlay).fadeOut();
+} else {
                 e.preventDefault();
                 if (targetBtn.matches('.btn-valider, .btn-traiter, [data-action="vrai"]')) {
                     sendData(targetBtn, 'VRAI');
