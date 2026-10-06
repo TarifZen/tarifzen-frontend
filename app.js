@@ -752,7 +752,7 @@ function formatShortMessage(message) {
 // ============================================================
 formattedMessage = formattedMessage.replace(
   /([+-]?\d+(?:[.,]\d+)?)\s*€/g,
-  (match, value) => {
+  (match, value, offset, fullText) => {
     const number = parseFloat(String(value).replace(',', '.'));
 
     if (isNaN(number)) return match;
@@ -760,17 +760,44 @@ formattedMessage = formattedMessage.replace(
     const rounded = Math.round(number);
     const valueString = String(value).trim();
 
-    // Montant explicitement positif avec "+"
+    // Texte situé avant le montant
+    const textBefore = fullText
+      .substring(0, offset)
+      .toLowerCase();
+
+    // ============================================================
+    // MONTANT DE L'AUGMENTATION
+    // ============================================================
+    if (
+      textBefore.includes('augmentation') ||
+      textBefore.includes('montant de l')
+    ) {
+      if (number > 0) {
+        return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
+      }
+
+      if (number < 0) {
+        return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
+      }
+
+      return `<span style="font-weight:600;">0€</span>`;
+    }
+
+    // ============================================================
+    // SI LE SIGNE EST PRÉSENT EXPLICITEMENT
+    // ============================================================
     if (valueString.startsWith('+')) {
       return `<span style="color:#27ae60;font-weight:600;">+${Math.abs(rounded)}€</span>`;
     }
 
-    // Montant explicitement négatif avec "-"
     if (valueString.startsWith('-')) {
       return `<span style="color:#e74c3c;font-weight:600;">-${Math.abs(rounded)}€</span>`;
     }
 
-    // Tarif cible : aucun signe → semi-bold uniquement
+    // ============================================================
+    // TARIF CIBLE
+    // Aucun signe + aucune couleur
+    // ============================================================
     return `<span style="font-weight:600;">${Math.abs(rounded)}€</span>`;
   }
 );
