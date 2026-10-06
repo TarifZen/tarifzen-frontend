@@ -870,6 +870,17 @@ function formatShortMessage(message) {
     }
   );
 
+  // ============================================================
+  // 5. RETOURS À LA LIGNE
+  //
+  // Les messages Supabase utilisent déjà <br><br>.
+  // On conserve une séparation claire entre chaque information.
+  // ============================================================
+  formattedMessage = formattedMessage.replace(
+    /(?:<br\s*\/?>\s*){2,}/gi,
+    '<br>'
+  );
+
   return formattedMessage;
 }
   
