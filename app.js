@@ -701,7 +701,7 @@ return formatted.charAt(0).toUpperCase() + formatted.slice(1);
 function formatRestrictionCode(code) {
   if (!code) return '';
 
-  if (code === 'MS2_STAY_2') return 'Minimum Stay 2 nuits conseillé';
+  if (code === 'MIN_STAY_2') return 'Minimum Stay 2 nuits conseillé';
   if (code === 'CTA') return 'Fermeture aux arrivées conseillée';
 
   return code;
