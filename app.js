@@ -1031,6 +1031,37 @@ if (restrEl) {
       newCard.classList.add('is-urgent');
       newCard.classList.remove('is-analyse');
     }
+    
+// ============================================================
+// BOTTOM ROUGE / ORANGE
+// ============================================================
+const bottomOrange = newCard.querySelector(
+  '.bottom-orange, .bandeau-orange, #bottom-orange'
+);
+
+const bottomRed = newCard.querySelector(
+  '.bottom-red, .bottom-rouge, .bandeau-rouge, #bottom-rouge'
+);
+
+if (isAnalyse) {
+  if (bottomOrange) {
+    bottomOrange.style.display = 'block';
+  }
+
+  if (bottomRed) {
+    bottomRed.style.display = 'none';
+  }
+
+} else {
+
+  if (bottomOrange) {
+    bottomOrange.style.display = 'none';
+  }
+
+  if (bottomRed) {
+    bottomRed.style.display = 'block';
+  }
+}
 
     // ============================================================
     // AJOUT DE LA CARTE AU CONTENEUR
