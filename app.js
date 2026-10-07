@@ -64,7 +64,16 @@ function rebuildHistory() {
         document.querySelector('.div-block-16');
 
     if (!historyWrapper || !modelCard) return;
-
+  
+// ==========================================================
+// SUPPRESSION DES MINI-CARTES DÉJÀ GÉNÉRÉES
+// ==========================================================
+historyWrapper
+    .querySelectorAll(
+        '[data-tz-history-generated="true"]'
+    )
+    .forEach(card => card.remove());
+  
     document
         .querySelectorAll('.collection-item-3, .reco-card-item')
         .forEach(el => {
