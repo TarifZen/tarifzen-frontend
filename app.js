@@ -381,34 +381,34 @@ if (statutValue === 'APPLIED') {
     dateBrute: sDateBrute
   };
 
-  // ----------------------------------------------------------
+    // ----------------------------------------------------------
   // 1. ENREGISTREMENT LOCAL
   // ----------------------------------------------------------
   markAsProcessed(recoId, processedData);
 
   // ----------------------------------------------------------
-  // 2. ANIMATION DE LA CARTE VERS LA COLONNE ACTIONS
+  // 2. ANIMATION DE LA CARTE VERS LA DROITE
   // ----------------------------------------------------------
   card.style.position = 'relative';
-card.style.zIndex = '10';
+  card.style.zIndex = '10';
 
-const animation = card.animate(
-  [
+  const animation = card.animate(
+    [
+      {
+        opacity: 1,
+        right: '0px'
+      },
+      {
+        opacity: 0,
+        right: '-350px'
+      }
+    ],
     {
-      opacity: 1,
-      right: '0px'
-    },
-    {
-      opacity: 0,
-      right: '-350px'
+      duration: 700,
+      easing: 'ease-in-out',
+      fill: 'forwards'
     }
-  ],
-  {
-    duration: 700,
-    easing: 'ease-in-out',
-    fill: 'forwards'
-  }
-);
+  );
 
   // ----------------------------------------------------------
   // 3. APRÈS L'ANIMATION → MINI-CARTE
