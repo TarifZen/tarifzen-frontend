@@ -329,59 +329,97 @@ async function sendData(triggerElement, statutValue) {
     }
 
     // ==========================================================
-    // HISTORIQUE LOCAL — ACTION APPLIED
-    // ==========================================================
-    if (statutValue === 'APPLIED') {
+// HISTORIQUE LOCAL — ACTION APPLIED
+// ==========================================================
+if (statutValue === 'APPLIED') {
 
-      const sDate =
-        card.querySelector(
-          '.reco-date, .date-main-card'
-        )?.textContent || '';
+  const sDate =
+    card.querySelector(
+      '.reco-date, .date-main-card'
+    )?.textContent || '';
 
-      const sScore =
-        card.querySelector(
-          '.reco-score, .text-block-72'
-        )?.textContent || '';
+  const sScore =
+    card.querySelector(
+      '.reco-score, .text-block-72'
+    )?.textContent || '';
 
-      const isAnalyse =
-        statusType === 'analyse';
+  const isAnalyse =
+    statusType === 'analyse';
 
-      const sourceInfoBtn =
-        card.querySelector(
-          '.icon-info-carte, .info-trigger, .info, [data-message]'
-        );
+  const sourceInfoBtn =
+    card.querySelector(
+      '.icon-info-carte, .info-trigger, .info, [data-message]'
+    );
 
-      const sMessage =
-        sourceInfoBtn?.getAttribute('data-message') ||
-        card.querySelector(
-          '.reco-long-message'
-        )?.textContent ||
-        '';
+  const sMessage =
+    sourceInfoBtn?.getAttribute('data-message') ||
+    card.querySelector(
+      '.reco-long-message'
+    )?.textContent ||
+    '';
 
-      const sDateBrute =
-        sourceInfoBtn?.getAttribute('data-date') ||
-        sDate;
+  const sDateBrute =
+    sourceInfoBtn?.getAttribute('data-date') ||
+    sDate;
 
-      markAsProcessed(recoId, {
-        titre:
-          card.querySelector(
-            '.reco-title, [data-field="title"], .text-block-7'
-          )?.textContent ||
-          card.getAttribute('data-titre-cms') ||
-          'Action',
+  const processedData = {
+    titre:
+      card.querySelector(
+        '.reco-title, [data-field="title"], .text-block-7'
+      )?.textContent ||
+      card.getAttribute('data-titre-cms') ||
+      'Action',
 
-        date: formatDateFr(sDate),
+    date: formatDateFr(sDate),
 
-        score: sScore || '0',
+    score: sScore || '0',
 
-        isAnalyse: isAnalyse,
+    isAnalyse: isAnalyse,
 
-        message: sMessage,
+    message: sMessage,
 
-        dateBrute: sDateBrute
-      });
+    dateBrute: sDateBrute
+  };
 
-    } else {
+  // ----------------------------------------------------------
+  // 1. ENREGISTREMENT LOCAL
+  // ----------------------------------------------------------
+  markAsProcessed(recoId, processedData);
+
+  // ----------------------------------------------------------
+  // 2. ANIMATION DE LA CARTE VERS LA COLONNE ACTIONS
+  // ----------------------------------------------------------
+  const animation = card.animate(
+    [
+      {
+        opacity: 1,
+        transform: 'translateX(0) scale(1)'
+      },
+      {
+        opacity: 0,
+        transform: 'translateX(350px) scale(0.85)'
+      }
+    ],
+    {
+      duration: 700,
+      easing: 'ease-in-out',
+      fill: 'forwards'
+    }
+  );
+
+  // ----------------------------------------------------------
+  // 3. APRÈS L'ANIMATION → MINI-CARTE
+  // ----------------------------------------------------------
+  animation.onfinish = () => {
+
+    card.remove();
+
+    // Reconstruit la colonne "Actions traitées"
+    // à partir de processed_recos_final
+    rebuildHistory();
+  };
+
+} else {
 
       // ========================================================
       // HISTORIQUE LOCAL — ACTION IGNORED
