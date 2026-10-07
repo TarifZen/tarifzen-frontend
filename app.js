@@ -104,6 +104,10 @@ historyWrapper
 
         const newMiniCard =
             modelCard.cloneNode(true);
+      newMiniCard.setAttribute(
+    'data-tz-history-generated',
+    'true'
+);
 
         newMiniCard.style.setProperty(
             'display',
