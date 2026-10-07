@@ -463,11 +463,42 @@ async function sendData(triggerElement, statutValue) {
   // ============================================================
   // PAYLOAD V2
   // ============================================================
+  const appliedPriceInput =
+  card.querySelector('.input-nouveau-prix');
+
+let appliedPriceChange = null;
+
+if (appliedPriceInput) {
+
+  const rawValue =
+    appliedPriceInput.value
+      ?.trim()
+      .replace(',', '.')
+      .replace(/^\+/, '');
+
+  if (rawValue !== '') {
+
+    const parsedValue =
+      Number(rawValue);
+
+    if (Number.isFinite(parsedValue)) {
+      appliedPriceChange = parsedValue;
+    }
+
+  }
+
+}
+  
   const payload = {
-    recommendation_id: recoId,
-    action: statutValue,
-    application_method: 'CUSTOM'
-  };
+  recommendation_id: recoId,
+  action: statutValue,
+  application_method: 'CUSTOM'
+};
+
+if (appliedPriceChange !== null) {
+  payload.applied_price_change =
+    appliedPriceChange;
+}
 
   console.log('📤 Envoi action V2 :', payload);
 
