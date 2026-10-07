@@ -360,25 +360,24 @@ if (statutValue === 'APPLIED') {
     sourceInfoBtn?.getAttribute('data-date') ||
     sDate;
 
-  const processedData = {
-    titre:
-      card.querySelector(
-        '.reco-title, [data-field="title"], .text-block-7'
-      )?.textContent ||
-      card.getAttribute('data-titre-cms') ||
-      'Action',
+ const processedData = {
+  titre:
+    card.querySelector(
+      '#titre-action'
+    )?.textContent?.trim() ||
+    'Action',
 
-    date: formatDateFr(sDate),
+  date: formatDateFr(sDate),
 
-    score: sScore || '0',
+  score: sScore || '0',
 
-    isAnalyse: isAnalyse,
+  isAnalyse: isAnalyse,
 
-    message: sMessage,
+  message: sMessage,
 
-    dateBrute: sDateBrute
-  };
-
+  dateBrute: sDateBrute
+};
+  
      // ----------------------------------------------------------
   // 1. ENREGISTREMENT LOCAL
   // ----------------------------------------------------------
