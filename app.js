@@ -241,6 +241,7 @@ function refreshUI() {
  * 4. TRANSFERT VERS HISTORIQUE ET ENVOI WEBHOOK MAKE
  */
 async function sendData(triggerElement, statutValue) {
+  console.log('🟢 sendData appelée', triggerElement, statutValue);
   const card = triggerElement.closest('.reco-card-item, .collection-item-3');
   if (!card) return;
 
