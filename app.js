@@ -73,38 +73,142 @@ function rebuildHistory() {
     });
 
     processed.forEach(item => {
-        if (!item || !item.data) return;
-        const newMiniCard = modelCard.cloneNode(true);
-        newMiniCard.style.setProperty('display', 'flex', 'important');
-        
-        const cDate = newMiniCard.querySelector('.date-mini-carte');
-        const cTitre = newMiniCard.querySelector('.titre-action-mini-card');
-        const cScore = newMiniCard.querySelector('.score-rm-mini-card');
-        const cInfo = newMiniCard.querySelector('.icon-info-mini');
-        const badgeRed = newMiniCard.querySelector('.badge-score-red-mini-card');
-        const badgeOrange = newMiniCard.querySelector('.badge-score-orange-mini-card');
+    if (!item || !item.data) return;
 
-        if (cDate) cDate.innerText = item.data.date || '';
-        if (cTitre) cTitre.innerText = item.data.titre || '';
-        if (cScore) cScore.innerText = item.data.score || "0";
+    const newMiniCard = modelCard.cloneNode(true);
 
-        if (cInfo) {
-            cInfo.setAttribute('data-message', item.data.message || '');
-            cInfo.setAttribute('data-date', item.data.dateBrute || '');
+    newMiniCard.style.setProperty(
+        'display',
+        'flex',
+        'important'
+    );
+
+    const cDate =
+        newMiniCard.querySelector(
+            '.date-mini-carte'
+        );
+
+    const cTitre =
+        newMiniCard.querySelector(
+            '.titre-action-mini-card'
+        );
+
+    const cScore =
+        newMiniCard.querySelector(
+            '.score-rm-mini-card'
+        );
+
+    const cInfo =
+        newMiniCard.querySelector(
+            '.icon-info-mini'
+        );
+
+    const badgeRed =
+        newMiniCard.querySelector(
+            '.badge-score-red-mini-card'
+        );
+
+    const badgeOrange =
+        newMiniCard.querySelector(
+            '.badge-score-orange-mini-card'
+        );
+
+    // ==========================================================
+    // DATE
+    // ==========================================================
+    if (cDate) {
+        cDate.textContent =
+            item.data.date || '';
+    }
+
+    // ==========================================================
+    // TITRE
+    // ==========================================================
+    if (cTitre) {
+        cTitre.textContent =
+            item.data.titre || '';
+    }
+
+    // ==========================================================
+    // SCORE RM
+    // ==========================================================
+    if (cScore) {
+        cScore.textContent =
+            item.data.score || '0';
+
+        cScore.style.display = '';
+
+        console.log(
+            '🟢 SCORE MINI-CARTE',
+            {
+                scoreStocke: item.data.score,
+                elementMiniCarte: cScore,
+                contenuApres: cScore.textContent
+            }
+        );
+    }
+
+    // ==========================================================
+    // INFORMATIONS
+    // ==========================================================
+    if (cInfo) {
+        cInfo.setAttribute(
+            'data-message',
+            item.data.message || ''
+        );
+
+        cInfo.setAttribute(
+            'data-date',
+            item.data.dateBrute || ''
+        );
+    }
+
+    // ==========================================================
+    // BADGE ROUGE / ORANGE
+    // ==========================================================
+    if (item.data.isAnalyse) {
+
+        if (badgeOrange) {
+            badgeOrange.style.setProperty(
+                'display',
+                'flex',
+                'important'
+            );
         }
-        
-        if (item.data.isAnalyse) {
-            if (badgeOrange) badgeOrange.style.setProperty('display', 'flex', 'important');
-            if (badgeRed) badgeRed.style.setProperty('display', 'none', 'important');
-        } else {
-            if (badgeRed) badgeRed.style.setProperty('display', 'flex', 'important');
-            if (badgeOrange) badgeOrange.style.setProperty('display', 'none', 'important');
+
+        if (badgeRed) {
+            badgeRed.style.setProperty(
+                'display',
+                'none',
+                'important'
+            );
         }
 
-        historyWrapper.prepend(newMiniCard);
-    });
-}
+    } else {
 
+        if (badgeRed) {
+            badgeRed.style.setProperty(
+                'display',
+                'flex',
+                'important'
+            );
+        }
+
+        if (badgeOrange) {
+            badgeOrange.style.setProperty(
+                'display',
+                'none',
+                'important'
+            );
+        }
+    }
+
+    // ==========================================================
+    // AJOUT À L'HISTORIQUE
+    // ==========================================================
+    historyWrapper.prepend(newMiniCard);
+});
+  
 /**
  * 1. FONCTIONS DE DATE
  */
