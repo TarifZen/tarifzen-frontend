@@ -270,7 +270,17 @@ if (item.data.isAnalyse) {
 // ==========================================================
 // AJOUT À L'HISTORIQUE
 // ==========================================================
-historyWrapper.prepend(
+console.log(
+    '🟣 REBUILD — CRÉATION MINI-CARTE',
+    {
+        id: item.id,
+        titre: item.data?.titre,
+        score: item.data?.score,
+        cartesActuelles:
+            historyWrapper.querySelectorAll('.div-block-16').length
+    }
+);
+    historyWrapper.prepend(
     newMiniCard
 );
 });
