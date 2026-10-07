@@ -336,10 +336,18 @@ if (statutValue === 'APPLIED') {
       '.reco-date, .date-main-card'
     )?.textContent || '';
 
+  const scoreElement =
+    card.querySelector('#reco-score-rm');
+
   const sScore =
-    card.querySelector(
-      '#reco-score-rm'
-    )?.textContent?.trim() || '';
+    scoreElement?.textContent?.trim() || '';
+
+  console.log('🟠/🔴 SCORE HISTORIQUE', {
+    statusType,
+    scoreElement,
+    sScore,
+    card
+  });
 
   const isAnalyse =
     statusType === 'analyse';
