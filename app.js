@@ -446,8 +446,7 @@ function animateRecoCardClose(card) {
 
     card.dataset.closing = 'true';
 
-    // Animation native du navigateur :
-    // légère montée + disparition progressive
+    // La carte monte fortement tout en disparaissant progressivement
     const animation = card.animate(
         [
             {
@@ -456,18 +455,17 @@ function animateRecoCardClose(card) {
             },
             {
                 opacity: 0,
-                transform: 'translateY(-15px)'
+                transform: 'translateY(-200px)'
             }
         ],
         {
-            duration: 450,
-            easing: 'ease',
+            duration: 700,
+            easing: 'ease-in',
             fill: 'forwards'
         }
     );
 
-    // La carte est supprimée uniquement
-    // lorsque l'animation est terminée
+    // Suppression uniquement après la fin de l'animation
     animation.onfinish = () => {
         card.remove();
     };
@@ -542,7 +540,7 @@ if (targetBtn) {
 
     if (recoCard) {
 
-        // --------------------------------------------------------
+  // --------------------------------------------------------
 // FERMETURE DE LA CARTE
 // --------------------------------------------------------
 if (
