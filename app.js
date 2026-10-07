@@ -208,6 +208,7 @@ function rebuildHistory() {
     // ==========================================================
     historyWrapper.prepend(newMiniCard);
 });
+  }
   
 /**
  * 1. FONCTIONS DE DATE
