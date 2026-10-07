@@ -637,11 +637,11 @@ if (targetBtn) {
         // FERMETURE DE LA CARTE
         // --------------------------------------------------------
         if (
-            targetBtn.matches('.close-reco, .btn-fermer')
-        ) {
-            animateRecoCardClose(recoCard);
-            return;
-        }
+    targetBtn.matches('.close-reco, .btn-fermer')
+) {
+    sendData(targetBtn, 'IGNORED');
+    return;
+}
 
         // --------------------------------------------------------
 // AUTRES ACTIONS DE LA CARTE
