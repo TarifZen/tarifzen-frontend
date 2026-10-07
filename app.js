@@ -58,157 +58,203 @@ function markAsDismissed(id) {
 function rebuildHistory() {
     const processed = getProcessedItems();
     const dismissed = getDismissedItems();
-    const historyWrapper = document.getElementById('conteneur-cartes-historique');
-    const modelCard = document.querySelector('.div-block-16');
-    
+    const historyWrapper =
+        document.getElementById('conteneur-cartes-historique');
+    const modelCard =
+        document.querySelector('.div-block-16');
+
     if (!historyWrapper || !modelCard) return;
 
-    document.querySelectorAll('.collection-item-3, .reco-card-item').forEach(el => {
-        const currentId = el.querySelector('#reco-id-champ, input[name="reco-id"]')?.value
-            || el.querySelector('.cms-data-storage')?.getAttribute('data-webflow-id')
-            || el.getAttribute('data-id');
-        if (currentId && (processed.find(item => item.id === currentId) || dismissed.includes(currentId))) {
-            el.remove();
-        }
-    });
+    document
+        .querySelectorAll('.collection-item-3, .reco-card-item')
+        .forEach(el => {
+            const currentId =
+                el.querySelector(
+                    '#reco-id-champ, input[name="reco-id"]'
+                )?.value
+                || el.querySelector(
+                    '.cms-data-storage'
+                )?.getAttribute('data-webflow-id')
+                || el.getAttribute('data-id');
+
+            if (
+                currentId &&
+                (
+                    processed.find(
+                        item => item.id === currentId
+                    )
+                    || dismissed.includes(currentId)
+                )
+            ) {
+                el.remove();
+            }
+        });
 
     processed.forEach(item => {
-    if (!item || !item.data) return;
+        if (!item || !item.data) return;
 
-    const newMiniCard = modelCard.cloneNode(true);
+        const newMiniCard =
+            modelCard.cloneNode(true);
 
-    newMiniCard.style.setProperty(
-        'display',
-        'flex',
-        'important'
-    );
-
-    const cDate =
-        newMiniCard.querySelector(
-            '.date-mini-carte'
+        newMiniCard.style.setProperty(
+            'display',
+            'flex',
+            'important'
         );
 
-    const cTitre =
-        newMiniCard.querySelector(
-            '.titre-action-mini-card'
-        );
+        const cDate =
+            newMiniCard.querySelector(
+                '.date-mini-carte'
+            );
 
-    const cScore =
-        newMiniCard.querySelector(
-            '.score-rm-mini-card'
-        );
+        const cTitre =
+            newMiniCard.querySelector(
+                '.titre-action-mini-card'
+            );
 
-    const cInfo =
-        newMiniCard.querySelector(
-            '.icon-info-mini'
-        );
-
-    const badgeRed =
-        newMiniCard.querySelector(
-            '.badge-score-red-mini-card'
-        );
-
-    const badgeOrange =
-        newMiniCard.querySelector(
-            '.badge-score-orange-mini-card'
-        );
-
-    // ==========================================================
-    // DATE
-    // ==========================================================
-    if (cDate) {
-        cDate.textContent =
-            item.data.date || '';
-    }
-
-    // ==========================================================
-    // TITRE
-    // ==========================================================
-    if (cTitre) {
-        cTitre.textContent =
-            item.data.titre || '';
-    }
-
-    // ==========================================================
-    // SCORE RM
-    // ==========================================================
-    if (cScore) {
-        cScore.textContent =
-            item.data.score || '0';
-
-        cScore.style.display = '';
+        // ==========================================================
+        // SCORE RM — DIAGNOSTIC
+        // ==========================================================
+        const scoreElements =
+            newMiniCard.querySelectorAll(
+                '.score-rm-mini-card'
+            );
 
         console.log(
-            '🟢 SCORE MINI-CARTE',
+            '🔎 SCORE ELEMENTS MINI-CARTE',
             {
-                scoreStocke: item.data.score,
-                elementMiniCarte: cScore,
-                contenuApres: cScore.textContent
+                nombre: scoreElements.length,
+                elements: Array.from(
+                    scoreElements
+                ).map(el => ({
+                    texte: el.textContent,
+                    display:
+                        getComputedStyle(el).display,
+                    visibility:
+                        getComputedStyle(el).visibility
+                }))
             }
         );
-    }
 
-    // ==========================================================
-    // INFORMATIONS
-    // ==========================================================
-    if (cInfo) {
-        cInfo.setAttribute(
-            'data-message',
-            item.data.message || ''
+        const cScore =
+            scoreElements[0];
+
+        const cInfo =
+            newMiniCard.querySelector(
+                '.icon-info-mini'
+            );
+
+        const badgeRed =
+            newMiniCard.querySelector(
+                '.badge-score-red-mini-card'
+            );
+
+        const badgeOrange =
+            newMiniCard.querySelector(
+                '.badge-score-orange-mini-card'
+            );
+
+        // ==========================================================
+        // DATE
+        // ==========================================================
+        if (cDate) {
+            cDate.textContent =
+                item.data.date || '';
+        }
+
+        // ==========================================================
+        // TITRE
+        // ==========================================================
+        if (cTitre) {
+            cTitre.textContent =
+                item.data.titre || '';
+        }
+
+        // ==========================================================
+        // SCORE RM
+        // ==========================================================
+        if (cScore) {
+            cScore.textContent =
+                item.data.score || '0';
+
+            cScore.style.display = '';
+
+            console.log(
+                '🟢 SCORE MINI-CARTE',
+                {
+                    scoreStocke:
+                        item.data.score,
+                    elementMiniCarte:
+                        cScore,
+                    contenuApres:
+                        cScore.textContent
+                }
+            );
+        }
+
+        // ==========================================================
+        // INFORMATIONS
+        // ==========================================================
+        if (cInfo) {
+            cInfo.setAttribute(
+                'data-message',
+                item.data.message || ''
+            );
+
+            cInfo.setAttribute(
+                'data-date',
+                item.data.dateBrute || ''
+            );
+        }
+
+        // ==========================================================
+        // BADGE ROUGE / ORANGE
+        // ==========================================================
+        if (item.data.isAnalyse) {
+
+            if (badgeOrange) {
+                badgeOrange.style.setProperty(
+                    'display',
+                    'flex',
+                    'important'
+                );
+            }
+
+            if (badgeRed) {
+                badgeRed.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            }
+
+        } else {
+
+            if (badgeRed) {
+                badgeRed.style.setProperty(
+                    'display',
+                    'flex',
+                    'important'
+                );
+            }
+
+            if (badgeOrange) {
+                badgeOrange.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            }
+        }
+
+        // ==========================================================
+        // AJOUT À L'HISTORIQUE
+        // ==========================================================
+        historyWrapper.prepend(
+            newMiniCard
         );
-
-        cInfo.setAttribute(
-            'data-date',
-            item.data.dateBrute || ''
-        );
-    }
-
-    // ==========================================================
-    // BADGE ROUGE / ORANGE
-    // ==========================================================
-    if (item.data.isAnalyse) {
-
-        if (badgeOrange) {
-            badgeOrange.style.setProperty(
-                'display',
-                'flex',
-                'important'
-            );
-        }
-
-        if (badgeRed) {
-            badgeRed.style.setProperty(
-                'display',
-                'none',
-                'important'
-            );
-        }
-
-    } else {
-
-        if (badgeRed) {
-            badgeRed.style.setProperty(
-                'display',
-                'flex',
-                'important'
-            );
-        }
-
-        if (badgeOrange) {
-            badgeOrange.style.setProperty(
-                'display',
-                'none',
-                'important'
-            );
-        }
-    }
-
-    // ==========================================================
-    // AJOUT À L'HISTORIQUE
-    // ==========================================================
-    historyWrapper.prepend(newMiniCard);
-});
-  }
+    });
+}
   
 /**
  * 1. FONCTIONS DE DATE
