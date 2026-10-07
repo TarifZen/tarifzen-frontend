@@ -56,39 +56,76 @@ function markAsDismissed(id) {
 }
 
 function rebuildHistory() {
-  console.log(
-    '🔵 REBUILD HISTORY APPELÉ',
-    new Date().toISOString()
-);
+
+    console.log(
+        '🔵 REBUILD HISTORY APPELÉ',
+        new Date().toISOString()
+    );
+
     const processed = getProcessedItems();
     const dismissed = getDismissedItems();
-    const historyWrapper =
-        document.getElementById('conteneur-cartes-historique');
-    const modelCard =
-        document.querySelector('.div-block-16');
 
-    if (!historyWrapper || !modelCard) return;
-  
-// ==========================================================
-// SUPPRESSION DES MINI-CARTES DÉJÀ GÉNÉRÉES
-// ==========================================================
-historyWrapper
-    .querySelectorAll(
-        '[data-tz-history-generated="true"]'
-    )
-    .forEach(card => card.remove());
-  
+    const historyWrapper =
+        document.getElementById(
+            'conteneur-cartes-historique'
+        );
+
+    const modelCard =
+        document.querySelector(
+            '.div-block-16'
+        );
+
+    if (!historyWrapper || !modelCard) {
+        console.log(
+            '❌ REBUILD HISTORY — élément manquant',
+            {
+                historyWrapper,
+                modelCard
+            }
+        );
+        return;
+    }
+
+    // ==========================================================
+    // SUPPRESSION DES MINI-CARTES DÉJÀ GÉNÉRÉES
+    // ==========================================================
+    const oldGeneratedCards =
+        historyWrapper.querySelectorAll(
+            '[data-tz-history-generated="true"]'
+        );
+
+    console.log(
+        '🟡 MINI-CARTES GÉNÉRÉES À SUPPRIMER :',
+        oldGeneratedCards.length
+    );
+
+    oldGeneratedCards.forEach(
+        card => card.remove()
+    );
+
+    // ==========================================================
+    // SUPPRESSION DES RECOMMANDATIONS TRAITÉES
+    // ==========================================================
     document
-        .querySelectorAll('.collection-item-3, .reco-card-item')
+        .querySelectorAll(
+            '.collection-item-3, .reco-card-item'
+        )
         .forEach(el => {
+
             const currentId =
                 el.querySelector(
                     '#reco-id-champ, input[name="reco-id"]'
                 )?.value
-                || el.querySelector(
+                ||
+                el.querySelector(
                     '.cms-data-storage'
-                )?.getAttribute('data-webflow-id')
-                || el.getAttribute('data-id');
+                )?.getAttribute(
+                    'data-webflow-id'
+                )
+                ||
+                el.getAttribute(
+                    'data-id'
+                );
 
             if (
                 currentId &&
@@ -96,26 +133,46 @@ historyWrapper
                     processed.find(
                         item => item.id === currentId
                     )
-                    || dismissed.includes(currentId)
+                    ||
+                    dismissed.includes(
+                        currentId
+                    )
                 )
             ) {
                 el.remove();
             }
         });
-console.log(
-    '🔵 REBUILD — processed',
-    processed.length,
-    processed.map(item => item.id)
-);
+
+    // ==========================================================
+    // DONNÉES TRAITÉES
+    // ==========================================================
+    console.log(
+        '🔵 REBUILD — processed',
+        {
+            nombre: processed.length,
+            ids: processed.map(
+                item => item.id
+            )
+        }
+    );
+
+    // ==========================================================
+    // RECONSTRUCTION DES MINI-CARTES
+    // ==========================================================
     processed.forEach(item => {
-        if (!item || !item.data) return;
+
+        if (!item || !item.data) {
+            return;
+        }
 
         const newMiniCard =
             modelCard.cloneNode(true);
-      newMiniCard.setAttribute(
-    'data-tz-history-generated',
-    'true'
-);
+
+        // Marque uniquement les clones générés
+        newMiniCard.setAttribute(
+            'data-tz-history-generated',
+            'true'
+        );
 
         newMiniCard.style.setProperty(
             'display',
@@ -123,6 +180,9 @@ console.log(
             'important'
         );
 
+        // ======================================================
+        // ÉLÉMENTS DE LA MINI-CARTE
+        // ======================================================
         const cDate =
             newMiniCard.querySelector(
                 '.date-mini-carte'
@@ -133,157 +193,183 @@ console.log(
                 '.titre-action-mini-card'
             );
 
-   // ==========================================================
-// SCORE RM — DIAGNOSTIC
-// ==========================================================
-const scoreElements =
-    newMiniCard.querySelectorAll(
-        '.score-rm-mini-card'
-    );
+        const scoreElements =
+            newMiniCard.querySelectorAll(
+                '.score-rm-mini-card'
+            );
 
-console.log(
-    '🔎 SCORE ELEMENTS MINI-CARTE',
-    {
-        nombre: scoreElements.length,
-        elements: Array.from(
-            scoreElements
-        ).map((el, index) => ({
-            index,
-            texte: el.textContent,
-            display:
-                getComputedStyle(el).display,
-            visibility:
-                getComputedStyle(el).visibility
-        }))
-    }
-);
+        const cInfo =
+            newMiniCard.querySelector(
+                '.icon-info-mini'
+            );
 
-// ==========================================================
-// DATE
-// ==========================================================
-if (cDate) {
-    cDate.textContent =
-        item.data.date || '';
-}
+        const badgeRed =
+            newMiniCard.querySelector(
+                '.badge-score-red-mini-card'
+            );
 
-// ==========================================================
-// TITRE
-// ==========================================================
-if (cTitre) {
-    cTitre.textContent =
-        item.data.titre || '';
-}
+        const badgeOrange =
+            newMiniCard.querySelector(
+                '.badge-score-orange-mini-card'
+            );
 
-// ==========================================================
-// SCORE RM
-// ==========================================================
-scoreElements.forEach(el => {
+        // ======================================================
+        // DIAGNOSTIC SCORE
+        // ======================================================
+        console.log(
+            '🔎 SCORE ELEMENTS MINI-CARTE',
+            {
+                nombre:
+                    scoreElements.length,
 
-    el.textContent =
-        item.data.score || '0';
+                elements:
+                    Array.from(
+                        scoreElements
+                    ).map(
+                        (el, index) => ({
+                            index,
+                            texte:
+                                el.textContent,
+                            display:
+                                getComputedStyle(
+                                    el
+                                ).display,
+                            visibility:
+                                getComputedStyle(
+                                    el
+                                ).visibility
+                        })
+                    )
+            }
+        );
 
-    el.style.display = '';
-
-    console.log(
-        '🟢 SCORE MINI-CARTE',
-        {
-            scoreStocke:
-                item.data.score,
-            elementMiniCarte:
-                el,
-            contenuApres:
-                el.textContent
+        // ======================================================
+        // DATE
+        // ======================================================
+        if (cDate) {
+            cDate.textContent =
+                item.data.date || '';
         }
-    );
-});
 
-// ==========================================================
-// INFORMATIONS
-// ==========================================================
-const cInfo =
-    newMiniCard.querySelector(
-        '.icon-info-mini'
-    );
+        // ======================================================
+        // TITRE
+        // ======================================================
+        if (cTitre) {
+            cTitre.textContent =
+                item.data.titre || '';
+        }
 
-if (cInfo) {
-    cInfo.setAttribute(
-        'data-message',
-        item.data.message || ''
-    );
+        // ======================================================
+        // SCORE RM
+        // ======================================================
+        scoreElements.forEach(
+            el => {
 
-    cInfo.setAttribute(
-        'data-date',
-        item.data.dateBrute || ''
-    );
-}
+                el.textContent =
+                    item.data.score || '0';
 
-// ==========================================================
-// BADGE ROUGE / ORANGE
-// ==========================================================
-const badgeRed =
-    newMiniCard.querySelector(
-        '.badge-score-red-mini-card'
-    );
+                el.style.display = '';
 
-const badgeOrange =
-    newMiniCard.querySelector(
-        '.badge-score-orange-mini-card'
-    );
+                console.log(
+                    '🟢 SCORE MINI-CARTE',
+                    {
+                        scoreStocke:
+                            item.data.score,
 
-if (item.data.isAnalyse) {
+                        elementMiniCarte:
+                            el,
 
-    if (badgeOrange) {
-        badgeOrange.style.setProperty(
-            'display',
-            'flex',
-            'important'
+                        contenuApres:
+                            el.textContent
+                    }
+                );
+            }
         );
-    }
 
-    if (badgeRed) {
-        badgeRed.style.setProperty(
-            'display',
-            'none',
-            'important'
+        // ======================================================
+        // INFORMATIONS
+        // ======================================================
+        if (cInfo) {
+
+            cInfo.setAttribute(
+                'data-message',
+                item.data.message || ''
+            );
+
+            cInfo.setAttribute(
+                'data-date',
+                item.data.dateBrute || ''
+            );
+        }
+
+        // ======================================================
+        // BADGE ROUGE / ORANGE
+        // ======================================================
+        if (item.data.isAnalyse) {
+
+            if (badgeOrange) {
+                badgeOrange.style.setProperty(
+                    'display',
+                    'flex',
+                    'important'
+                );
+            }
+
+            if (badgeRed) {
+                badgeRed.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            }
+
+        } else {
+
+            if (badgeRed) {
+                badgeRed.style.setProperty(
+                    'display',
+                    'flex',
+                    'important'
+                );
+            }
+
+            if (badgeOrange) {
+                badgeOrange.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            }
+        }
+
+        // ======================================================
+        // DIAGNOSTIC AVANT AJOUT
+        // ======================================================
+        console.log(
+            '🟣 REBUILD — CRÉATION MINI-CARTE',
+            {
+                id: item.id,
+
+                titre:
+                    item.data?.titre,
+
+                score:
+                    item.data?.score,
+
+                cartesActuelles:
+                    historyWrapper.querySelectorAll(
+                        '.div-block-16'
+                    ).length
+            }
         );
-    }
 
-} else {
-
-    if (badgeRed) {
-        badgeRed.style.setProperty(
-            'display',
-            'flex',
-            'important'
+        // ======================================================
+        // AJOUT À L'HISTORIQUE
+        // ======================================================
+        historyWrapper.prepend(
+            newMiniCard
         );
-    }
-
-    if (badgeOrange) {
-        badgeOrange.style.setProperty(
-            'display',
-            'none',
-            'important'
-        );
-    }
-}
-
-// ==========================================================
-// AJOUT À L'HISTORIQUE
-// ==========================================================
-console.log(
-    '🟣 REBUILD — CRÉATION MINI-CARTE',
-    {
-        id: item.id,
-        titre: item.data?.titre,
-        score: item.data?.score,
-        cartesActuelles:
-            historyWrapper.querySelectorAll('.div-block-16').length
-    }
-);
-    historyWrapper.prepend(
-    newMiniCard
-);
-});
+    });
 }
   
 /**
