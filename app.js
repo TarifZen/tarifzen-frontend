@@ -460,8 +460,9 @@ if (statutValue === 'APPLIED') {
   card.style.position = '';
   card.style.right = '';
   card.style.zIndex = '';
+  }
 }
-/**
+  /**
  * 5. DRAG DE LA BULLE POP-UP
  */
 function makeDraggable(elmnt) {
