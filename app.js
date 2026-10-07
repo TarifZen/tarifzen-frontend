@@ -102,7 +102,11 @@ historyWrapper
                 el.remove();
             }
         });
-
+console.log(
+    '🔵 REBUILD — processed',
+    processed.length,
+    processed.map(item => item.id)
+);
     processed.forEach(item => {
         if (!item || !item.data) return;
 
