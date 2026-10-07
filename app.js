@@ -381,7 +381,7 @@ if (statutValue === 'APPLIED') {
     dateBrute: sDateBrute
   };
 
-    // ----------------------------------------------------------
+     // ----------------------------------------------------------
   // 1. ENREGISTREMENT LOCAL
   // ----------------------------------------------------------
   markAsProcessed(recoId, processedData);
@@ -424,42 +424,42 @@ if (statutValue === 'APPLIED') {
 
 } else {
 
-      // ========================================================
-      // HISTORIQUE LOCAL — ACTION IGNORED
-      // ========================================================
-      markAsDismissed(recoId);
-    }
+  // ========================================================
+  // HISTORIQUE LOCAL — ACTION IGNORED
+  // ========================================================
+  markAsDismissed(recoId);
 
-    // ==========================================================
-    // SUPPRESSION DE LA CARTE APRÈS SUCCÈS
-    // ==========================================================
-    card.remove();
+  // Suppression immédiate pour "Fermer"
+  card.remove();
+}
 
-  } catch (error) {
+} catch (error) {
 
-    console.error(
-      '❌ Échec de l\'enregistrement de l\'action V2 :',
-      error
-    );
+  console.error(
+    '❌ Échec de l\'enregistrement de l\'action V2 :',
+    error
+  );
 
-    // ==========================================================
-    // RESTAURATION DU COMPTEUR
-    // ==========================================================
-    if (
-      counterEl &&
-      previousText !== null
-    ) {
-      counterEl.textContent =
-        previousText;
-    }
-
-    // ==========================================================
-    // RESTAURATION DE LA CARTE
-    // ==========================================================
-    card.style.pointerEvents = '';
-    card.style.transform = '';
-    card.style.opacity = '';
+  // ==========================================================
+  // RESTAURATION DU COMPTEUR
+  // ==========================================================
+  if (
+    counterEl &&
+    previousText !== null
+  ) {
+    counterEl.textContent =
+      previousText;
   }
+
+  // ==========================================================
+  // RESTAURATION DE LA CARTE
+  // ==========================================================
+  card.style.pointerEvents = '';
+  card.style.transform = '';
+  card.style.opacity = '';
+  card.style.position = '';
+  card.style.right = '';
+  card.style.zIndex = '';
 }
 /**
  * 5. DRAG DE LA BULLE POP-UP
