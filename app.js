@@ -287,9 +287,7 @@ async function sendData(triggerElement, statutValue) {
   // ÉTAT VISUEL PENDANT L'ENVOI
   // ============================================================
   card.style.pointerEvents = 'none';
-  card.style.transform = 'scale(0.95)';
-  card.style.opacity = '0.3';
-
+ 
   // ============================================================
   // PAYLOAD V2
   // ============================================================
