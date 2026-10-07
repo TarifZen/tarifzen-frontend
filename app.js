@@ -238,101 +238,188 @@ function refreshUI() {
 }
 
 /**
- * 4. TRANSFERT VERS HISTORIQUE ET ENVOI WEBHOOK MAKE
+ * 4. TRANSFERT VERS HISTORIQUE ET ENREGISTREMENT ACTION V2
  */
 async function sendData(triggerElement, statutValue) {
   console.log('🟢 sendData appelée', triggerElement, statutValue);
+
   const card = triggerElement.closest('.reco-card-item, .collection-item-3');
   if (!card) return;
 
-  const recoIdInput = card.querySelector('#reco-id-champ, input[name="reco-id"]');
-  const dataStorage = card.querySelector('.cms-data-storage');
-  const hotelStorage = document.querySelector('#hotel-storage, .hotel-data-storage');
-  const inputPrix = card.querySelector('input[name="nouveau-prix"], .reco-price-input, .input-prix, .input-nouveau-prix');
+  // ============================================================
+  // RÉCUPÉRATION DE L'UUID DE LA RECOMMANDATION
+  // ============================================================
+  const recoIdInput = card.querySelector(
+    '#reco-id-champ, input[name="reco-id"]'
+  );
 
-  const recoId = recoIdInput?.value 
-    || dataStorage?.getAttribute('data-webflow-id') 
-    || card.getAttribute('data-id')
-    || '';
+  const recoId = recoIdInput?.value?.trim() || '';
 
-  const statusType = card.getAttribute('data-status') || 'urgent';
-  const counterEl = document.querySelector(statusType === 'analyse' ? '#count-analyse' : '#count-urgent');
-  
-  const previousText = counterEl ? counterEl.textContent : null;
-
-  if (counterEl) {
-    const currentCount = parseInt(counterEl.textContent, 10) || 0;
-    counterEl.textContent = Math.max(0, currentCount - 1);
+  if (!recoId) {
+    console.error('❌ recommendation_id introuvable dans la carte.');
+    return;
   }
 
+  // ============================================================
+  // COMPTEUR
+  // ============================================================
+  const statusType = card.getAttribute('data-status') || 'urgent';
+
+  const counterEl = document.querySelector(
+    statusType === 'analyse'
+      ? '#count-analyse'
+      : '#count-urgent'
+  );
+
+  const previousText = counterEl
+    ? counterEl.textContent
+    : null;
+
+  if (counterEl) {
+    const currentCount =
+      parseInt(counterEl.textContent, 10) || 0;
+
+    counterEl.textContent =
+      Math.max(0, currentCount - 1);
+  }
+
+  // ============================================================
+  // ÉTAT VISUEL PENDANT L'ENVOI
+  // ============================================================
   card.style.pointerEvents = 'none';
   card.style.transform = 'scale(0.95)';
   card.style.opacity = '0.3';
 
-  const nouveauPrixValue = inputPrix?.value 
-    || card.querySelector('.reco-price, [data-field="recommended_price_change"]')?.textContent 
-    || '';
-
-  const recoTitleValue = card.querySelector('.reco-title, [data-field="title"], .text-block-7')?.textContent || card.getAttribute('data-titre-cms') || 'Action';
-
+  // ============================================================
+  // PAYLOAD V2
+  // ============================================================
   const payload = {
-    row_id: recoId,
-    excel_id: dataStorage?.getAttribute('data-excel-id') || hotelStorage?.getAttribute('data-excel-id') || '',
-    webflow_id: recoId,
-    reco_name: recoTitleValue,
-    status: statutValue,
-    reco_statut: statutValue === 'VRAI' ? 'traitee' : 'fermee',
-    nouveau_prix: nouveauPrixValue
+    recommendation_id: recoId,
+    action: statutValue,
+    application_method: 'UI_MANUAL'
   };
 
-  try {
-    const response = await fetch('https://hook.eu1.make.com/p81bkpbg48hatifrpnirmc1w3q1wr0s6', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
-    });
+  console.log('📤 Envoi action V2 :', payload);
 
-    if (!response.ok) {
-      throw new Error(`Erreur serveur : ${response.status}`);
+  try {
+
+    // ==========================================================
+    // API V2 — ENREGISTREMENT DANS recommendation_actions
+    // ==========================================================
+    const response = await fetch(
+      'https://tarifzen-backend.onrender.com/api/recommendation-actions',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      }
+    );
+
+    const result = await response.json();
+
+    console.log('📥 Réponse API action V2 :', result);
+
+    if (!response.ok || !result.success) {
+      throw new Error(
+        result?.error?.message ||
+        `Erreur serveur : ${response.status}`
+      );
     }
 
-    if (statutValue === 'VRAI') {
-      const sDate = card.querySelector('.reco-date, .date-main-card')?.textContent || '';
-      const sScore = card.querySelector('.reco-score, .text-block-72')?.textContent || '';
-      const isAnalyse = statusType === 'analyse';
-      const sourceInfoBtn = card.querySelector('.icon-info-carte, .info-trigger, .info, [data-message]');
-      const sMessage = sourceInfoBtn?.getAttribute('data-message') || card.querySelector('.reco-long-message')?.textContent || '';
-      const sDateBrute = sourceInfoBtn?.getAttribute('data-date') || sDate;
+    // ==========================================================
+    // HISTORIQUE LOCAL — ACTION APPLIED
+    // ==========================================================
+    if (statutValue === 'APPLIED') {
+
+      const sDate =
+        card.querySelector(
+          '.reco-date, .date-main-card'
+        )?.textContent || '';
+
+      const sScore =
+        card.querySelector(
+          '.reco-score, .text-block-72'
+        )?.textContent || '';
+
+      const isAnalyse =
+        statusType === 'analyse';
+
+      const sourceInfoBtn =
+        card.querySelector(
+          '.icon-info-carte, .info-trigger, .info, [data-message]'
+        );
+
+      const sMessage =
+        sourceInfoBtn?.getAttribute('data-message') ||
+        card.querySelector(
+          '.reco-long-message'
+        )?.textContent ||
+        '';
+
+      const sDateBrute =
+        sourceInfoBtn?.getAttribute('data-date') ||
+        sDate;
 
       markAsProcessed(recoId, {
-        titre: recoTitleValue,
+        titre:
+          card.querySelector(
+            '.reco-title, [data-field="title"], .text-block-7'
+          )?.textContent ||
+          card.getAttribute('data-titre-cms') ||
+          'Action',
+
         date: formatDateFr(sDate),
-        score: sScore || "0",
+
+        score: sScore || '0',
+
         isAnalyse: isAnalyse,
+
         message: sMessage,
+
         dateBrute: sDateBrute
       });
+
     } else {
+
+      // ========================================================
+      // HISTORIQUE LOCAL — ACTION IGNORED
+      // ========================================================
       markAsDismissed(recoId);
     }
 
+    // ==========================================================
+    // SUPPRESSION DE LA CARTE APRÈS SUCCÈS
+    // ==========================================================
     card.remove();
 
   } catch (error) {
-    console.error('Échec de l\'envoi Webhook Make :', error);
 
-    if (counterEl && previousText !== null) {
-      counterEl.textContent = previousText;
+    console.error(
+      '❌ Échec de l\'enregistrement de l\'action V2 :',
+      error
+    );
+
+    // ==========================================================
+    // RESTAURATION DU COMPTEUR
+    // ==========================================================
+    if (
+      counterEl &&
+      previousText !== null
+    ) {
+      counterEl.textContent =
+        previousText;
     }
 
+    // ==========================================================
+    // RESTAURATION DE LA CARTE
+    // ==========================================================
     card.style.pointerEvents = '';
     card.style.transform = '';
     card.style.opacity = '';
   }
 }
-
 /**
  * 5. DRAG DE LA BULLE POP-UP
  */
@@ -557,41 +644,40 @@ if (targetBtn) {
         }
 
         // --------------------------------------------------------
-        // AUTRES ACTIONS DE LA CARTE
-        // --------------------------------------------------------
-        e.preventDefault();
+// AUTRES ACTIONS DE LA CARTE
+// --------------------------------------------------------
+e.preventDefault();
 
-        if (
-            targetBtn.matches(
-                '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-            )
-        ) {
-            sendData(targetBtn, 'VRAI');
-        } else {
-            sendData(targetBtn, 'FAUX');
-        }
-
-        return;
-    }
-
-    // ============================================================
-    // AUTRES BOUTONS / BULLE
-    // ============================================================
-    e.preventDefault();
-
-    if (
-        targetBtn.matches(
-            '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-        )
-    ) {
-        sendData(targetBtn, 'VRAI');
-    } else {
-        sendData(targetBtn, 'FAUX');
-    }
-
-    return;
+if (
+    targetBtn.matches(
+        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
+    )
+) {
+    sendData(targetBtn, 'APPLIED');
+} else {
+    sendData(targetBtn, 'IGNORED');
 }
 
+return;
+}
+
+// ============================================================
+// AUTRES BOUTONS / BULLE
+// ============================================================
+e.preventDefault();
+
+if (
+    targetBtn.matches(
+        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
+    )
+) {
+    sendData(targetBtn, 'APPLIED');
+} else {
+    sendData(targetBtn, 'IGNORED');
+}
+
+return;
+}
 // ============================================================
 // CALENDRIER
 // ============================================================
