@@ -57,11 +57,6 @@ function markAsDismissed(id) {
 
 function rebuildHistory() {
 
-    console.log(
-        '🔵 REBUILD HISTORY APPELÉ',
-        new Date().toISOString()
-    );
-
     const processed = getProcessedItems();
     const dismissed = getDismissedItems();
 
@@ -76,13 +71,6 @@ function rebuildHistory() {
         );
 
     if (!historyWrapper || !modelCard) {
-        console.log(
-            '❌ REBUILD HISTORY — élément manquant',
-            {
-                historyWrapper,
-                modelCard
-            }
-        );
         return;
     }
 
@@ -93,11 +81,6 @@ function rebuildHistory() {
         historyWrapper.querySelectorAll(
             '[data-tz-history-generated="true"]'
         );
-
-    console.log(
-        '🟡 MINI-CARTES GÉNÉRÉES À SUPPRIMER :',
-        oldGeneratedCards.length
-    );
 
     oldGeneratedCards.forEach(
         card => card.remove()
@@ -142,19 +125,6 @@ function rebuildHistory() {
                 el.remove();
             }
         });
-
-    // ==========================================================
-    // DONNÉES TRAITÉES
-    // ==========================================================
-    console.log(
-        '🔵 REBUILD — processed',
-        {
-            nombre: processed.length,
-            ids: processed.map(
-                item => item.id
-            )
-        }
-    );
 
     // ==========================================================
     // RECONSTRUCTION DES MINI-CARTES
@@ -214,36 +184,6 @@ function rebuildHistory() {
             );
 
         // ======================================================
-        // DIAGNOSTIC SCORE
-        // ======================================================
-        console.log(
-            '🔎 SCORE ELEMENTS MINI-CARTE',
-            {
-                nombre:
-                    scoreElements.length,
-
-                elements:
-                    Array.from(
-                        scoreElements
-                    ).map(
-                        (el, index) => ({
-                            index,
-                            texte:
-                                el.textContent,
-                            display:
-                                getComputedStyle(
-                                    el
-                                ).display,
-                            visibility:
-                                getComputedStyle(
-                                    el
-                                ).visibility
-                        })
-                    )
-            }
-        );
-
-        // ======================================================
         // DATE
         // ======================================================
         if (cDate) {
@@ -269,20 +209,6 @@ function rebuildHistory() {
                     item.data.score || '0';
 
                 el.style.display = '';
-
-                console.log(
-                    '🟢 SCORE MINI-CARTE',
-                    {
-                        scoreStocke:
-                            item.data.score,
-
-                        elementMiniCarte:
-                            el,
-
-                        contenuApres:
-                            el.textContent
-                    }
-                );
             }
         );
 
@@ -341,27 +267,6 @@ function rebuildHistory() {
                 );
             }
         }
-
-        // ======================================================
-        // DIAGNOSTIC AVANT AJOUT
-        // ======================================================
-        console.log(
-            '🟣 REBUILD — CRÉATION MINI-CARTE',
-            {
-                id: item.id,
-
-                titre:
-                    item.data?.titre,
-
-                score:
-                    item.data?.score,
-
-                cartesActuelles:
-                    historyWrapper.querySelectorAll(
-                        '.div-block-16'
-                    ).length
-            }
-        );
 
         // ======================================================
         // AJOUT À L'HISTORIQUE
