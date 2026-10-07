@@ -446,27 +446,31 @@ function animateRecoCardClose(card) {
 
     card.dataset.closing = 'true';
 
-    // État initial forcé
-    card.style.opacity = '1';
-    card.style.transform = 'translateY(0)';
-    card.style.transition = 'none';
+    // Animation native du navigateur :
+    // légère montée + disparition progressive
+    const animation = card.animate(
+        [
+            {
+                opacity: 1,
+                transform: 'translateY(0)'
+            },
+            {
+                opacity: 0,
+                transform: 'translateY(-15px)'
+            }
+        ],
+        {
+            duration: 450,
+            easing: 'ease',
+            fill: 'forwards'
+        }
+    );
 
-    // Force le navigateur à appliquer l'état initial
-    card.offsetHeight;
-
-    // Fade doux vers le haut
-    card.style.transition =
-        'opacity 0.45s ease, transform 0.45s ease';
-
-    requestAnimationFrame(() => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(-15px)';
-    });
-
-    // Suppression uniquement après l'animation
-    setTimeout(() => {
+    // La carte est supprimée uniquement
+    // lorsque l'animation est terminée
+    animation.onfinish = () => {
         card.remove();
-    }, 450);
+    };
 }
 /**
  * =============================================
@@ -539,15 +543,15 @@ if (targetBtn) {
     if (recoCard) {
 
         // --------------------------------------------------------
-        // FERMETURE DE LA CARTE
-        // --------------------------------------------------------
-      if (
+// FERMETURE DE LA CARTE
+// --------------------------------------------------------
+if (
     targetBtn.matches('.close-reco, .btn-fermer')
-    ) {
+) {
     animateRecoCardClose(recoCard);
 
     return;
-    }
+}
 
         // --------------------------------------------------------
         // AUTRES ACTIONS DE LA CARTE
