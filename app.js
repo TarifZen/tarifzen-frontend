@@ -438,34 +438,36 @@ function initPreviousYearText() {
 /**
  * 9. ANIMATION FERMETURE CARTE RECOMMANDATION
  */
-function animateRecoCardClose(card, callback) {
-    if (!card) {
-        if (callback) callback();
-        return;
-    }
+function animateRecoCardClose(card) {
+    if (!card) return;
 
     // Évite de lancer l'animation plusieurs fois
     if (card.dataset.closing === 'true') return;
 
     card.dataset.closing = 'true';
 
+    // État initial forcé
+    card.style.opacity = '1';
+    card.style.transform = 'translateY(0)';
+    card.style.transition = 'none';
+
+    // Force le navigateur à appliquer l'état initial
+    card.offsetHeight;
+
     // Fade doux vers le haut
     card.style.transition =
-        'opacity 0.4s ease, transform 0.4s ease';
+        'opacity 0.45s ease, transform 0.45s ease';
 
     requestAnimationFrame(() => {
         card.style.opacity = '0';
-        card.style.transform = 'translateY(-12px)';
+        card.style.transform = 'translateY(-15px)';
     });
 
-    // Suppression uniquement après la fin du fade
+    // Suppression uniquement après l'animation
     setTimeout(() => {
-        if (callback) {
-            callback();
-        }
-    }, 400);
+        card.remove();
+    }, 450);
 }
-
 /**
  * =============================================
  * Lancement Global (DOM READY)
@@ -539,15 +541,13 @@ if (targetBtn) {
         // --------------------------------------------------------
         // FERMETURE DE LA CARTE
         // --------------------------------------------------------
-        if (
-            targetBtn.matches('.close-reco, .btn-fermer')
-        ) {
-            animateRecoCardClose(recoCard, () => {
-                recoCard.remove();
-            });
+      if (
+    targetBtn.matches('.close-reco, .btn-fermer')
+    ) {
+    animateRecoCardClose(recoCard);
 
-            return;
-        }
+    return;
+    }
 
         // --------------------------------------------------------
         // AUTRES ACTIONS DE LA CARTE
