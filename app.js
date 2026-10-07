@@ -56,6 +56,10 @@ function markAsDismissed(id) {
 }
 
 function rebuildHistory() {
+  console.log(
+    '🔵 REBUILD HISTORY APPELÉ',
+    new Date().toISOString()
+);
     const processed = getProcessedItems();
     const dismissed = getDismissedItems();
     const historyWrapper =
