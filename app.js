@@ -446,26 +446,31 @@ function animateRecoCardClose(card) {
 
     card.dataset.closing = 'true';
 
-    // La carte monte fortement tout en disparaissant progressivement
+    // Permet de déplacer réellement la carte vers le haut
+    card.style.position = 'relative';
+    card.style.zIndex = '10';
+
+    // Animation : la carte monte de 200px
+    // tout en disparaissant progressivement
     const animation = card.animate(
         [
             {
                 opacity: 1,
-                transform: 'translateY(0)'
+                top: '0px'
             },
             {
                 opacity: 0,
-                transform: 'translateY(-200px)'
+                top: '-200px'
             }
         ],
         {
             duration: 700,
-            easing: 'ease-in',
+            easing: 'ease-in-out',
             fill: 'forwards'
         }
     );
 
-    // Suppression uniquement après la fin de l'animation
+    // Suppression uniquement après l'animation
     animation.onfinish = () => {
         card.remove();
     };
