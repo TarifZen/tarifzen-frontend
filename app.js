@@ -534,7 +534,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // 2. Boutons d'action Webhook Make
 const targetBtn = e.target.closest(
-    '.btn-valider, .btn-refuser, .btn-traiter, .btn-fermer, [data-action="vrai"], [data-action="faux"], .close-reco'
+    '#checkbox, .btn-valider, .btn-refuser, .btn-traiter, .btn-fermer, [data-action="vrai"], [data-action="faux"], .close-reco'
 );
 
 if (targetBtn) {
