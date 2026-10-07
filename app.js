@@ -546,16 +546,15 @@ if (targetBtn) {
 
     if (recoCard) {
 
-  // --------------------------------------------------------
-// FERMETURE DE LA CARTE
-// --------------------------------------------------------
-if (
-    targetBtn.matches('.close-reco, .btn-fermer')
-) {
-    animateRecoCardClose(recoCard);
-
-    return;
-}
+        // --------------------------------------------------------
+        // FERMETURE DE LA CARTE
+        // --------------------------------------------------------
+        if (
+            targetBtn.matches('.close-reco, .btn-fermer')
+        ) {
+            animateRecoCardClose(recoCard);
+            return;
+        }
 
         // --------------------------------------------------------
         // AUTRES ACTIONS DE LA CARTE
@@ -563,14 +562,17 @@ if (
         e.preventDefault();
 
         if (
-    targetBtn.matches(
-        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-    )
-) {
-    sendData(targetBtn, 'VRAI');
-} else {
-    sendData(targetBtn, 'FAUX');
-}
+            targetBtn.matches(
+                '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
+            )
+        ) {
+            sendData(targetBtn, 'VRAI');
+        } else {
+            sendData(targetBtn, 'FAUX');
+        }
+
+        return;
+    }
 
     // ============================================================
     // AUTRES BOUTONS / BULLE
@@ -579,15 +581,16 @@ if (
 
     if (
         targetBtn.matches(
-            '.btn-valider, .btn-traiter, [data-action="vrai"]'
+            '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
         )
     ) {
         sendData(targetBtn, 'VRAI');
     } else {
         sendData(targetBtn, 'FAUX');
     }
-}
 
+    return;
+}
 
 // ============================================================
 // CALENDRIER
