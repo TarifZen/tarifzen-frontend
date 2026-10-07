@@ -389,23 +389,26 @@ if (statutValue === 'APPLIED') {
   // ----------------------------------------------------------
   // 2. ANIMATION DE LA CARTE VERS LA COLONNE ACTIONS
   // ----------------------------------------------------------
-  const animation = card.animate(
-    [
-      {
-        opacity: 1,
-        transform: 'translateX(0) scale(1)'
-      },
-      {
-        opacity: 0,
-        transform: 'translateX(350px) scale(0.85)'
-      }
-    ],
+  card.style.position = 'relative';
+card.style.zIndex = '10';
+
+const animation = card.animate(
+  [
     {
-      duration: 700,
-      easing: 'ease-in-out',
-      fill: 'forwards'
+      opacity: 1,
+      right: '0px'
+    },
+    {
+      opacity: 0,
+      right: '-350px'
     }
-  );
+  ],
+  {
+    duration: 700,
+    easing: 'ease-in-out',
+    fill: 'forwards'
+  }
+);
 
   // ----------------------------------------------------------
   // 3. APRÈS L'ANIMATION → MINI-CARTE
