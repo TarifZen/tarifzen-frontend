@@ -112,148 +112,147 @@ function rebuildHistory() {
                 '.titre-action-mini-card'
             );
 
-        // ==========================================================
-        // SCORE RM — DIAGNOSTIC
-        // ==========================================================
-        const scoreElements =
-            newMiniCard.querySelectorAll(
-                '.score-rm-mini-card'
-            );
+   // ==========================================================
+// SCORE RM — DIAGNOSTIC
+// ==========================================================
+const scoreElements =
+    newMiniCard.querySelectorAll(
+        '.score-rm-mini-card'
+    );
 
-        console.log(
-            '🔎 SCORE ELEMENTS MINI-CARTE',
-            {
-                nombre: scoreElements.length,
-                elements: Array.from(
-                    scoreElements
-                ).map(el => ({
-                    texte: el.textContent,
-                    display:
-                        getComputedStyle(el).display,
-                    visibility:
-                        getComputedStyle(el).visibility
-                }))
-            }
+console.log(
+    '🔎 SCORE ELEMENTS MINI-CARTE',
+    {
+        nombre: scoreElements.length,
+        elements: Array.from(
+            scoreElements
+        ).map((el, index) => ({
+            index,
+            texte: el.textContent,
+            display:
+                getComputedStyle(el).display,
+            visibility:
+                getComputedStyle(el).visibility
+        }))
+    }
+);
+
+// ==========================================================
+// DATE
+// ==========================================================
+if (cDate) {
+    cDate.textContent =
+        item.data.date || '';
+}
+
+// ==========================================================
+// TITRE
+// ==========================================================
+if (cTitre) {
+    cTitre.textContent =
+        item.data.titre || '';
+}
+
+// ==========================================================
+// SCORE RM
+// ==========================================================
+scoreElements.forEach(el => {
+
+    el.textContent =
+        item.data.score || '0';
+
+    el.style.display = '';
+
+    console.log(
+        '🟢 SCORE MINI-CARTE',
+        {
+            scoreStocke:
+                item.data.score,
+            elementMiniCarte:
+                el,
+            contenuApres:
+                el.textContent
+        }
+    );
+});
+
+// ==========================================================
+// INFORMATIONS
+// ==========================================================
+const cInfo =
+    newMiniCard.querySelector(
+        '.icon-info-mini'
+    );
+
+if (cInfo) {
+    cInfo.setAttribute(
+        'data-message',
+        item.data.message || ''
+    );
+
+    cInfo.setAttribute(
+        'data-date',
+        item.data.dateBrute || ''
+    );
+}
+
+// ==========================================================
+// BADGE ROUGE / ORANGE
+// ==========================================================
+const badgeRed =
+    newMiniCard.querySelector(
+        '.badge-score-red-mini-card'
+    );
+
+const badgeOrange =
+    newMiniCard.querySelector(
+        '.badge-score-orange-mini-card'
+    );
+
+if (item.data.isAnalyse) {
+
+    if (badgeOrange) {
+        badgeOrange.style.setProperty(
+            'display',
+            'flex',
+            'important'
         );
+    }
 
-        const cScore =
-            scoreElements[0];
-
-        const cInfo =
-            newMiniCard.querySelector(
-                '.icon-info-mini'
-            );
-
-        const badgeRed =
-            newMiniCard.querySelector(
-                '.badge-score-red-mini-card'
-            );
-
-        const badgeOrange =
-            newMiniCard.querySelector(
-                '.badge-score-orange-mini-card'
-            );
-
-        // ==========================================================
-        // DATE
-        // ==========================================================
-        if (cDate) {
-            cDate.textContent =
-                item.data.date || '';
-        }
-
-        // ==========================================================
-        // TITRE
-        // ==========================================================
-        if (cTitre) {
-            cTitre.textContent =
-                item.data.titre || '';
-        }
-
-        // ==========================================================
-        // SCORE RM
-        // ==========================================================
-        if (cScore) {
-            cScore.textContent =
-                item.data.score || '0';
-
-            cScore.style.display = '';
-
-            console.log(
-                '🟢 SCORE MINI-CARTE',
-                {
-                    scoreStocke:
-                        item.data.score,
-                    elementMiniCarte:
-                        cScore,
-                    contenuApres:
-                        cScore.textContent
-                }
-            );
-        }
-
-        // ==========================================================
-        // INFORMATIONS
-        // ==========================================================
-        if (cInfo) {
-            cInfo.setAttribute(
-                'data-message',
-                item.data.message || ''
-            );
-
-            cInfo.setAttribute(
-                'data-date',
-                item.data.dateBrute || ''
-            );
-        }
-
-        // ==========================================================
-        // BADGE ROUGE / ORANGE
-        // ==========================================================
-        if (item.data.isAnalyse) {
-
-            if (badgeOrange) {
-                badgeOrange.style.setProperty(
-                    'display',
-                    'flex',
-                    'important'
-                );
-            }
-
-            if (badgeRed) {
-                badgeRed.style.setProperty(
-                    'display',
-                    'none',
-                    'important'
-                );
-            }
-
-        } else {
-
-            if (badgeRed) {
-                badgeRed.style.setProperty(
-                    'display',
-                    'flex',
-                    'important'
-                );
-            }
-
-            if (badgeOrange) {
-                badgeOrange.style.setProperty(
-                    'display',
-                    'none',
-                    'important'
-                );
-            }
-        }
-
-        // ==========================================================
-        // AJOUT À L'HISTORIQUE
-        // ==========================================================
-        historyWrapper.prepend(
-            newMiniCard
+    if (badgeRed) {
+        badgeRed.style.setProperty(
+            'display',
+            'none',
+            'important'
         );
-    });
+    }
+
+} else {
+
+    if (badgeRed) {
+        badgeRed.style.setProperty(
+            'display',
+            'flex',
+            'important'
+        );
+    }
+
+    if (badgeOrange) {
+        badgeOrange.style.setProperty(
+            'display',
+            'none',
+            'important'
+        );
+    }
+}
+
+// ==========================================================
+// AJOUT À L'HISTORIQUE
+// ==========================================================
+historyWrapper.prepend(
+    newMiniCard
+);
+});
 }
   
 /**
