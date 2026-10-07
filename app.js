@@ -296,7 +296,7 @@ async function sendData(triggerElement, statutValue) {
   const payload = {
     recommendation_id: recoId,
     action: statutValue,
-    application_method: 'UI_MANUAL'
+    application_method: 'CUSTOM'
   };
 
   console.log('📤 Envoi action V2 :', payload);
