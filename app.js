@@ -422,13 +422,15 @@ if (statutValue === 'APPLIED') {
 
 } else {
 
-  // ========================================================
+    // ========================================================
   // HISTORIQUE LOCAL — ACTION IGNORED
   // ========================================================
   markAsDismissed(recoId);
 
-  // Suppression immédiate pour "Fermer"
-  card.remove();
+  // ========================================================
+  // ANIMATION DE FERMETURE VERS LE HAUT
+  // ========================================================
+  animateRecoCardClose(card);
 }
 
 } catch (error) {
