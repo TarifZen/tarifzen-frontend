@@ -78,11 +78,11 @@ function rebuildHistory() {
         newMiniCard.style.setProperty('display', 'flex', 'important');
         
         const cDate = newMiniCard.querySelector('.date-mini-carte');
-        const cTitre = newMiniCard.querySelector('.text-block-16');
-        const cScore = newMiniCard.querySelector('.text-block-15');
-        const cInfo = newMiniCard.querySelector('#cible-info') || newMiniCard.querySelector('.icon-info-mini');
-        const badgeRed = newMiniCard.querySelector('.badge-score-red');
-        const badgeOrange = newMiniCard.querySelector('.badge-score-orange');
+        const cTitre = newMiniCard.querySelector('.titre-action-mini-card');
+        const cScore = newMiniCard.querySelector('.score-rm-mini-card');
+        const cInfo = newMiniCard.querySelector('.icon-info-mini');
+        const badgeRed = newMiniCard.querySelector('.badge-score-red-mini-card');
+        const badgeOrange = newMiniCard.querySelector('.badge-score-orange-mini-card');
 
         if (cDate) cDate.innerText = item.data.date || '';
         if (cTitre) cTitre.innerText = item.data.titre || '';
