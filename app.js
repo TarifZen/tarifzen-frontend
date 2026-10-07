@@ -326,7 +326,7 @@ async function sendData(triggerElement, statutValue) {
       );
     }
 
-    // ==========================================================
+  // ==========================================================
 // HISTORIQUE LOCAL — ACTION APPLIED
 // ==========================================================
 if (statutValue === 'APPLIED') {
@@ -338,8 +338,8 @@ if (statutValue === 'APPLIED') {
 
   const sScore =
     card.querySelector(
-      '.reco-score, .text-block-72'
-    )?.textContent || '';
+      '#reco-score-rm'
+    )?.textContent?.trim() || '';
 
   const isAnalyse =
     statusType === 'analyse';
@@ -360,23 +360,23 @@ if (statutValue === 'APPLIED') {
     sourceInfoBtn?.getAttribute('data-date') ||
     sDate;
 
- const processedData = {
-  titre:
-    card.querySelector(
-      '#titre-action'
-    )?.textContent?.trim() ||
-    'Action',
+  const processedData = {
+    titre:
+      card.querySelector(
+        '#titre-action'
+      )?.textContent?.trim() ||
+      'Action',
 
-  date: formatDateFr(sDate),
+    date: formatDateFr(sDate),
 
-  score: sScore || '0',
+    score: sScore || '0',
 
-  isAnalyse: isAnalyse,
+    isAnalyse: isAnalyse,
 
-  message: sMessage,
+    message: sMessage,
 
-  dateBrute: sDateBrute
-};
+    dateBrute: sDateBrute
+  };
   
      // ----------------------------------------------------------
   // 1. ENREGISTREMENT LOCAL
