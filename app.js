@@ -563,17 +563,14 @@ if (
         e.preventDefault();
 
         if (
-            targetBtn.matches(
-                '.btn-valider, .btn-traiter, [data-action="vrai"]'
-            )
-        ) {
-            sendData(targetBtn, 'VRAI');
-        } else {
-            sendData(targetBtn, 'FAUX');
-        }
-
-        return;
-    }
+    targetBtn.matches(
+        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
+    )
+) {
+    sendData(targetBtn, 'VRAI');
+} else {
+    sendData(targetBtn, 'FAUX');
+}
 
     // ============================================================
     // AUTRES BOUTONS / BULLE
