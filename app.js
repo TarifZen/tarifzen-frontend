@@ -956,20 +956,27 @@ document.addEventListener('DOMContentLoaded', () => {
         // ============================================================
         if (e.target.matches('input[type="checkbox"]')) {
 
-            const recoCard =
-                e.target.closest('.reco-card-item');
+    const recoCard =
+        e.target.closest('.reco-card-item');
 
-            if (recoCard) {
+    if (recoCard) {
 
-                // On laisse Webflow appliquer son état visuel
-                // (bleu + coche blanche) avant de traiter l'action.
-                setTimeout(() => {
-                    sendData(e.target, 'APPLIED');
-                }, 50);
-            }
+        const visualCheckbox =
+            recoCard.querySelector('.w-checkbox-input');
 
-            return;
+        if (visualCheckbox) {
+            visualCheckbox.classList.add(
+                'w--redirected-checked'
+            );
         }
+
+        setTimeout(() => {
+            sendData(e.target, 'APPLIED');
+        }, 50);
+    }
+
+    return;
+}
 
 
         // ============================================================
