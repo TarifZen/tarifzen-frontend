@@ -876,11 +876,27 @@ document.addEventListener('DOMContentLoaded', () => {
                 '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1'
             );
 
-           let message = '';
+let message = '';
 
 if (parentItem) {
+
+    // Carte reco API02
     message =
         parentItem.getAttribute('data-popup-message') || '';
+
+    // Mini-carte historique
+    if (!message) {
+        const hiddenField =
+            parentItem.querySelector(
+                '.hide, .reco-long-message'
+            );
+
+        if (hiddenField) {
+            message =
+                hiddenField.innerText ||
+                hiddenField.textContent;
+        }
+    }
 }
 
             if (!message && parentItem) {
