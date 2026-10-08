@@ -77,7 +77,7 @@ function markAsDismissed(id) {
     }
 }
 
-function rebuildHistory() {
+function rebuildHistory(newRecoId = null) {
 
     const processed = getProcessedItems();
     const dismissed = getDismissedItems();
