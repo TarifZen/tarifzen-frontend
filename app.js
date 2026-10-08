@@ -798,12 +798,28 @@ function formatPickUpTable() {
  * 8. MISE À JOUR DYNAMIQUE DU TEXT BLOCK SUR LE MOIS DE N-1
  */
 function initPreviousYearText() {
-    const targetEl = document.getElementById('date-n-moins-1');
+    const targetEl = document.getElementById('mois-n-1');
+
     if (targetEl) {
         const today = new Date();
-        const previousYearDate = new Date(today.getFullYear() - 1, today.getMonth(), today.getDate());
-        let formatted = previousYearDate.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
-        targetEl.innerText = formatted.charAt(0).toUpperCase() + formatted.slice(1);
+
+        const previousYearDate = new Date(
+            today.getFullYear() - 1,
+            today.getMonth(),
+            1
+        );
+
+        let formatted = previousYearDate.toLocaleDateString(
+            'fr-FR',
+            {
+                month: 'long',
+                year: 'numeric'
+            }
+        );
+
+        targetEl.innerText =
+            formatted.charAt(0).toUpperCase() +
+            formatted.slice(1);
     }
 }
 /**
