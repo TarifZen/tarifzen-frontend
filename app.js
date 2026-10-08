@@ -615,7 +615,7 @@ if (statutValue === 'APPLIED') {
   // 1. ENREGISTREMENT LOCAL
   // ----------------------------------------------------------
   markAsProcessed(recoId, processedData);
-
+updateHistoricCounter();
   // ----------------------------------------------------------
   // 2. ANIMATION DE LA CARTE VERS LA DROITE
   // ----------------------------------------------------------
