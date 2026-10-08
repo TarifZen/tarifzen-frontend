@@ -901,19 +901,46 @@ const targetBtn = e.target.closest(
 if (targetBtn) {
 
     // ============================================================
-    // CARTE DE RECOMMANDATION
-    // ============================================================
-    const recoCard = targetBtn.closest('.reco-card-item');
+// CARTE DE RECOMMANDATION
+// ============================================================
+const recoCard = targetBtn.closest('.reco-card-item');
 
-    if (recoCard) {
+if (recoCard) {
 
-        // --------------------------------------------------------
-        // FERMETURE DE LA CARTE
-        // --------------------------------------------------------
-        if (
-    targetBtn.matches('.close-reco, .btn-fermer')
-) {
-    sendData(targetBtn, 'IGNORED');
+    // --------------------------------------------------------
+    // CHECKBOX WEBFLOW — IGNORER LE DIV VISUEL
+    // --------------------------------------------------------
+    if (
+        targetBtn.classList.contains('w-checkbox-input')
+    ) {
+        return;
+    }
+
+    // --------------------------------------------------------
+    // FERMETURE DE LA CARTE
+    // --------------------------------------------------------
+    if (
+        targetBtn.matches('.close-reco, .btn-fermer')
+    ) {
+        sendData(targetBtn, 'IGNORED');
+        return;
+    }
+
+    // --------------------------------------------------------
+    // ACTIONS DE LA CARTE
+    // --------------------------------------------------------
+    e.preventDefault();
+
+    if (
+        targetBtn.matches(
+            '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
+        )
+    ) {
+        sendData(targetBtn, 'APPLIED');
+    } else {
+        sendData(targetBtn, 'IGNORED');
+    }
+
     return;
 }
 
