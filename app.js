@@ -1954,13 +1954,22 @@ headers: requestHeaders
 }
 );
 if (response02.ok) {
-const result02 =
-await response02.json();
-renderRecommandations(
-result02 && result02.data
-? result02.data
-: []
-);
+
+  const result02 =
+    await response02.json();
+
+  const recommendations =
+    result02 && result02.data
+      ? result02.data
+      : [];
+
+  renderRecommandations(
+    recommendations
+  );
+
+  updateHistoricCounter(
+    result02?.count || recommendations.length
+  );
 } else {
 console.error(
 ` [API02 - HTTP ${response02.status}] Erreur lors de la récupération des recommandations.`
