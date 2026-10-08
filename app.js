@@ -863,88 +863,176 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // GESTION DES CLICS
     document.addEventListener('click', (e) => {
-        // 1. Boutons Info / Bulle
-        const infoBtn = e.target.closest('.icon-info-carte, .info-trigger, #cible-info, .icon-info-mini, .info');
+
+        // ============================================================
+        // 1. BOUTONS INFO / BULLE
+        // ============================================================
+        const infoBtn = e.target.closest(
+            '.icon-info-carte, .info-trigger, #cible-info, .icon-info-mini, .info'
+        );
         
         if (infoBtn) {
-            const parentItem = infoBtn.closest('.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1');
-            let message = infoBtn.getAttribute('data-message') || infoBtn.getAttribute('message-long');
+            const parentItem = infoBtn.closest(
+                '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1'
+            );
+
+            let message =
+                infoBtn.getAttribute('data-message') ||
+                infoBtn.getAttribute('message-long');
+
             if (!message && parentItem) {
-                const hiddenField = parentItem.querySelector('.hide, .reco-long-message');
-                if (hiddenField) message = hiddenField.innerText || hiddenField.textContent;
+                const hiddenField =
+                    parentItem.querySelector('.hide, .reco-long-message');
+
+                if (hiddenField) {
+                    message =
+                        hiddenField.innerText ||
+                        hiddenField.textContent;
+                }
             }
+
             let finalDate = "";
-            let rawDateAttr = infoBtn.getAttribute('data-date') || infoBtn.getAttribute('date') || parentItem?.getAttribute('date');
+
+            let rawDateAttr =
+                infoBtn.getAttribute('data-date') ||
+                infoBtn.getAttribute('date') ||
+                parentItem?.getAttribute('date');
+
             if (rawDateAttr && rawDateAttr.length > 5) {
                 finalDate = formatDateFr(rawDateAttr);
+
             } else if (parentItem) {
-                const dayNum = parentItem.querySelector('.text-block-35')?.innerText || parentItem.querySelector('.text-4')?.innerText;
-                const activeTab = document.querySelector('.tabs-menu-5 .w--current');
-                const activeMonth = activeTab ? activeTab.innerText.trim() : "Mars";
-                if (dayNum) finalDate = getStrictDate(dayNum, activeMonth);
+                const dayNum =
+                    parentItem.querySelector('.text-block-35')?.innerText ||
+                    parentItem.querySelector('.text-4')?.innerText;
+
+                const activeTab =
+                    document.querySelector('.tabs-menu-5 .w--current');
+
+                const activeMonth =
+                    activeTab
+                        ? activeTab.innerText.trim()
+                        : "Mars";
+
+                if (dayNum) {
+                    finalDate = getStrictDate(
+                        dayNum,
+                        activeMonth
+                    );
+                }
             }
-            const popDate = document.getElementById('text-date-pop-up');
-            const popMsg = document.getElementById('info-text');
-            if (popDate) popDate.innerText = finalDate;
-            if (popMsg) popMsg.innerText = (message && message.trim() !== "") ? message : "Détails de l'analyse non disponibles.";
+
+            const popDate =
+                document.getElementById('text-date-pop-up');
+
+            const popMsg =
+                document.getElementById('info-text');
+
+            if (popDate) {
+                popDate.innerText = finalDate;
+            }
+
+            if (popMsg) {
+                popMsg.innerText =
+                    (message && message.trim() !== "")
+                        ? message
+                        : "Détails de l'analyse non disponibles.";
+            }
+
             if (bulle) { 
-                $(bulle).fadeIn().css('display', 'flex'); 
-                if (overlay) $(overlay).fadeIn(); 
+                $(bulle)
+                    .fadeIn()
+                    .css('display', 'flex');
+
+                if (overlay) {
+                    $(overlay).fadeIn();
+                }
             }
         }
 
-// 2. Boutons d'action Webhook Make
-const targetBtn = e.target.closest(
-    '#checkbox, .btn-valider, .btn-refuser, .btn-traiter, .btn-fermer, [data-action="vrai"], [data-action="faux"], .close-reco'
-);
 
-if (targetBtn) {
+        // ============================================================
+        // 2. CHECKBOX WEBFLOW — TRAITÉE
+        // ============================================================
+        if (e.target.matches('input[type="checkbox"]')) {
 
-// ============================================================
-// CARTE DE RECOMMANDATION
-// ============================================================
-const recoCard = targetBtn.closest('.reco-card-item');
+            const recoCard =
+                e.target.closest('.reco-card-item');
 
-if (recoCard) {
+            if (recoCard) {
 
-    // --------------------------------------------------------
-    // CHECKBOX WEBFLOW — IGNORER LE DIV VISUEL
-    // --------------------------------------------------------
-    if (
-        targetBtn.classList.contains('w-checkbox-input')
-    ) {
-        return;
-    }
+                // On laisse Webflow appliquer son état visuel
+                // (bleu + coche blanche) avant de traiter l'action.
+                setTimeout(() => {
+                    sendData(e.target, 'APPLIED');
+                }, 50);
+            }
 
-    // --------------------------------------------------------
-    // FERMETURE DE LA CARTE
-    // --------------------------------------------------------
-    if (
-        targetBtn.matches('.close-reco, .btn-fermer')
-    ) {
-        sendData(targetBtn, 'IGNORED');
-        return;
-    }
+            return;
+        }
 
-    // --------------------------------------------------------
-    // ACTIONS DE LA CARTE
-    // --------------------------------------------------------
-    e.preventDefault();
 
-    if (
-        targetBtn.matches(
-            '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-        )
-    ) {
-        sendData(targetBtn, 'APPLIED');
-    } else {
-        sendData(targetBtn, 'IGNORED');
-    }
+        // ============================================================
+        // 3. BOUTONS D'ACTION WEBHOOK MAKE
+        // ============================================================
+        const targetBtn = e.target.closest(
+            '.btn-valider, .btn-refuser, .btn-traiter, .btn-fermer, [data-action="vrai"], [data-action="faux"], .close-reco'
+        );
 
-    return;
-}
-}
-}); // fermeture du document.addEventListener('click', ...)
+        if (targetBtn) {
+
+            // ========================================================
+            // CARTE DE RECOMMANDATION
+            // ========================================================
+            const recoCard =
+                targetBtn.closest('.reco-card-item');
+
+            if (recoCard) {
+
+                // ----------------------------------------------------
+                // FERMETURE DE LA CARTE
+                // ----------------------------------------------------
+                if (
+                    targetBtn.matches(
+                        '.close-reco, .btn-fermer'
+                    )
+                ) {
+                    sendData(
+                        targetBtn,
+                        'IGNORED'
+                    );
+
+                    return;
+                }
+
+
+                // ----------------------------------------------------
+                // ACTIONS DE LA CARTE
+                // ----------------------------------------------------
+                e.preventDefault();
+
+                if (
+                    targetBtn.matches(
+                        '.btn-valider, .btn-traiter, [data-action="vrai"]'
+                    )
+                ) {
+                    sendData(
+                        targetBtn,
+                        'APPLIED'
+                    );
+
+                } else {
+                    sendData(
+                        targetBtn,
+                        'IGNORED'
+                    );
+                }
+
+                return;
+            }
+        }
+
+    }); // fermeture du document.addEventListener('click', ...)
 // ============================================================
 // CALENDRIER
 // ============================================================
