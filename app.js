@@ -943,6 +943,8 @@ if (recoCard) {
 
     return;
 }
+}
+}); // fermeture du document.addEventListener('click', ...)
 // ============================================================
 // CALENDRIER
 // ============================================================
@@ -1145,8 +1147,6 @@ $('.tabs-menu-5 a').on('click', function() {
         150
     );
 });
-
-}); // fermeture du document.addEventListener('click', ...)
 
 }); // fermeture du document.addEventListener('DOMContentLoaded', ...)
 
