@@ -158,13 +158,21 @@ function rebuildHistory(newRecoId = null) {
         }
 
         const newMiniCard =
-            modelCard.cloneNode(true);
+    modelCard.cloneNode(true);
 
-        // Marque uniquement les clones générés
-        newMiniCard.setAttribute(
-            'data-tz-history-generated',
-            'true'
-        );
+const itemId = item.id;
+
+if (newRecoId && itemId === newRecoId) {
+    newMiniCard.classList.add(
+        'tz-mini-card-enter'
+    );
+}
+
+// Marque uniquement les clones générés
+newMiniCard.setAttribute(
+    'data-tz-history-generated',
+    'true'
+);
 
         newMiniCard.style.setProperty(
             'display',
