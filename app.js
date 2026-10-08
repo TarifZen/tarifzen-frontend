@@ -582,12 +582,13 @@ if (statutValue === 'APPLIED') {
       '.icon-info-carte, .info-trigger, .info, [data-message]'
     );
 
-  const sMessage =
-    sourceInfoBtn?.getAttribute('data-message') ||
-    card.querySelector(
-      '.reco-long-message'
-    )?.textContent ||
-    '';
+const sMessage =
+  card.getAttribute('data-popup-message') ||
+  sourceInfoBtn?.getAttribute('data-message') ||
+  card.querySelector(
+    '.reco-long-message'
+  )?.textContent ||
+  '';
 
   const sDateBrute =
     sourceInfoBtn?.getAttribute('data-date') ||
