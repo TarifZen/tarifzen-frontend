@@ -650,7 +650,7 @@ updateHistoricCounter();
 
     // Reconstruit la colonne "Actions traitées"
     // à partir de processed_recos_final
-    rebuildHistory();
+    rebuildHistory(recoId);
   };
 
 } else {
