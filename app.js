@@ -884,20 +884,13 @@ if (parentItem) {
     // Carte reco API02
     message =
         parentItem.getAttribute('data-popup-message') || '';
+}
 
-    // Mini-carte historique
-    if (!message) {
-        const hiddenField =
-            parentItem.querySelector(
-                '.hide, .reco-long-message'
-            );
-
-        if (hiddenField) {
-            message =
-                hiddenField.innerText ||
-                hiddenField.textContent;
-        }
-    }
+// Mini-carte historique
+// Le message est directement porté par l'icône
+if (!message && infoBtn) {
+    message =
+        infoBtn.getAttribute('data-message') || '';
 }
 
             if (!message && parentItem) {
@@ -920,22 +913,20 @@ if (parentItem) {
         parentItem.getAttribute('data-popup-date') || '';
 
     if (rawPopupDate) {
-
         finalDate =
             formatDateFr(rawPopupDate);
+    }
+}
 
-    } else {
+// Mini-carte historique
+// La date est directement portée par l'icône
+if (!finalDate && infoBtn) {
 
-        // Mini-carte historique
-        const dateEl =
-            parentItem.querySelector(
-                '.reco-date, .date-main-card'
-            );
+    const rawInfoDate =
+        infoBtn.getAttribute('data-date') || '';
 
-        if (dateEl) {
-            finalDate =
-                dateEl.textContent.trim();
-        }
+    if (rawInfoDate) {
+        finalDate = rawInfoDate;
     }
 }
         
