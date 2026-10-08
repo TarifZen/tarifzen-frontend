@@ -938,15 +938,27 @@ return;
 // ============================================================
 // AUTRES BOUTONS / BULLE
 // ============================================================
-e.preventDefault();
-
 if (
     targetBtn.matches(
         '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
     )
 ) {
+
+    const checkboxInput =
+        recoCard.querySelector(
+            'input[type="checkbox"]'
+        );
+
+    if (checkboxInput) {
+        checkboxInput.checked = true;
+    }
+
     sendData(targetBtn, 'APPLIED');
+
 } else {
+
+    e.preventDefault();
+
     sendData(targetBtn, 'IGNORED');
 }
 
