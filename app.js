@@ -1628,6 +1628,19 @@ function renderRecommandations(data) {
       '';
 
     newCard.setAttribute('data-id', recoId);
+    
+// ============================================================
+// DONNÉES POPUP — DATE + MESSAGE LONG
+// ============================================================
+newCard.setAttribute(
+  'data-popup-date',
+  item.date || ''
+);
+
+newCard.setAttribute(
+  'data-popup-message',
+  item.long_message || ''
+);
 
     // ============================================================
     // TITRE
