@@ -944,27 +944,9 @@ if (
     )
 ) {
 
-    const checkboxInput =
-        recoCard.querySelector(
-            'input[type="checkbox"]'
-        );
-
-    const checkboxVisual =
-        recoCard.querySelector(
-            '.w-checkbox-input'
-        );
-
-    if (checkboxInput) {
-        checkboxInput.checked = true;
-    }
-
-    if (checkboxVisual) {
-        checkboxVisual.classList.add(
-            'w--redirected-checked'
-        );
-    }
-
-    sendData(targetBtn, 'APPLIED');
+    setTimeout(() => {
+        sendData(targetBtn, 'APPLIED');
+    }, 0);
 
 } else {
 
