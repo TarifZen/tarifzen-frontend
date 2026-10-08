@@ -900,7 +900,7 @@ const targetBtn = e.target.closest(
 
 if (targetBtn) {
 
-    // ============================================================
+// ============================================================
 // CARTE DE RECOMMANDATION
 // ============================================================
 const recoCard = targetBtn.closest('.reco-card-item');
@@ -942,47 +942,6 @@ if (recoCard) {
     }
 
     return;
-}
-
-        // --------------------------------------------------------
-// AUTRES ACTIONS DE LA CARTE
-// --------------------------------------------------------
-e.preventDefault();
-
-if (
-    targetBtn.matches(
-        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-    )
-) {
-    sendData(targetBtn, 'APPLIED');
-} else {
-    sendData(targetBtn, 'IGNORED');
-}
-
-return;
-}
-
-// ============================================================
-// AUTRES BOUTONS / BULLE
-// ============================================================
-if (
-    targetBtn.matches(
-        '#checkbox, .btn-valider, .btn-traiter, [data-action="vrai"]'
-    )
-) {
-
-    setTimeout(() => {
-        sendData(targetBtn, 'APPLIED');
-    }, 0);
-
-} else {
-
-    e.preventDefault();
-
-    sendData(targetBtn, 'IGNORED');
-}
-
-return;
 }
 // ============================================================
 // CALENDRIER
