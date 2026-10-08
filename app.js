@@ -904,8 +904,8 @@ if (parentItem) {
         finalDate = formatDateFR(rawPopupDate);
     }
 }
-                }
-            }
+        
+          
 
             const popDate =
                 document.getElementById('text-date-pop-up');
