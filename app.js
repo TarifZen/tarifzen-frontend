@@ -876,9 +876,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1'
             );
 
-            let message =
-                infoBtn.getAttribute('data-message') ||
-                infoBtn.getAttribute('message-long');
+           let message = '';
+
+if (parentItem) {
+    message =
+        parentItem.getAttribute('data-popup-message') || '';
+}
 
             if (!message && parentItem) {
                 const hiddenField =
