@@ -894,34 +894,16 @@ if (parentItem) {
                 }
             }
 
-            let finalDate = "";
+let finalDate = '';
 
-            let rawDateAttr =
-                infoBtn.getAttribute('data-date') ||
-                infoBtn.getAttribute('date') ||
-                parentItem?.getAttribute('date');
+if (parentItem) {
+    const rawPopupDate =
+        parentItem.getAttribute('data-popup-date') || '';
 
-            if (rawDateAttr && rawDateAttr.length > 5) {
-                finalDate = formatDateFr(rawDateAttr);
-
-            } else if (parentItem) {
-                const dayNum =
-                    parentItem.querySelector('.text-block-35')?.innerText ||
-                    parentItem.querySelector('.text-4')?.innerText;
-
-                const activeTab =
-                    document.querySelector('.tabs-menu-5 .w--current');
-
-                const activeMonth =
-                    activeTab
-                        ? activeTab.innerText.trim()
-                        : "Mars";
-
-                if (dayNum) {
-                    finalDate = getStrictDate(
-                        dayNum,
-                        activeMonth
-                    );
+    if (rawPopupDate) {
+        finalDate = formatDateFR(rawPopupDate);
+    }
+}
                 }
             }
 
