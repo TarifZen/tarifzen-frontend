@@ -31,7 +31,29 @@ window.totalInitialActions = window.totalInitialActions || 0;
 function getProcessedItems() {
     return JSON.parse(localStorage.getItem('processed_recos_final') || '[]');
 }
+function updateHistoricCounter(totalRecommendations = null) {
 
+    const counterEl =
+        document.getElementById('count-historic');
+
+    if (!counterEl) {
+        return;
+    }
+
+    if (totalRecommendations !== null) {
+        window.totalRecommendationsToday =
+            Number(totalRecommendations) || 0;
+    }
+
+    const total =
+        window.totalRecommendationsToday || 0;
+
+    const treatedCount =
+        getProcessedItems().length;
+
+    counterEl.textContent =
+        `${treatedCount} / ${total}`;
+}
 function getDismissedItems() {
     return JSON.parse(localStorage.getItem('dismissed_recos') || '[]');
 }
