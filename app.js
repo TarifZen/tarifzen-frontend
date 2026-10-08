@@ -901,7 +901,7 @@ if (parentItem) {
         parentItem.getAttribute('data-popup-date') || '';
 
     if (rawPopupDate) {
-        finalDate = formatDateFR(rawPopupDate);
+        finalDate = formatDateFr(rawPopupDate);
     }
 }
         
