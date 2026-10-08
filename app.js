@@ -913,11 +913,28 @@ if (parentItem) {
 let finalDate = '';
 
 if (parentItem) {
+
+    // Carte reco API02
     const rawPopupDate =
         parentItem.getAttribute('data-popup-date') || '';
 
     if (rawPopupDate) {
-        finalDate = formatDateFr(rawPopupDate);
+
+        finalDate =
+            formatDateFr(rawPopupDate);
+
+    } else {
+
+        // Mini-carte historique
+        const dateEl =
+            parentItem.querySelector(
+                '.reco-date, .date-main-card'
+            );
+
+        if (dateEl) {
+            finalDate =
+                dateEl.textContent.trim();
+        }
     }
 }
         
