@@ -463,28 +463,40 @@ async function sendData(triggerElement, statutValue) {
   }
 
   // ============================================================
-  // COMPTEUR
-  // ============================================================
-  const statusType = card.getAttribute('data-status') || 'urgent';
+// COMPTEUR
+// ============================================================
+const statusType = card.getAttribute('data-status') || 'urgent';
 
-  const counterEl = document.querySelector(
-    statusType === 'analyse'
-      ? '#count-analyse'
-      : '#count-urgent'
-  );
+const counterEl = document.querySelector(
+  statusType === 'analyse'
+    ? '#count-analyse'
+    : '#count-urgent'
+);
 
-  const previousText = counterEl
-    ? counterEl.textContent
-    : null;
+const previousText = counterEl
+  ? counterEl.textContent
+  : null;
 
-  if (counterEl) {
-    const currentCount =
-      parseInt(counterEl.textContent, 10) || 0;
+if (counterEl) {
+  const currentCount =
+    parseInt(counterEl.textContent, 10) || 0;
 
+  const newCount =
+    Math.max(0, currentCount - 1);
+
+  if (newCount === 0) {
     counterEl.textContent =
-      Math.max(0, currentCount - 1);
+      statusType === 'analyse'
+        ? 'Toutes les analyses sont traitées. Bravo !'
+        : 'Toutes les actions urgentes sont traitées. Bravo !';
+  } else if (statusType === 'analyse') {
+    counterEl.textContent =
+      `${newCount} ${newCount === 1 ? 'analyse' : 'analyses'}`;
+  } else {
+    counterEl.textContent =
+      `${newCount} ${newCount === 1 ? 'action urgente' : 'actions urgentes'}`;
   }
-
+}
   // ============================================================
   // ÉTAT VISUEL PENDANT L'ENVOI
   // ============================================================
