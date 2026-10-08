@@ -949,8 +949,19 @@ if (
             'input[type="checkbox"]'
         );
 
+    const checkboxVisual =
+        recoCard.querySelector(
+            '.w-checkbox-input'
+        );
+
     if (checkboxInput) {
         checkboxInput.checked = true;
+    }
+
+    if (checkboxVisual) {
+        checkboxVisual.classList.add(
+            'w--redirected-checked'
+        );
     }
 
     sendData(targetBtn, 'APPLIED');
