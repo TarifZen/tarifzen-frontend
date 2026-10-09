@@ -2416,16 +2416,38 @@ if (impactEl) {
     });
   }
 
-  renderGroup(
-    futureContainer,
-    events.filter(event => event.period_status !== 'PAST')
-  );
+  
+const futureEvents = events.filter(
+  event => event.period_status !== 'PAST'
+);
 
-  renderGroup(
-    pastContainer,
-    events.filter(event => event.period_status === 'PAST')
-  );
+const pastEvents = events.filter(
+  event => event.period_status === 'PAST'
+);
+
+renderGroup(futureContainer, futureEvents);
+renderGroup(pastContainer, pastEvents);
+
+// Affichage conditionnel des deux sections
+const emptyFuture = document.getElementById('empty-events-future');
+const emptyPast = document.getElementById('empty-events-past');
+
+futureContainer.style.display =
+  futureEvents.length > 0 ? '' : 'none';
+
+pastContainer.style.display =
+  pastEvents.length > 0 ? '' : 'none';
+
+if (emptyFuture) {
+  emptyFuture.style.display =
+    futureEvents.length > 0 ? 'none' : 'block';
 }
+
+if (emptyPast) {
+  emptyPast.style.display =
+    pastEvents.length > 0 ? 'none' : 'block';
+}
+
 
 async function initEventsPage() {
   try {
