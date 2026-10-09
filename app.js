@@ -1635,6 +1635,22 @@ function renderRecommandations(data, eventsAPI09 = []) {
   // Supprime uniquement les cartes générées précédemment
   container.querySelectorAll('.reco-card-item').forEach(el => el.remove());
 
+  
+  // ============================================================
+  // ÉTAT VIDE — RECOMMANDATIONS
+  // ============================================================
+  const emptyRecoEl = document.getElementById('reco-text-empty');
+
+  if (emptyRecoEl) {
+    if (visibleData.length === 0) {
+      emptyRecoEl.textContent =
+        'Tout est sous contrôle !\nAucune action tarifaire prioritaire pour le moment.';
+      emptyRecoEl.style.display = 'block';
+    } else {
+      emptyRecoEl.style.display = 'none';
+    }
+  }
+
   // ============================================================
   // CRÉATION DES CARTES
   // ============================================================
