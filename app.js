@@ -1598,7 +1598,7 @@ function formatShortMessage(message) {
 // ============================================================
 // API02 — RENDU MULTI-CARTES DES RECOMMANDATIONS
 // ============================================================
-function renderRecommandations(data) {
+function renderRecommandations(data, eventsAPI09 = []) {
   const container = document.querySelector('#recommandations-container');
   const template = document.querySelector('#recommandation-template');
   if (!container || !template) return;
@@ -2140,44 +2140,50 @@ const requestHeaders = {
  }
 
   
-// 4. API02 — RECOMMANDATIONS
+
+ // 4. API02 — RECOMMANDATIONS
 try {
-const response02 = await fetch(
-`${API_BASE_URL}/api/reco-engine/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
-{
-method: 'GET',
-headers: requestHeaders
-}
-);
-if (response02.ok) {
-
-  const result02 =
-    await response02.json();
-
-  const recommendations =
-    result02 && result02.data
-      ? result02.data
-      : [];
-
-  renderRecommandations(
-    recommendations
+  const response02 = await fetch(
+    `${API_BASE_URL}/api/reco-engine/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
+    {
+      method: 'GET',
+      headers: requestHeaders
+    }
   );
 
-  updateHistoricCounter(
-    result02?.count || recommendations.length
-  );
-} else {
-console.error(
-` [API02 - HTTP ${response02.status}] Erreur lors de la récupération des recommandations.`
-);
-renderRecommandations([]);
-}
+  if (response02.ok) {
+    const result02 = await response02.json();
+
+    const recommendations =
+      result02 && result02.data
+        ? result02.data
+        : [];
+
+    // Transmission des recommandations ET des événements API09
+    renderRecommandations(
+      recommendations,
+      eventsAPI09
+    );
+
+    updateHistoricCounter(
+      result02?.count || recommendations.length
+    );
+
+  } else {
+    console.error(
+      `[API02 - HTTP ${response02.status}] Erreur lors de la récupération des recommandations.`
+    );
+
+    renderRecommandations([], eventsAPI09);
+  }
+
 } catch (err02) {
-console.error(
-" [API02] Erreur inattendue :",
-err02.message
-);
-renderRecommandations([]);
+  console.error(
+    '[API02] Erreur inattendue :',
+    err02.message
+  );
+
+  renderRecommandations([], eventsAPI09);
 }
 
 // 5. API03 — DASHBOARD
