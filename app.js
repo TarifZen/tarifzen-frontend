@@ -1754,36 +1754,41 @@ if (shortMsgEl) {
     }
 
     
-    // ============================================================
-    // ÉVÉNEMENT — API09
-    // Correspondance : date de recommandation = date de début
-    // ============================================================
-    const eventEl = newCard.querySelector('#reco-event');
+// ============================================================
+// ÉVÉNEMENT — API09
+// Afficher le conteneur uniquement si un événement correspond
+// à la date de la recommandation
+// ============================================================
+const eventEl = newCard.querySelector('#reco-event');
+const eventContainer = newCard.querySelector('.card-content-event');
 
-    if (eventEl) {
-      const matchingEvents = eventsAPI09.filter(event =>
-        event.start_date === item.date
-      );
+if (eventEl && eventContainer) {
+  const matchingEvents = eventsAPI09.filter(event =>
+    event.start_date === item.date
+  );
 
-      const impactIcons = {
-        'fort': '🔥',
-        'moyen': '⚡',
-        'faible': '📅'
-      };
+  const impactIcons = {
+    'fort': '🔥',
+    'moyen': '⚡',
+    'faible': '📅'
+  };
 
-      eventEl.textContent = matchingEvents
-        .map(event => {
-          const impactKey = String(event.impact || '')
-            .trim()
-            .toLowerCase();
+  eventEl.textContent = matchingEvents
+    .map(event => {
+      const impactKey = String(event.impact || '')
+        .trim()
+        .toLowerCase();
 
-          const icon = impactIcons[impactKey] || '📅';
+      const icon = impactIcons[impactKey] || '📅';
 
-          return `${icon} ${event.name}`;
-        })
-        .join(' · ');
-    }
+      return `${icon} ${event.name}`;
+    })
+    .join(' · ');
 
+  // Afficher uniquement si au moins un événement correspond
+  eventContainer.style.display =
+    matchingEvents.length > 0 ? 'block' : 'none';
+}
 // ============================================================
 // RESTRICTION
 // ID WEBFLOW : #reco-restriction
