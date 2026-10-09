@@ -2418,15 +2418,119 @@ function renderEventsPage(events) {
   );
 }
 
-// ============================================================
-// LANCEMENT AU CHARGEMENT DU DOM
-// ============================================================
-if (document.readyState === 'loading') {
-document.addEventListener(
-'DOMContentLoaded',
-initDashboard
-);
-} else {
-initDashboard();
+async function initEventsPage() {
+  try {
+    // Vérifier que nous sommes sur la page Événements
+    const futureContainer = document.getElementById('event-card-future');
+    const pastContainer = document.getElementById('event-card-past');
+
+    if (!futureContainer || !pastContainer) return;
+
+    // Vérifier la session Supabase
+    const {
+      data: { session },
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+      console.warn('[API09] Aucune session Supabase active.');
+      return;
+    }
+
+    // Récupérer le profil utilisateur
+    const {
+      data: userData,
+      error: userError
+    } = await supabaseClient
+      .from('users')
+      .select('hotel_id, role')
+      .eq('auth_user_id', session.user.id)
+      .single();
+
+    if (userError || !userData) {
+      console.error('[API09] Profil utilisateur introuvable :', userError?.message);
+      return;
+    }
+
+    // Déterminer l'hôtel cible
+    let targetHotelId = userData.hotel_id;
+
+    if (userData.role === 'FOUNDER') {
+      const match = window.location.pathname.match(/\/hotels\/([^/]+)/);
+      const urlSlug = match ? decodeURIComponent(match[1]).trim() : '';
+
+      if (!urlSlug) {
+        console.error('[API09] Slug hôtel absent de l’URL.');
+        return;
+      }
+
+      targetHotelId = await getHotelIdFromSlug(urlSlug);
+    }
+
+    if (!targetHotelId) {
+      console.error('[API09] Impossible de déterminer le hotel_id.');
+      return;
+    }
+
+    // Appeler API09
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
+      {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json',
+          Authorization: `Bearer ${String(session.access_token).trim()}`
+        }
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`[API09 - HTTP ${response.status}] Échec du chargement des événements.`);
+      return;
+    }
+
+    const result = await response.json();
+    const eventData = result?.data || {};
+
+    const allEvents = [
+      ...(eventData.upcoming || []),
+      ...(eventData.ongoing || []),
+      ...(eventData.past || [])
+    ];
+
+    console.log('[API09] Événements pour la page :', allEvents);
+
+    renderEventsPage(allEvents);
+
+  } catch (error) {
+    console.error('[API09] Erreur lors du chargement de la page Événements :', error);
+  }
 }
+
+
+ // ============================================================
+ // LANCEMENT AU CHARGEMENT DU DOM
+ // ============================================================
+ if (document.readyState === 'loading') {
+   document.addEventListener('DOMContentLoaded', () => {
+     if (
+       document.getElementById('event-card-future') &&
+       document.getElementById('event-card-past')
+     ) {
+       initEventsPage();
+     } else {
+       initDashboard();
+     }
+   });
+ } else {
+   if (
+     document.getElementById('event-card-future') &&
+     document.getElementById('event-card-past')
+   ) {
+     initEventsPage();
+   } else {
+     initDashboard();
+   }
+ }
 })();
+
