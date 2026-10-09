@@ -2352,6 +2352,72 @@ err.message
 }
 }
 
+function renderEventsPage(events) {
+  const futureContainer = document.getElementById('event-card-future');
+  const pastContainer = document.getElementById('event-card-past');
+
+  if (!futureContainer || !pastContainer) {
+    console.log('[API09] Conteneurs de la page Événements absents.');
+    return;
+  }
+
+  function renderGroup(container, groupEvents) {
+    // Le premier .block-event est le modèle Webflow
+    const template = container.querySelector('.block-event');
+
+    if (!template) {
+      console.error('[API09] Modèle .block-event introuvable dans', container);
+      return;
+    }
+
+    // Supprimer uniquement les clones créés par cette fonction
+    container.querySelectorAll('.block-event[data-api09-generated="true"]')
+      .forEach(card => card.remove());
+
+    // Conserver le modèle Webflow caché
+    template.style.display = 'none';
+
+    groupEvents.forEach(event => {
+      const card = template.cloneNode(true);
+      card.removeAttribute('id');
+      card.dataset.api09Generated = 'true';
+      card.style.display = '';
+
+      const formatDate = value => {
+        if (!value) return '';
+        const [year, month, day] = value.split('-');
+        return `${day}.${month}.${year}`;
+      };
+
+      const startEl = card.querySelector('#date-debut');
+      const endEl = card.querySelector('#date-fin');
+      const nameEl = card.querySelector('#text-nom-event');
+      const impactEl = card.querySelector('#impact-event');
+
+      if (startEl) startEl.textContent = formatDate(event.start_date);
+      if (endEl) endEl.textContent = formatDate(event.end_date);
+      if (nameEl) nameEl.textContent = event.name || '';
+
+      if (impactEl) {
+        const impact = String(event.impact || '').trim();
+        impactEl.textContent = impact;
+      }
+
+      container.appendChild(card);
+    });
+  }
+
+  renderGroup(
+    futureContainer,
+    events.filter(event => event.period_status !== 'PAST')
+  );
+
+  renderGroup(
+    pastContainer,
+    events.filter(event => event.period_status === 'PAST')
+  );
+}
+
 // ============================================================
 // LANCEMENT AU CHARGEMENT DU DOM
 // ============================================================
