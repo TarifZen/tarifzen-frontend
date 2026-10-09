@@ -2424,6 +2424,31 @@ function renderEventsPage(events) {
   renderGroup(futureContainer, futureEvents);
   renderGroup(pastContainer, pastEvents);
 
+  
+  // Gestion du popup de suppression pour les cartes générées
+  [futureContainer, pastContainer].forEach(container => {
+    container.querySelectorAll(
+      '.block-event[data-api09-generated="true"] #btn-delete-event'
+    ).forEach(button => {
+      if (button.dataset.deletePopupBound === 'true') return;
+
+      button.dataset.deletePopupBound = 'true';
+
+      button.addEventListener('click', event => {
+        event.preventDefault();
+
+        const popup = document.querySelector('.div-block-75');
+
+        if (popup) {
+          popup.style.display = 'block';
+        } else {
+          console.error('[API09] Popup .div-block-75 introuvable.');
+        }
+      });
+    });
+  });
+
+  
   const emptyFuture = document.getElementById('empty-events-future');
   const emptyPast = document.getElementById('empty-events-past');
 
