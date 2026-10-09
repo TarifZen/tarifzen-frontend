@@ -2247,7 +2247,7 @@ if (Number(data.recommendations_total) === 0) {
   }
 
   if (elGainPotentiel) {
-    elGainPotentiel.innerText = "—";
+    elGainPotentiel.innerText = "-";
   }
 } else {
   if (elRecosTotal) {
