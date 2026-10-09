@@ -2352,14 +2352,6 @@ err.message
 }
 }
 
-function renderEventsPage(events) {
-  const futureContainer = document.getElementById('event-card-future');
-  const pastContainer = document.getElementById('event-card-past');
-
-  if (!futureContainer || !pastContainer) {
-    console.log('[API09] Conteneurs de la page Événements absents.');
-    return;
-  }
 
   
 function renderEventsPage(events) {
