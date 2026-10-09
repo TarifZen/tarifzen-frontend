@@ -1644,7 +1644,7 @@ function renderRecommandations(data, eventsAPI09 = []) {
   if (emptyRecoEl) {
     if (visibleData.length === 0) {
       emptyRecoEl.textContent =
-        'Tout est sous contrôle !\nAucune action tarifaire prioritaire pour le moment.';
+        'Tout est sous contrôle !\nAucune recommandation pour le moment.';
       emptyRecoEl.style.display = 'block';
     } else {
       emptyRecoEl.style.display = 'none';
