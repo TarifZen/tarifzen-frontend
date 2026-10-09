@@ -2233,25 +2233,38 @@ if (elAnalyse) {
 elAnalyse.innerText =
 formatAnalysisActions(data.analysis_actions);
 }
+
 const elRecosTotal =
-document.getElementById('recommendations_total');
-if (elRecosTotal) {
-elRecosTotal.innerText =
-formatRecommendationsTotal(
-data.recommendations_total
-);
-}
+  document.getElementById('recommendations_total');
 
 const elGainPotentiel =
-document.getElementById(
-'gain_potential_today'
-);
-if (elGainPotentiel) {
-elGainPotentiel.innerText =
-formatGainPotential(
-data.gain_potential_today
-);
+  document.getElementById('gain_potential_today');
+
+if (Number(data.recommendations_total) === 0) {
+  if (elRecosTotal) {
+    elRecosTotal.innerText =
+      "Aucune action à prioriser aujourd’hui";
+  }
+
+  if (elGainPotentiel) {
+    elGainPotentiel.innerText = "—";
+  }
+} else {
+  if (elRecosTotal) {
+    elRecosTotal.innerText =
+      formatRecommendationsTotal(
+        data.recommendations_total
+      );
+  }
+
+  if (elGainPotentiel) {
+    elGainPotentiel.innerText =
+      formatGainPotential(
+        data.gain_potential_today
+      );
+  }
 }
+
 const elGainReel =
 document.getElementById(
 'gain_real_month'
