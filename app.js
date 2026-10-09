@@ -2361,8 +2361,17 @@ function renderEventsPage(events) {
     return;
   }
 
+  
+function renderEventsPage(events) {
+  const futureContainer = document.getElementById('event-card-future');
+  const pastContainer = document.getElementById('event-card-past');
+
+  if (!futureContainer || !pastContainer) {
+    console.log('[API09] Conteneurs de la page Événements absents.');
+    return;
+  }
+
   function renderGroup(container, groupEvents) {
-    // Le premier .block-event est le modèle Webflow
     const template = container.querySelector('.block-event');
 
     if (!template) {
@@ -2370,11 +2379,9 @@ function renderEventsPage(events) {
       return;
     }
 
-    // Supprimer uniquement les clones créés par cette fonction
     container.querySelectorAll('.block-event[data-api09-generated="true"]')
       .forEach(card => card.remove());
 
-    // Conserver le modèle Webflow caché
     template.style.display = 'none';
 
     groupEvents.forEach(event => {
@@ -2398,66 +2405,60 @@ function renderEventsPage(events) {
       if (endEl) endEl.textContent = formatDate(event.end_date);
       if (nameEl) nameEl.textContent = event.name || '';
 
-     
-if (impactEl) {
-  const impact = String(event.impact || '').trim();
-  const impactIcons = {
-    fort: '🔥',
-    moyen: '⚡',
-    faible: '📅'
-  };
+      if (impactEl) {
+        const impact = String(event.impact || '').trim();
+        const impactIcons = {
+          fort: '🔥',
+          moyen: '⚡',
+          faible: '📅'
+        };
 
-  const icon = impactIcons[impact.toLowerCase()] || '📅';
-  impactEl.textContent = `${icon} ${impact}`;
-}
-
+        const icon = impactIcons[impact.toLowerCase()] || '📅';
+        impactEl.textContent = `${icon} ${impact}`;
+      }
 
       container.appendChild(card);
     });
   }
 
-  
-const futureEvents = events.filter(
-  event => event.period_status !== 'PAST'
-);
+  const futureEvents = events.filter(
+    event => event.period_status !== 'PAST'
+  );
 
-const pastEvents = events.filter(
-  event => event.period_status === 'PAST'
-);
+  const pastEvents = events.filter(
+    event => event.period_status === 'PAST'
+  );
 
-renderGroup(futureContainer, futureEvents);
-renderGroup(pastContainer, pastEvents);
+  renderGroup(futureContainer, futureEvents);
+  renderGroup(pastContainer, pastEvents);
 
-// Affichage conditionnel des deux sections
-const emptyFuture = document.getElementById('empty-events-future');
-const emptyPast = document.getElementById('empty-events-past');
+  const emptyFuture = document.getElementById('empty-events-future');
+  const emptyPast = document.getElementById('empty-events-past');
 
-futureContainer.style.display =
-  futureEvents.length > 0 ? '' : 'none';
+  futureContainer.style.display =
+    futureEvents.length > 0 ? '' : 'none';
 
-pastContainer.style.display =
-  pastEvents.length > 0 ? '' : 'none';
+  pastContainer.style.display =
+    pastEvents.length > 0 ? '' : 'none';
 
-if (emptyFuture) {
-  emptyFuture.style.display =
-    futureEvents.length > 0 ? 'none' : 'block';
+  if (emptyFuture) {
+    emptyFuture.style.display =
+      futureEvents.length > 0 ? 'none' : 'block';
+  }
+
+  if (emptyPast) {
+    emptyPast.style.display =
+      pastEvents.length > 0 ? 'none' : 'block';
+  }
 }
-
-if (emptyPast) {
-  emptyPast.style.display =
-    pastEvents.length > 0 ? 'none' : 'block';
-}
-
 
 async function initEventsPage() {
   try {
-    // Vérifier que nous sommes sur la page Événements
     const futureContainer = document.getElementById('event-card-future');
     const pastContainer = document.getElementById('event-card-past');
 
     if (!futureContainer || !pastContainer) return;
 
-    // Vérifier la session Supabase
     const {
       data: { session },
       error: sessionError
@@ -2468,7 +2469,6 @@ async function initEventsPage() {
       return;
     }
 
-    // Récupérer le profil utilisateur
     const {
       data: userData,
       error: userError
@@ -2483,7 +2483,6 @@ async function initEventsPage() {
       return;
     }
 
-    // Déterminer l'hôtel cible
     let targetHotelId = userData.hotel_id;
 
     if (userData.role === 'FOUNDER') {
@@ -2503,7 +2502,6 @@ async function initEventsPage() {
       return;
     }
 
-    // Appeler API09
     const response = await fetch(
       `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
       {
