@@ -2508,29 +2508,18 @@ async function initEventsPage() {
 }
 
 
+
  // ============================================================
  // LANCEMENT AU CHARGEMENT DU DOM
  // ============================================================
  if (document.readyState === 'loading') {
-   document.addEventListener('DOMContentLoaded', () => {
-     if (
-       document.getElementById('event-card-future') &&
-       document.getElementById('event-card-past')
-     ) {
-       initEventsPage();
-     } else {
-       initDashboard();
-     }
-   });
+   document.addEventListener(
+     'DOMContentLoaded',
+     initDashboard
+   );
  } else {
-   if (
-     document.getElementById('event-card-future') &&
-     document.getElementById('event-card-past')
-   ) {
-     initEventsPage();
-   } else {
-     initDashboard();
-   }
+   initDashboard();
  }
 })();
+
 
