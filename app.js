@@ -2398,10 +2398,19 @@ function renderEventsPage(events) {
       if (endEl) endEl.textContent = formatDate(event.end_date);
       if (nameEl) nameEl.textContent = event.name || '';
 
-      if (impactEl) {
-        const impact = String(event.impact || '').trim();
-        impactEl.textContent = impact;
-      }
+     
+if (impactEl) {
+  const impact = String(event.impact || '').trim();
+  const impactIcons = {
+    fort: '🔥',
+    moyen: '⚡',
+    faible: '📅'
+  };
+
+  const icon = impactIcons[impact.toLowerCase()] || '📅';
+  impactEl.textContent = `${icon} ${impact}`;
+}
+
 
       container.appendChild(card);
     });
