@@ -1753,17 +1753,37 @@ if (shortMsgEl) {
       dateBottomEl.style.display = 'block';
     }
 
+    
     // ============================================================
-    // ÉVÉNEMENT
-    // LAISSÉ EN PLACE POUR L'INJECTION FUTURE API EVENTS
+    // ÉVÉNEMENT — API09
+    // Correspondance : date de recommandation = date de début
     // ============================================================
-    const eventEl = newCard.querySelector(
-      '#reco-event'
-    );
+    const eventEl = newCard.querySelector('#reco-event');
 
     if (eventEl) {
-      eventEl.textContent = item.event || '';
+      const matchingEvents = eventsAPI09.filter(event =>
+        event.start_date === item.date
+      );
+
+      const impactIcons = {
+        'fort': '🔥',
+        'moyen': '⚡',
+        'faible': '📅'
+      };
+
+      eventEl.textContent = matchingEvents
+        .map(event => {
+          const impactKey = String(event.impact || '')
+            .trim()
+            .toLowerCase();
+
+          const icon = impactIcons[impactKey] || '📅';
+
+          return `${icon} ${event.name}`;
+        })
+        .join(' · ');
     }
+
 // ============================================================
 // RESTRICTION
 // ID WEBFLOW : #reco-restriction
