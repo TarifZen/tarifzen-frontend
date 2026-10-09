@@ -2425,6 +2425,7 @@ function renderEventsPage(events) {
   renderGroup(pastContainer, pastEvents);
 
   
+  
   // Gestion du popup de suppression pour les cartes générées
   [futureContainer, pastContainer].forEach(container => {
     container.querySelectorAll(
@@ -2437,16 +2438,44 @@ function renderEventsPage(events) {
       button.addEventListener('click', event => {
         event.preventDefault();
 
+        const card = button.closest('.block-event');
         const popup = document.querySelector('.div-block-75');
 
-        if (popup) {
-          popup.style.display = 'block';
-        } else {
-          console.error('[API09] Popup .div-block-75 introuvable.');
+        if (!card || !popup) {
+          console.error('[API09] Carte ou popup introuvable.');
+          return;
         }
+
+        const getText = selector =>
+          card.querySelector(selector)?.textContent.trim() || '';
+
+        const startDate = getText('#date-debut');
+        const endDate = getText('#date-fin');
+        const eventName = getText('#text-nom-event');
+        const impact = getText('#impact-event');
+
+        const displayFields = {
+          '#date-debut-display': startDate,
+          '#date-fin-display': endDate,
+          '#nom-event-display': eventName,
+          '#impact-display': impact
+        };
+
+        Object.entries(displayFields).forEach(([selector, value]) => {
+          const element = popup.querySelector(selector);
+
+          if (element) {
+            element.textContent = value;
+          } else {
+            console.warn(`[API09] Élément du popup introuvable : ${selector}`);
+          }
+        });
+
+        popup.style.display = 'block';
       });
     });
   });
+
 
   
   const emptyFuture = document.getElementById('empty-events-future');
