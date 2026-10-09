@@ -2471,7 +2471,7 @@ function renderEventsPage(events) {
           }
         });
 
-        popup.style.display = 'block';
+        popup.style.display = 'flex';
       });
     });
   });
