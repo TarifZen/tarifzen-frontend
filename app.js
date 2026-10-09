@@ -2089,6 +2089,37 @@ const requestHeaders = {
 'Authorization': `Bearer ${cleanToken}`
 };
 
+ // 3 bis. API09 — ÉVÉNEMENTS
+ let eventsAPI09 = [];
+
+ try {
+   const response09 = await fetch(
+     `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
+     {
+       method: 'GET',
+       headers: requestHeaders
+     }
+   );
+
+   if (!response09.ok) {
+     console.error(
+       `[API09 - HTTP ${response09.status}] Erreur lors de la récupération des événements.`
+     );
+   } else {
+     const result09 = await response09.json();
+
+     eventsAPI09 = [
+       ...(result09?.data?.upcoming || []),
+       ...(result09?.data?.ongoing || [])
+     ];
+
+     console.log('📅 [API09] Événements chargés :', eventsAPI09);
+   }
+ } catch (err09) {
+   console.error('[API09] Erreur inattendue :', err09.message);
+ }
+
+  
 // 4. API02 — RECOMMANDATIONS
 try {
 const response02 = await fetch(
