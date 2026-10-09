@@ -1643,8 +1643,8 @@ function renderRecommandations(data, eventsAPI09 = []) {
 
   if (emptyRecoEl) {
     if (visibleData.length === 0) {
-      emptyRecoEl.textContent =
-        'Tout est sous contrôle !\nAucune recommandation pour le moment.';
+emptyRecoEl.innerHTML =
+  'Tout est sous contrôle !<br>Aucune recommandation pour le moment.';
       emptyRecoEl.style.display = 'block';
     } else {
       emptyRecoEl.style.display = 'none';
