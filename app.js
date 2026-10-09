@@ -2509,17 +2509,21 @@ async function initEventsPage() {
 
 
 
+ 
+
  // ============================================================
  // LANCEMENT AU CHARGEMENT DU DOM
  // ============================================================
  if (document.readyState === 'loading') {
-   document.addEventListener(
-     'DOMContentLoaded',
-     initDashboard
-   );
+   document.addEventListener('DOMContentLoaded', () => {
+     initDashboard();
+     initEventsPage();
+   });
  } else {
    initDashboard();
+   initEventsPage();
  }
 })();
+
 
 
