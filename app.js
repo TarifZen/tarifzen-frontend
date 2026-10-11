@@ -2430,6 +2430,7 @@ err03.message
        dataTemplate.style.display = 'none';
 
        
+
 const formatDate = value => {
   if (!value) return '—';
 
@@ -2438,13 +2439,29 @@ const formatDate = value => {
 
   const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-  return new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
+  const jour = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long'
   }).format(date);
+
+  const jourNumero = parts[2];
+
+  const mois = new Intl.DateTimeFormat('fr-FR', {
+    month: 'long'
+  }).format(date);
+
+  const annee = parts[0];
+
+  const jourCapitalise = jour.charAt(0).toUpperCase() + jour.slice(1);
+  const moisCapitalise = mois.charAt(0).toUpperCase() + mois.slice(1);
+  const numeroFormate = String(jourNumero).padStart(2, '0');
+
+  if (jourNumero === 1) {
+    return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${annee}`;
+  }
+
+  return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${annee}`;
 };
+
 
 
        const formatVariation = (value, suffix = '') => {
@@ -2482,7 +2499,7 @@ const formatDate = value => {
          dateClone.setAttribute('data-tz-pickup-generated', 'true');
          dateClone.style.display = '';
 
-         dateClone.textContent = formatDate(row.date);
+         dateClone.innerHTML = formatDate(row.date);
          dateClone.style.color = '#111111';
 
          datesContainer.appendChild(dateClone);
