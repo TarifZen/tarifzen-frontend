@@ -2429,21 +2429,23 @@ err03.message
        dateTemplate.style.display = 'none';
        dataTemplate.style.display = 'none';
 
-       const formatDate = value => {
-         if (!value) return '—';
+       
+const formatDate = value => {
+  if (!value) return '—';
 
-         // Construit la date depuis YYYY-MM-DD sans décalage de fuseau
-         const parts = String(value).split('-').map(Number);
-         if (parts.length !== 3 || parts.some(Number.isNaN)) return '—';
+  const parts = String(value).split('-').map(Number);
+  if (parts.length !== 3 || parts.some(Number.isNaN)) return '—';
 
-         const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-         return new Intl.DateTimeFormat('fr-FR', {
-           day: 'numeric',
-           month: 'long',
-           year: 'numeric'
-         }).format(date);
-       };
+  return new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric'
+  }).format(date);
+};
+
 
        const formatVariation = (value, suffix = '') => {
          if (value === null || value === undefined || value === '') {
