@@ -2436,14 +2436,28 @@ err03.message
          'subscription-profitability-performance'
        );
 
-     if (elSubscriptionProfitability) {
-       elSubscriptionProfitability.innerText =
-         data08.subscription_profitability === 'PROFITABLE'
-           ? 'Rentable'
-           : data08.subscription_profitability === 'NOT_PROFITABLE'
-             ? 'Pas encore rentable'
-             : '—';
-     }
+
+if (elSubscriptionProfitability) {
+  if (data08.subscription_profitability === 'PROFITABLE') {
+    elSubscriptionProfitability.innerHTML =
+      '✅ TarifZen est rentabilisé !';
+  } else if (
+    data08.subscription_profitability === 'NOT_PROFITABLE'
+  ) {
+    const remaining = Number(
+      data08.remaining_to_profitability ?? 0
+    ).toLocaleString('fr-FR', {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
+    });
+
+    elSubscriptionProfitability.innerHTML =
+      `🎯 Encore ${remaining} € pour rentabiliser TarifZen`;
+  } else {
+    elSubscriptionProfitability.innerText = '—';
+  }
+}
+
 
      console.log('📊 [API08] Performances chargées :', data08);
    }
