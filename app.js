@@ -2373,6 +2373,88 @@ console.error(
 err03.message
 );
 }
+
+
+ // 6. API08 — PERFORMANCE
+ try {
+   const response08 = await fetch(
+     `${API_BASE_URL}/api/v1/performance?hotel_id=${encodeURIComponent(targetHotelId)}`,
+     {
+       method: 'GET',
+       headers: requestHeaders
+     }
+   );
+
+   if (!response08.ok) {
+     console.error(
+       `[API08 - HTTP ${response08.status}] Erreur lors de la récupération des performances.`
+     );
+   } else {
+     const data08 = await response08.json();
+
+     // Gain réel du mois
+     const elGainMonth = document.getElementById(
+       'gain-real-month-performance'
+     );
+     if (elGainMonth) {
+       elGainMonth.innerText = formatGainReal(
+         data08.gain_real_month
+       );
+     }
+
+     // Gain réel cumulé
+     const elGainTotal = document.getElementById(
+       'gain-real-total-performance'
+     );
+     if (elGainTotal) {
+       elGainTotal.innerText = formatGainReal(
+         data08.gain_real_total
+       );
+     }
+
+     // Nombre total de recommandations traitées
+     const elTotalRecos = document.getElementById(
+       'total-nbre-reco-performance'
+     );
+     if (elTotalRecos) {
+       elTotalRecos.innerText =
+         data08.recommandations_total ?? 0;
+     }
+
+     // Taux d'application
+     const elApplicationRate = document.getElementById(
+       'application-rate-performance'
+     );
+     if (elApplicationRate) {
+       elApplicationRate.innerText =
+         `${Number(data08.application_rate ?? 0).toLocaleString('fr-FR')} %`;
+     }
+
+     // Rentabilité de l'abonnement
+     const elSubscriptionProfitability =
+       document.getElementById(
+         'subscription-profitability-performance'
+       );
+
+     if (elSubscriptionProfitability) {
+       elSubscriptionProfitability.innerText =
+         data08.subscription_profitability === 'PROFITABLE'
+           ? 'Rentable'
+           : data08.subscription_profitability === 'NOT_PROFITABLE'
+             ? 'Pas encore rentable'
+             : '—';
+     }
+
+     console.log('📊 [API08] Performances chargées :', data08);
+   }
+ } catch (err08) {
+   console.error(
+     '[API08] Erreur inattendue :',
+     err08.message
+   );
+ }
+
+
 } catch (err) {
 console.error(
 " Erreur globale lors de l'initialisation :",
