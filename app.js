@@ -2375,7 +2375,157 @@ err03.message
 }
 
 
- // 6. API08 — PERFORMANCE
+ // 6. API05 — PICK UP
+ try {
+   const response05 = await fetch(
+     `${API_BASE_URL}/api/v1/pickup?hotel_id=${encodeURIComponent(targetHotelId)}`,
+     {
+       method: 'GET',
+       headers: requestHeaders
+     }
+   );
+
+   if (!response05.ok) {
+     console.error(
+       `[API05 - HTTP ${response05.status}] Erreur lors de la récupération du Pick Up.`
+     );
+   } else {
+     const result05 = await response05.json();
+     const pickupData = Array.isArray(result05?.data)
+       ? result05.data
+       : [];
+
+     const datesContainer = document.getElementById(
+       'colonne-dates-fixe'
+     );
+     const dataContainer = document.getElementById(
+       'colonne-donnees-scroll'
+     );
+
+     const dateTemplate = document.getElementById('date-pickup');
+     const dataTemplate = document.getElementById('line-item-pickup');
+
+     if (!datesContainer || !dataContainer || !dateTemplate || !dataTemplate) {
+       console.error(
+         '[API05] Modèles ou conteneurs Pick Up introuvables.',
+         {
+           datesContainer: !!datesContainer,
+           dataContainer: !!dataContainer,
+           dateTemplate: !!dateTemplate,
+           dataTemplate: !!dataTemplate
+         }
+       );
+     } else {
+       // Supprime les clones précédents uniquement
+       datesContainer
+         .querySelectorAll('[data-tz-pickup-generated="true"]')
+         .forEach(el => el.remove());
+
+       dataContainer
+         .querySelectorAll('[data-tz-pickup-generated="true"]')
+         .forEach(el => el.remove());
+
+       // Les modèles restent masqués : ils servent uniquement au clonage
+       dateTemplate.style.display = 'none';
+       dataTemplate.style.display = 'none';
+
+       const formatDate = value => {
+         if (!value) return '—';
+
+         // Construit la date depuis YYYY-MM-DD sans décalage de fuseau
+         const parts = String(value).split('-').map(Number);
+         if (parts.length !== 3 || parts.some(Number.isNaN)) return '—';
+
+         const date = new Date(parts[0], parts[1] - 1, parts[2]);
+
+         return new Intl.DateTimeFormat('fr-FR', {
+           day: 'numeric',
+           month: 'long',
+           year: 'numeric'
+         }).format(date);
+       };
+
+       const formatVariation = (value, suffix = '') => {
+         if (value === null || value === undefined || value === '') {
+           return { text: '—', color: '#6B7280' };
+         }
+
+         const number = Number(value);
+
+         if (!Number.isFinite(number)) {
+           return { text: '—', color: '#6B7280' };
+         }
+
+         const formatted = Math.abs(number).toLocaleString('fr-FR', {
+           maximumFractionDigits: 2
+         });
+
+         const sign = number > 0 ? '+' : number < 0 ? '-' : '';
+         const color = number > 0
+           ? '#16A34A'
+           : number < 0
+             ? '#DC2626'
+             : '#6B7280';
+
+         return {
+           text: `${sign}${formatted}${suffix ? ` ${suffix}` : ''}`,
+           color
+         };
+       };
+
+       pickupData.forEach(row => {
+         // Clone de la date
+         const dateClone = dateTemplate.cloneNode(true);
+         dateClone.removeAttribute('id');
+         dateClone.setAttribute('data-tz-pickup-generated', 'true');
+         dateClone.style.display = '';
+
+         dateClone.textContent = formatDate(row.date);
+         dateClone.style.color = '#111111';
+
+         datesContainer.appendChild(dateClone);
+
+         // Clone de la ligne de données
+         const dataClone = dataTemplate.cloneNode(true);
+         dataClone.removeAttribute('id');
+         dataClone.setAttribute('data-tz-pickup-generated', 'true');
+         dataClone.style.display = '';
+
+         const fields = [
+           ['pick-up-j-1', row.pickup_24h, ''],
+           ['pick-up-j-7', row.pickup_7d, ''],
+           ['pick-up-to', row.pickup_to, '%'],
+           ['pick-up-pm', row.pickup_pm, '€'],
+           ['pick-up-ca', row.pickup_ca, '€']
+         ];
+
+         fields.forEach(([fieldId, value, suffix]) => {
+           const cell = dataClone.querySelector(`#${CSS.escape(fieldId)}`);
+
+           if (!cell) {
+             console.warn(`[API05] Élément #${fieldId} introuvable dans la ligne modèle.`);
+             return;
+           }
+
+           cell.removeAttribute('id');
+
+           const formatted = formatVariation(value, suffix);
+           cell.textContent = formatted.text;
+           cell.style.color = formatted.color;
+         });
+
+         dataContainer.appendChild(dataClone);
+       });
+
+       console.log('📊 [API05] Pick Up chargé :', pickupData.length, 'dates');
+     }
+   }
+ } catch (err05) {
+   console.error('[API05] Erreur inattendue :', err05.message);
+ }
+
+
+ // 7. API08 — PERFORMANCE
  try {
    const response08 = await fetch(
      `${API_BASE_URL}/api/v1/performance?hotel_id=${encodeURIComponent(targetHotelId)}`,
