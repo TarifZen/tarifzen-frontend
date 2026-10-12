@@ -2577,6 +2577,7 @@ err03.message
 
  
     
+    
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -2699,8 +2700,14 @@ err03.message
             }) + ' €';
           };
 
-          // 6. Générer une date et une ligne tarifaire par relevé
-          competitionData.forEach(row => {
+          // 6. Alternance des fonds : blanc / bleu clair
+          const getRowBackground = index =>
+            index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
+
+          // 7. Générer une date et une ligne tarifaire par relevé
+          competitionData.forEach((row, index) => {
+            const rowBackground = getRowBackground(index);
+
             // Colonne fixe des dates
             const dateClone = dateTemplate.cloneNode(true);
 
@@ -2710,6 +2717,7 @@ err03.message
               'true'
             );
             dateClone.style.display = '';
+            dateClone.style.backgroundColor = rowBackground;
             dateClone.innerHTML = formatDate(row.date);
             dateClone.style.color = '#111111';
 
@@ -2724,6 +2732,18 @@ err03.message
               'true'
             );
             dataClone.style.display = '';
+            dataClone.style.backgroundColor = 'transparent';
+
+            // Appliquer le fond directement aux cinq cases
+            dataClone.querySelectorAll(
+              '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
+            ).forEach(cell => {
+              cell.style.setProperty(
+                'background-color',
+                rowBackground,
+                'important'
+              );
+            });
 
             const fields = [
               ['tarif-mon-hotel', row.hotel_price],
@@ -2745,7 +2765,7 @@ err03.message
 
               cell.textContent = formatPrice(value);
 
-              // 7. Couleur du tarif de mon hôtel selon le tarif médian
+              // 8. Couleur du tarif de mon hôtel selon le tarif médian
               if (fieldId === 'tarif-mon-hotel') {
                 const hasHotelPrice =
                   value !== null &&
