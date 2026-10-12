@@ -2525,7 +2525,7 @@ err03.message
 dataClone.removeAttribute('id');
 dataClone.setAttribute('data-tz-pickup-generated', 'true');
 dataClone.style.display = '';
-dataClone.style.backgroundColor = rowBackground;
+dataClone.style.backgroundColor = 'transparent';
 
 // Appliquer le fond directement à chaque case
 dataClone.querySelectorAll(
