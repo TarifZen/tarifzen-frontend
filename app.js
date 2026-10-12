@@ -2544,6 +2544,7 @@ const formatDate = value => {
  }
 
  
+    
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -2711,6 +2712,36 @@ const formatDate = value => {
               }
 
               cell.textContent = formatPrice(value);
+
+              // 7. Couleur du tarif de mon hôtel selon le tarif médian
+              if (fieldId === 'tarif-mon-hotel') {
+                const hasHotelPrice =
+                  value !== null &&
+                  value !== undefined &&
+                  value !== '';
+
+                const hasMedian =
+                  row.competitor_median !== null &&
+                  row.competitor_median !== undefined &&
+                  row.competitor_median !== '';
+
+                const hotelPrice = Number(value);
+                const medianPrice = Number(row.competitor_median);
+
+                if (
+                  !hasHotelPrice ||
+                  !hasMedian ||
+                  !Number.isFinite(hotelPrice) ||
+                  !Number.isFinite(medianPrice)
+                ) {
+                  cell.style.color = '#6B7280';
+                } else if (hotelPrice >= medianPrice) {
+                  cell.style.color = '#16A34A';
+                } else {
+                  cell.style.color = '#DC2626';
+                }
+              }
+
               cell.removeAttribute('id');
             });
 
@@ -2726,6 +2757,7 @@ const formatDate = value => {
     } catch (err06) {
       console.error('[API06] Erreur de chargement :', err06);
     }
+
  
 
  // 8. API08 — PERFORMANCE
