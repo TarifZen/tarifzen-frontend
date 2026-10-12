@@ -2543,8 +2543,192 @@ const formatDate = value => {
    console.error('[API05] Erreur inattendue :', err05.message);
  }
 
+ 
+    // ----------------------------------------------------------
+    // API06 — CONCURRENCE
+    // ----------------------------------------------------------
+    try {
+      const response06 = await fetch(
+        `${API_BASE_URL}/api/v1/competition?hotel_id=${encodeURIComponent(targetHotelId)}`,
+        {
+          method: 'GET',
+          headers: requestHeaders
+        }
+      );
 
- // 7. API08 — PERFORMANCE
+      if (!response06.ok) {
+        console.error('[API06] Erreur HTTP :', response06.status);
+      } else {
+        const result06 = await response06.json();
+        const competitors = result06?.competitors ?? {};
+        const competitionData = Array.isArray(result06?.data)
+          ? result06.data
+          : [];
+
+        // 1. En-têtes des concurrents
+        const headerNames = [
+          ['name-concurrent-1', competitors.competitor_1_name],
+          ['name-concurrent-2', competitors.competitor_2_name],
+          ['name-concurrent-3', competitors.competitor_3_name]
+        ];
+
+        headerNames.forEach(([id, name]) => {
+          const element = document.getElementById(id);
+
+          if (element) {
+            element.textContent = name || 'Concurrent non renseigné';
+          } else {
+            console.warn(`[API06] Élément #${id} introuvable.`);
+          }
+        });
+
+        // 2. Conteneurs et modèles Webflow
+        const datesContainer = document.getElementById(
+          'colonne-date-fixe-concurrence'
+        );
+
+        const dataContainer = document.getElementById(
+          'colonne-date-scroll-concurrence'
+        );
+
+        const dateTemplate = document.getElementById('date-concurrence');
+        const dataTemplate = document.getElementById('line-concurrence');
+
+        if (!datesContainer || !dataContainer || !dateTemplate || !dataTemplate) {
+          console.error('[API06] Conteneurs ou modèles introuvables.', {
+            datesContainer: !!datesContainer,
+            dataContainer: !!dataContainer,
+            dateTemplate: !!dateTemplate,
+            dataTemplate: !!dataTemplate
+          });
+        } else {
+          // 3. Supprimer les anciennes lignes générées
+          datesContainer
+            .querySelectorAll('[data-tz-concurrence-generated="true"]')
+            .forEach(element => element.remove());
+
+          dataContainer
+            .querySelectorAll('[data-tz-concurrence-generated="true"]')
+            .forEach(element => element.remove());
+
+          // Masquer les modèles originaux
+          dateTemplate.style.display = 'none';
+          dataTemplate.style.display = 'none';
+
+          // 4. Format de date : Jeudi 01er Octobre 2026
+          const formatDate = value => {
+            if (!value) return '—';
+
+            const parts = String(value).split('-').map(Number);
+
+            if (parts.length !== 3 || parts.some(Number.isNaN)) {
+              return '—';
+            }
+
+            const date = new Date(parts[0], parts[1] - 1, parts[2]);
+
+            const weekday = new Intl.DateTimeFormat('fr-FR', {
+              weekday: 'long'
+            }).format(date);
+
+            const month = new Intl.DateTimeFormat('fr-FR', {
+              month: 'long'
+            }).format(date);
+
+            const weekdayCapitalized =
+              weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+            const monthCapitalized =
+              month.charAt(0).toUpperCase() + month.slice(1);
+
+            const day = String(parts[2]).padStart(2, '0');
+
+            if (parts[2] === 1) {
+              return `${weekdayCapitalized} ${day}<sup>er</sup> ${monthCapitalized} ${parts[0]}`;
+            }
+
+            return `${weekdayCapitalized} ${day} ${monthCapitalized} ${parts[0]}`;
+          };
+
+          // 5. Format des tarifs en euros
+          const formatPrice = value => {
+            if (value === null || value === undefined || value === '') {
+              return '—';
+            }
+
+            const number = Number(value);
+
+            if (!Number.isFinite(number)) return '—';
+
+            return number.toLocaleString('fr-FR', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) + ' €';
+          };
+
+          // 6. Générer une date et une ligne tarifaire par relevé
+          competitionData.forEach(row => {
+            // Colonne fixe des dates
+            const dateClone = dateTemplate.cloneNode(true);
+
+            dateClone.removeAttribute('id');
+            dateClone.setAttribute(
+              'data-tz-concurrence-generated',
+              'true'
+            );
+            dateClone.style.display = '';
+            dateClone.innerHTML = formatDate(row.date);
+            dateClone.style.color = '#111111';
+
+            datesContainer.appendChild(dateClone);
+
+            // Ligne des tarifs
+            const dataClone = dataTemplate.cloneNode(true);
+
+            dataClone.removeAttribute('id');
+            dataClone.setAttribute(
+              'data-tz-concurrence-generated',
+              'true'
+            );
+            dataClone.style.display = '';
+
+            const fields = [
+              ['tarif-mon-hotel', row.hotel_price],
+              ['tarif-concurrent-1', row.competitor_1_price],
+              ['tarif-concurrent-2', row.competitor_2_price],
+              ['tarif-concurrent-3', row.competitor_3_price],
+              ['tarif-median', row.competitor_median]
+            ];
+
+            fields.forEach(([fieldId, value]) => {
+              const cell = dataClone.querySelector(`#${fieldId}`);
+
+              if (!cell) {
+                console.warn(
+                  `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
+                );
+                return;
+              }
+
+              cell.textContent = formatPrice(value);
+              cell.removeAttribute('id');
+            });
+
+            dataContainer.appendChild(dataClone);
+          });
+
+          console.log('📊 [API06] Concurrence chargée :', {
+            dates: competitionData.length,
+            concurrents: competitors
+          });
+        }
+      }
+    } catch (err06) {
+      console.error('[API06] Erreur de chargement :', err06);
+    }
+ 
+
+ // 8. API08 — PERFORMANCE
  try {
    const response08 = await fetch(
      `${API_BASE_URL}/api/v1/performance?hotel_id=${encodeURIComponent(targetHotelId)}`,
