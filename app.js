@@ -2520,19 +2520,20 @@ err03.message
 
          datesContainer.appendChild(dateClone);
 
+         
          // Clone de la ligne de données
          const dataClone = dataTemplate.cloneNode(true);
-dataClone.removeAttribute('id');
-dataClone.setAttribute('data-tz-pickup-generated', 'true');
-dataClone.style.display = '';
-dataClone.style.backgroundColor = 'transparent';
+         dataClone.removeAttribute('id');
+         dataClone.setAttribute('data-tz-pickup-generated', 'true');
+         dataClone.style.display = '';
+         dataClone.style.backgroundColor = 'transparent';
 
-// Appliquer le fond directement à chaque case
-dataClone.querySelectorAll(
-  '#pick-up-j-1, #pick-up-j-7, #pick-up-to, #pick-up-pm, #pick-up-ca'
-).forEach(cell => {
-  cell.style.backgroundColor = rowBackground;
-});
+         // Appliquer le fond directement à chaque case
+         dataClone.querySelectorAll(
+           '#pick-up-j-1, #pick-up-j-7, #pick-up-to, #pick-up-pm, #pick-up-ca'
+         ).forEach(cell => {
+           cell.style.setProperty('background-color', rowBackground, 'important');
+         });
 
          const fields = [
            ['pick-up-j-1', row.pickup_24h, ''],
