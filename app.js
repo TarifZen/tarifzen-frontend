@@ -2522,11 +2522,17 @@ err03.message
 
          // Clone de la ligne de données
          const dataClone = dataTemplate.cloneNode(true);
+dataClone.removeAttribute('id');
+dataClone.setAttribute('data-tz-pickup-generated', 'true');
+dataClone.style.display = '';
+dataClone.style.backgroundColor = rowBackground;
 
-         dataClone.removeAttribute('id');
-         dataClone.setAttribute('data-tz-pickup-generated', 'true');
-         dataClone.style.display = '';
-         dataClone.style.backgroundColor = rowBackground;
+// Appliquer le fond directement à chaque case
+dataClone.querySelectorAll(
+  '#pick-up-j-1, #pick-up-j-7, #pick-up-to, #pick-up-pm, #pick-up-ca'
+).forEach(cell => {
+  cell.style.backgroundColor = rowBackground;
+});
 
          const fields = [
            ['pick-up-j-1', row.pickup_24h, ''],
