@@ -2375,6 +2375,7 @@ err03.message
 }
 
 
+ 
  // 6. API05 — PICK UP
  try {
    const response05 = await fetch(
@@ -2429,41 +2430,46 @@ err03.message
        dateTemplate.style.display = 'none';
        dataTemplate.style.display = 'none';
 
-       
+       // Format des dates
+       const formatDate = value => {
+         if (!value) return '—';
 
-const formatDate = value => {
-  if (!value) return '—';
+         const parts = String(value).split('-').map(Number);
 
-  const parts = String(value).split('-').map(Number);
-  if (parts.length !== 3 || parts.some(Number.isNaN)) return '—';
+         if (parts.length !== 3 || parts.some(Number.isNaN)) {
+           return '—';
+         }
 
-  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+         const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-  const jour = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long'
-  }).format(date);
+         const jour = new Intl.DateTimeFormat('fr-FR', {
+           weekday: 'long'
+         }).format(date);
 
-  const jourNumero = parts[2];
+         const jourNumero = parts[2];
 
-  const mois = new Intl.DateTimeFormat('fr-FR', {
-    month: 'long'
-  }).format(date);
+         const mois = new Intl.DateTimeFormat('fr-FR', {
+           month: 'long'
+         }).format(date);
 
-  const annee = parts[0];
+         const annee = parts[0];
 
-  const jourCapitalise = jour.charAt(0).toUpperCase() + jour.slice(1);
-  const moisCapitalise = mois.charAt(0).toUpperCase() + mois.slice(1);
-  const numeroFormate = String(jourNumero).padStart(2, '0');
+         const jourCapitalise =
+           jour.charAt(0).toUpperCase() + jour.slice(1);
 
-  if (jourNumero === 1) {
-    return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${annee}`;
-  }
+         const moisCapitalise =
+           mois.charAt(0).toUpperCase() + mois.slice(1);
 
-  return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${annee}`;
-};
+         const numeroFormate = String(jourNumero).padStart(2, '0');
 
+         if (jourNumero === 1) {
+           return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${annee}`;
+         }
 
+         return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${annee}`;
+       };
 
+       // Format des variations avec couleurs
        const formatVariation = (value, suffix = '') => {
          if (value === null || value === undefined || value === '') {
            return { text: '—', color: '#6B7280' };
@@ -2480,6 +2486,7 @@ const formatDate = value => {
          });
 
          const sign = number > 0 ? '+' : number < 0 ? '-' : '';
+
          const color = number > 0
            ? '#16A34A'
            : number < 0
@@ -2492,12 +2499,21 @@ const formatDate = value => {
          };
        };
 
-       pickupData.forEach(row => {
-         // Clone de la date
+       // Couleurs alternées : blanc / bleu clair
+       const getRowBackground = index =>
+         index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
+
+       // Génération des lignes
+       pickupData.forEach((row, index) => {
+         const rowBackground = getRowBackground(index);
+
+         // Clone de la date dans la colonne fixe
          const dateClone = dateTemplate.cloneNode(true);
+
          dateClone.removeAttribute('id');
          dateClone.setAttribute('data-tz-pickup-generated', 'true');
          dateClone.style.display = '';
+         dateClone.style.backgroundColor = rowBackground;
 
          dateClone.innerHTML = formatDate(row.date);
          dateClone.style.color = '#111111';
@@ -2506,9 +2522,11 @@ const formatDate = value => {
 
          // Clone de la ligne de données
          const dataClone = dataTemplate.cloneNode(true);
+
          dataClone.removeAttribute('id');
          dataClone.setAttribute('data-tz-pickup-generated', 'true');
          dataClone.style.display = '';
+         dataClone.style.backgroundColor = rowBackground;
 
          const fields = [
            ['pick-up-j-1', row.pickup_24h, ''],
@@ -2522,13 +2540,16 @@ const formatDate = value => {
            const cell = dataClone.querySelector(`#${CSS.escape(fieldId)}`);
 
            if (!cell) {
-             console.warn(`[API05] Élément #${fieldId} introuvable dans la ligne modèle.`);
+             console.warn(
+               `[API05] Élément #${fieldId} introuvable dans la ligne modèle.`
+             );
              return;
            }
 
            cell.removeAttribute('id');
 
            const formatted = formatVariation(value, suffix);
+
            cell.textContent = formatted.text;
            cell.style.color = formatted.color;
          });
@@ -2536,7 +2557,11 @@ const formatDate = value => {
          dataContainer.appendChild(dataClone);
        });
 
-       console.log('📊 [API05] Pick Up chargé :', pickupData.length, 'dates');
+       console.log(
+         '📊 [API05] Pick Up chargé :',
+         pickupData.length,
+         'dates'
+       );
      }
    }
  } catch (err05) {
