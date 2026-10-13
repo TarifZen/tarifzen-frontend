@@ -3300,12 +3300,49 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
       )
     );
 
-    // Message original
-    setText(
-      card,
-      '#text-reco-historic',
-      cleanText(item.message) || 'Détail de la recommandation indisponible.'
-    );
+
+// Message original + gains affichés dans le message
+const originalMessage = cleanText(item.message);
+
+const messageLines = [
+  originalMessage || 'Détail de la recommandation indisponible.'
+];
+
+// Ajouter le gain potentiel s'il est disponible
+const potentialGain = Number(item.gain_potential);
+
+if (
+  item.gain_potential !== null &&
+  item.gain_potential !== undefined &&
+  item.gain_potential !== '' &&
+  Number.isFinite(potentialGain)
+) {
+  messageLines.push(
+    `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
+  );
+}
+
+// Ajouter le gain réel uniquement s'il est strictement positif
+const realGain = Number(item.gain_real);
+
+if (
+  item.gain_real !== null &&
+  item.gain_real !== undefined &&
+  item.gain_real !== '' &&
+  Number.isFinite(realGain) &&
+  realGain > 0
+) {
+  messageLines.push(
+    `Gain réel constaté : ${formatEuro(realGain)}.`
+  );
+}
+
+const messageElement = card.querySelector('#text-reco-historic');
+
+if (messageElement) {
+  messageElement.textContent = messageLines.join('\n\n');
+  messageElement.style.whiteSpace = 'pre-line';
+}
 
     // Prix et hausses : arrondis uniquement à l'affichage
     setText(card, '#prix-avant-historic', formatEuro(item.price_before));
