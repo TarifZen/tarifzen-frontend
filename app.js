@@ -3301,48 +3301,88 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     );
 
 
-// Message original + gains affichés dans le message
-const originalMessage = cleanText(item.message);
 
-const messageLines = [
-  originalMessage || 'Détail de la recommandation indisponible.'
-];
+    // Message original + gains affichés dans le message
+    const originalMessage = cleanText(item.message);
 
-// Ajouter le gain potentiel s'il est disponible
-const potentialGain = Number(item.gain_potential);
+    const messageElement = card.querySelector('#text-reco-historic');
 
-if (
-  item.gain_potential !== null &&
-  item.gain_potential !== undefined &&
-  item.gain_potential !== '' &&
-  Number.isFinite(potentialGain)
-) {
-  messageLines.push(
-    `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
-  );
-}
+    // Construire le message avec les mêmes règles de formatage que les cartes API02
+    if (messageElement) {
+      const messageLines = [
+        originalMessage || 'Détail de la recommandation indisponible.'
+      ];
 
-// Ajouter le gain réel uniquement s'il est strictement positif
-const realGain = Number(item.gain_real);
+      // Gain potentiel : ajouté au message uniquement s'il est disponible
+      const potentialGain = Number(item.gain_potential);
 
-if (
-  item.gain_real !== null &&
-  item.gain_real !== undefined &&
-  item.gain_real !== '' &&
-  Number.isFinite(realGain) &&
-  realGain > 0
-) {
-  messageLines.push(
-    `Gain réel constaté : ${formatEuro(realGain)}.`
-  );
-}
+      if (
+        item.gain_potential !== null &&
+        item.gain_potential !== undefined &&
+        item.gain_potential !== '' &&
+        Number.isFinite(potentialGain)
+      ) {
+        messageLines.push(
+          `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
+        );
+      }
 
-const messageElement = card.querySelector('#text-reco-historic');
+      // Gain réel : affiché uniquement s'il est strictement positif
+      const realGain = Number(item.gain_real);
 
-if (messageElement) {
-  messageElement.textContent = messageLines.join('\n\n');
-  messageElement.style.whiteSpace = 'pre-line';
-}
+      if (
+        item.gain_real !== null &&
+        item.gain_real !== undefined &&
+        item.gain_real !== '' &&
+        Number.isFinite(realGain) &&
+        realGain > 0
+      ) {
+        messageLines.push(
+          `Gain réel constaté : ${formatEuro(realGain)}.`
+        );
+      }
+
+      // Appliquer le formatage partagé avec les cartes de recommandations
+      const messageWithLineBreaks = messageLines
+        .map(line => line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))
+        .join('<br>');
+
+      messageElement.innerHTML = formatShortMessage(
+        messageWithLineBreaks
+      );
+
+      messageElement.style.whiteSpace = 'normal';
+
+      // Colorer le gain potentiel en vert, comme sur les cartes API02
+      if (Number.isFinite(potentialGain) && potentialGain > 0) {
+        const gainText = 'Gain potentiel estimé :';
+        const elements = messageElement.querySelectorAll('div');
+
+        elements.forEach(line => {
+          if (line.textContent.includes(gainText)) {
+            line.innerHTML = line.innerHTML.replace(
+              /(Gain potentiel estimé\s*:\s*)(.*)/i,
+              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+            );
+          }
+        });
+      }
+
+      // Colorer le gain réel en vert uniquement s'il est positif
+      if (Number.isFinite(realGain) && realGain > 0) {
+        const elements = messageElement.querySelectorAll('div');
+
+        elements.forEach(line => {
+          if (line.textContent.includes('Gain réel constaté :')) {
+            line.innerHTML = line.innerHTML.replace(
+              /(Gain réel constaté\s*:\s*)(.*)/i,
+              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+            );
+          }
+        });
+      }
+    }
+
 
     // Prix et hausses : arrondis uniquement à l'affichage
     setText(card, '#prix-avant-historic', formatEuro(item.price_before));
