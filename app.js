@@ -1581,14 +1581,13 @@ function formatShortMessage(message) {
 
   // ============================================================
   // 5. RETOURS À LA LIGNE
-  //
-  // Chaque information commence sur sa propre ligne.
-  // On utilise un bloc simple sans white-space: nowrap
-  // afin de rester contenu dans la carte Webflow.
   // ============================================================
 
   formattedMessage = formattedMessage
-    .split(/(?:<br\s*\/?>\s*)+/gi)
+    .replace(/\r\n/g, '\n')
+    .replace(/\r/g, '\n')
+    .replace(/(?:<br\s*\/?>\s*)+/gi, '\n')
+    .split('\n')
     .map(line => `<div>${line}</div>`)
     .join('');
 
