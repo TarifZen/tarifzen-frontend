@@ -3342,7 +3342,9 @@ setText(
 
 
     // Message original + gains affichés dans le message
-    const originalMessage = cleanText(item.message);
+   const originalMessage = item.message
+  ? String(item.message).trim()
+  : '';
 
     const messageElement = card.querySelector('#text-reco-historic');
 
