@@ -3288,7 +3288,38 @@ const formatDate = value => {
       template.dataset.historyTemplateDisplay || 'block';
 
     // Dates
-    setText(card, '#date-reco-historic', formatDate(item.date));
+    
+const formatRecommendationDate = value => {
+  if (!value) return '—';
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
+
+  const formatted = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long',
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Paris'
+  }).format(date);
+
+  // Majuscule au jour et au mois
+  return formatted.replace(
+    /^([a-zà-ÿ]+)(\s+\d{2}\s+)([a-zà-ÿ])/i,
+    (match, weekday, separator, month) =>
+      weekday.charAt(0).toLocaleUpperCase('fr-FR') +
+      weekday.slice(1) +
+      separator +
+      month.toLocaleUpperCase('fr-FR')
+  );
+};
+
+setText(
+  card,
+  '#date-reco-historic',
+  formatRecommendationDate(item.date)
+);
+
     setText(
       card,
       '#date-application-historic',
