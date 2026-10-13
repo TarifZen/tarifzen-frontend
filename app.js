@@ -3157,7 +3157,7 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     return;
   }
 
-  // Mémoriser le modèle d'origine une seule fois.
+  // Mémoriser le modèle d'origine une seule fois
   if (!template.dataset.historyTemplateInitialized) {
     template.dataset.historyTemplateInitialized = 'true';
     template.dataset.historyTemplateDisplay =
@@ -3168,12 +3168,13 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     template.style.display = 'none';
   }
 
-  // Supprimer uniquement les cartes générées par API07.
-  container.querySelectorAll('[data-tz-history-generated="true"]')
+  // Supprimer uniquement les cartes générées par API07
+  container
+    .querySelectorAll('[data-tz-history-generated="true"]')
     .forEach(card => card.remove());
 
-  // Garder uniquement les actions de l'onglet actif.
-  const filteredData = historyData
+  // Filtrer et trier les actions de l'onglet actif
+  const filteredData = (Array.isArray(historyData) ? historyData : [])
     .filter(item => item.action === activeTab)
     .sort((a, b) => {
       const dateA = new Date(a.created_at || a.date || 0).getTime();
@@ -3181,6 +3182,9 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
       return dateB - dateA;
     });
 
+  // ------------------------------------------------------------
+  // Formatage
+  // ------------------------------------------------------------
   const formatDate = value => {
     if (!value) return '—';
 
@@ -3195,6 +3199,7 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     }).format(date);
   };
 
+  // Arrondi à l'euro uniquement pour l'affichage
   const formatEuro = value => {
     if (value === null || value === undefined || value === '') {
       return '—';
@@ -3206,10 +3211,12 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     return new Intl.NumberFormat('fr-FR', {
       style: 'currency',
       currency: 'EUR',
-      maximumFractionDigits: 2
-    }).format(number);
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    }).format(Math.round(number));
   };
 
+  // Hausse exprimée en euros, et non en pourcentage
   const formatVariation = value => {
     if (value === null || value === undefined || value === '') {
       return '—';
@@ -3218,14 +3225,52 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     const number = Number(value);
     if (!Number.isFinite(number)) return '—';
 
-    return `${number > 0 ? '+' : ''}${number} %`;
+    const rounded = Math.round(number);
+    const formatted = new Intl.NumberFormat('fr-FR', {
+      maximumFractionDigits: 0,
+      minimumFractionDigits: 0
+    }).format(Math.abs(rounded));
+
+    if (rounded > 0) return `+${formatted} €`;
+    if (rounded < 0) return `-${formatted} €`;
+    return '0 €';
   };
 
   const setText = (card, selector, value) => {
     const element = card.querySelector(selector);
-    if (element) element.textContent = value;
+    if (element) element.textContent = value ?? '';
   };
 
+  const cleanText = value => {
+    if (value === null || value === undefined) return '';
+
+    return String(value)
+      .replace(/[\r\n\t]+/g, ' ')
+      .trim();
+  };
+
+  // ------------------------------------------------------------
+  // Événements API09
+  // Même règle que les cartes API02 :
+  // event.start_date === item.date
+  // ------------------------------------------------------------
+  const events = Array.isArray(window.tarifZenEventsData)
+    ? window.tarifZenEventsData
+    : [];
+
+  const getEventIcon = impact => {
+    const normalized = cleanText(impact).toLocaleLowerCase('fr-FR');
+
+    if (normalized === 'fort') return '🔥';
+    if (normalized === 'moyen') return '⚡';
+    if (normalized === 'faible') return '📅';
+
+    return '📅';
+  };
+
+  // ------------------------------------------------------------
+  // Création des cartes
+  // ------------------------------------------------------------
   filteredData.forEach(item => {
     const card = template.cloneNode(true);
 
@@ -3242,42 +3287,36 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
       formatDate(item.created_at)
     );
 
-    // Titre et résumé : les anciennes actions de test peuvent ne pas
-    // être liées à une recommandation.
-    const actionLabel = item.action === 'APPLIED'
-      ? 'Recommandation appliquée'
-      : 'Recommandation ignorée';
+    // Titre original de la recommandation
+    const title = cleanText(item.title);
 
     setText(
       card,
       '#titre-action-historic',
-      `${actionLabel} — ${item.rule_code || 'Règle inconnue'}`
+      title || (
+        item.rule_code
+          ? `Action historique — ${item.rule_code}`
+          : 'Action historique'
+      )
     );
 
+    // Message original
     setText(
       card,
       '#text-reco-historic',
-      item.recommendation_signature
-        ? `Référence : ${item.recommendation_signature}`
-        : 'Détail de la recommandation indisponible.'
+      cleanText(item.message) || 'Détail de la recommandation indisponible.'
     );
 
-    // Prix et hausses
-    setText(
-      card,
-      '#prix-avant-historic',
-      formatEuro(item.price_before)
-    );
-    setText(
-      card,
-      '#prix-apres-historic',
-      formatEuro(item.price_after)
-    );
+    // Prix et hausses : arrondis uniquement à l'affichage
+    setText(card, '#prix-avant-historic', formatEuro(item.price_before));
+    setText(card, '#prix-apres-historic', formatEuro(item.price_after));
+
     setText(
       card,
       '#hausse-recommandee-historic',
       formatVariation(item.recommended_price_change)
     );
+
     setText(
       card,
       '#hausse-appliquee-historic',
@@ -3285,53 +3324,91 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     );
 
     // Gains
-    setText(
-      card,
-      '#gain-potentiel-historic',
-      formatEuro(item.gain_potential)
-    );
-    setText(
-      card,
-      '#gain-reel-historic',
-      formatEuro(item.gain_real)
-    );
+    setText(card, '#gain-potentiel-historic', formatEuro(item.gain_potential));
+    setText(card, '#gain-reel-historic', formatEuro(item.gain_real));
 
-    // Restrictions
-    const restriction = item.applied_restriction
-      || item.recommended_restriction
-      || '';
+    // Restrictions : ignorer les chaînes qui ne contiennent que des espaces
+    const appliedRestriction = cleanText(item.applied_restriction);
+    const recommendedRestriction = cleanText(item.recommended_restriction);
+    const restriction = appliedRestriction || recommendedRestriction;
 
-    const restrictionElement =
-      card.querySelector('#restriction-historic');
+    const restrictionElement = card.querySelector('#restriction-historic');
 
     if (restrictionElement) {
-      restrictionElement.textContent = restriction || 'Aucune restriction';
+      restrictionElement.textContent = restriction;
       restrictionElement.style.display = restriction ? '' : 'none';
     }
 
-    // Événement et score RM non fournis par l'API07 actuelle.
+    // Événement : uniquement icône + nom, sans dates
     const eventElement = card.querySelector('#event-historic');
-    if (eventElement) eventElement.style.display = 'none';
 
+    if (eventElement) {
+      const matchedEvent = events.find(
+        event => event.start_date === item.date
+      );
+
+      if (matchedEvent) {
+        const eventName = cleanText(matchedEvent.name);
+        const eventIcon = getEventIcon(matchedEvent.impact);
+
+        eventElement.textContent = eventName
+          ? `${eventIcon} ${eventName}`
+          : '';
+
+        eventElement.style.display = eventName ? '' : 'none';
+      } else {
+        eventElement.textContent = '';
+        eventElement.style.display = 'none';
+      }
+    }
+
+    // Score RM d'origine
     const scoreElement = card.querySelector('#text-score-rm-historic');
-    if (scoreElement) scoreElement.textContent = '—';
 
-    // Badges : on n'invente pas une priorité qui n'est pas retournée.
+    if (scoreElement) {
+      const score = item.score_rm;
+
+      scoreElement.textContent =
+        score !== null &&
+        score !== undefined &&
+        score !== '' &&
+        Number.isFinite(Number(score))
+          ? String(Number(score))
+          : '—';
+    }
+
+    // Badges de priorité
+    // Règle TarifZen : priorité <= 5 = rouge ; priorité >= 6 = orange
     const orangeBadge = card.querySelector('#badge-rm-orange-historic');
     const redBadge = card.querySelector('#badge-rm-rouge-historic');
 
     if (orangeBadge) orangeBadge.style.display = 'none';
     if (redBadge) redBadge.style.display = 'none';
 
+    const priority = Number(item.priority);
+    const hasPriority =
+      item.priority !== null &&
+      item.priority !== undefined &&
+      item.priority !== '' &&
+      Number.isFinite(priority);
+
+    if (hasPriority) {
+      if (priority <= 5) {
+        if (redBadge) redBadge.style.display = '';
+      } else {
+        if (orangeBadge) orangeBadge.style.display = '';
+      }
+    }
+
     container.appendChild(card);
   });
 
   console.log('[API07] Cartes affichées :', {
     onglet: activeTab,
-    count: filteredData.length
+    count: filteredData.length,
+    events_count: events.length
   });
 }
-
 /* ============================================================
    API07 — INITIALISATION DE L'HISTORIQUE
    ============================================================ */
@@ -3401,8 +3478,8 @@ async function initHistory() {
       Authorization: `Bearer ${cleanToken}`
     };
 
-    // 5. Récupérer l'historique depuis le backend
-    const response = await fetch(
+    // 5. Récupérer l'historique API07
+    const historyResponse = await fetch(
       `${API_BASE_URL}/api/v1/history?hotel_id=${encodeURIComponent(targetHotelId)}`,
       {
         method: 'GET',
@@ -3410,19 +3487,22 @@ async function initHistory() {
       }
     );
 
-    const result = await response.json();
+    const historyResult = await historyResponse.json();
 
-    if (!response.ok) {
+    if (!historyResponse.ok) {
       throw new Error(
-        result?.details ||
-        result?.error ||
-        `Erreur HTTP ${response.status}`
+        historyResult?.details ||
+        historyResult?.error ||
+        `Erreur API07 HTTP ${historyResponse.status}`
       );
     }
 
-    const historyData = Array.isArray(result?.data)
-      ? result.data
+    const historyData = Array.isArray(historyResult?.data)
+      ? historyResult.data
       : [];
+
+    // Conserver les données pour les changements d'onglet
+    window.tarifZenHistoryData = historyData;
 
     console.log('[API07] Historique chargé :', {
       hotel_id: targetHotelId,
@@ -3430,11 +3510,55 @@ async function initHistory() {
       data: historyData
     });
 
+    // 6. Charger les événements API09 pour le même hôtel
+    // Une erreur API09 ne doit pas empêcher l'affichage de l'historique.
+    let allEvents = [];
 
-    // Stocker les données pour les changements d'onglet.
-    window.tarifZenHistoryData = historyData;
+    try {
+      const eventsResponse = await fetch(
+        `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
+        {
+          method: 'GET',
+          headers: requestHeaders
+        }
+      );
 
-    // Afficher par défaut les actions appliquées.
+      const eventsResult = await eventsResponse.json();
+
+      if (!eventsResponse.ok) {
+        throw new Error(
+          eventsResult?.details ||
+          eventsResult?.error ||
+          `Erreur API09 HTTP ${eventsResponse.status}`
+        );
+      }
+
+      const eventData = eventsResult?.data || {};
+
+      allEvents = [
+        ...(Array.isArray(eventData.upcoming) ? eventData.upcoming : []),
+        ...(Array.isArray(eventData.ongoing) ? eventData.ongoing : []),
+        ...(Array.isArray(eventData.past) ? eventData.past : [])
+      ];
+
+      window.tarifZenEventsData = allEvents;
+
+      console.log('[API09] Événements chargés pour l’historique :', {
+        hotel_id: targetHotelId,
+        count: allEvents.length,
+        events: allEvents
+      });
+
+    } catch (eventsError) {
+      window.tarifZenEventsData = [];
+
+      console.error(
+        '[API09] Impossible de charger les événements de l’historique :',
+        eventsError.message
+      );
+    }
+
+    // 7. Afficher les actions appliquées par défaut
     renderHistory(historyData, 'APPLIED');
 
   } catch (error) {
