@@ -3146,6 +3146,193 @@ async function initEventsPage() {
 
 
 /* ============================================================
+   API07 — RENDU DES CARTES HISTORIQUE
+   ============================================================ */
+function renderHistory(historyData, activeTab = 'APPLIED') {
+  const container = document.querySelector('#notif-list-historic');
+  const template = document.querySelector('#card-historic');
+
+  if (!container || !template) {
+    console.warn('[API07] Conteneur ou carte modèle introuvable.');
+    return;
+  }
+
+  // Mémoriser le modèle d'origine une seule fois.
+  if (!template.dataset.historyTemplateInitialized) {
+    template.dataset.historyTemplateInitialized = 'true';
+    template.dataset.historyTemplateDisplay =
+      getComputedStyle(template).display === 'none'
+        ? 'block'
+        : getComputedStyle(template).display;
+
+    template.style.display = 'none';
+  }
+
+  // Supprimer uniquement les cartes générées par API07.
+  container.querySelectorAll('[data-tz-history-generated="true"]')
+    .forEach(card => card.remove());
+
+  // Garder uniquement les actions de l'onglet actif.
+  const filteredData = historyData
+    .filter(item => item.action === activeTab)
+    .sort((a, b) => {
+      const dateA = new Date(a.created_at || a.date || 0).getTime();
+      const dateB = new Date(b.created_at || b.date || 0).getTime();
+      return dateB - dateA;
+    });
+
+  const formatDate = value => {
+    if (!value) return '—';
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+
+    return new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/Paris'
+    }).format(date);
+  };
+
+  const formatEuro = value => {
+    if (value === null || value === undefined || value === '') {
+      return '—';
+    }
+
+    const number = Number(value);
+    if (!Number.isFinite(number)) return '—';
+
+    return new Intl.NumberFormat('fr-FR', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 2
+    }).format(number);
+  };
+
+  const formatVariation = value => {
+    if (value === null || value === undefined || value === '') {
+      return '—';
+    }
+
+    const number = Number(value);
+    if (!Number.isFinite(number)) return '—';
+
+    return `${number > 0 ? '+' : ''}${number} %`;
+  };
+
+  const setText = (card, selector, value) => {
+    const element = card.querySelector(selector);
+    if (element) element.textContent = value;
+  };
+
+  filteredData.forEach(item => {
+    const card = template.cloneNode(true);
+
+    card.removeAttribute('id');
+    card.dataset.tzHistoryGenerated = 'true';
+    card.style.display =
+      template.dataset.historyTemplateDisplay || 'block';
+
+    // Dates
+    setText(card, '#date-reco-historic', formatDate(item.date));
+    setText(
+      card,
+      '#date-application-historic',
+      formatDate(item.created_at)
+    );
+
+    // Titre et résumé : les anciennes actions de test peuvent ne pas
+    // être liées à une recommandation.
+    const actionLabel = item.action === 'APPLIED'
+      ? 'Recommandation appliquée'
+      : 'Recommandation ignorée';
+
+    setText(
+      card,
+      '#titre-action-historic',
+      `${actionLabel} — ${item.rule_code || 'Règle inconnue'}`
+    );
+
+    setText(
+      card,
+      '#text-reco-historic',
+      item.recommendation_signature
+        ? `Référence : ${item.recommendation_signature}`
+        : 'Détail de la recommandation indisponible.'
+    );
+
+    // Prix et hausses
+    setText(
+      card,
+      '#prix-avant-historic',
+      formatEuro(item.price_before)
+    );
+    setText(
+      card,
+      '#prix-apres-historic',
+      formatEuro(item.price_after)
+    );
+    setText(
+      card,
+      '#hausse-recommandee-historic',
+      formatVariation(item.recommended_price_change)
+    );
+    setText(
+      card,
+      '#hausse-appliquee-historic',
+      formatVariation(item.applied_price_change)
+    );
+
+    // Gains
+    setText(
+      card,
+      '#gain-potentiel-historic',
+      formatEuro(item.gain_potential)
+    );
+    setText(
+      card,
+      '#gain-reel-historic',
+      formatEuro(item.gain_real)
+    );
+
+    // Restrictions
+    const restriction = item.applied_restriction
+      || item.recommended_restriction
+      || '';
+
+    const restrictionElement =
+      card.querySelector('#restriction-historic');
+
+    if (restrictionElement) {
+      restrictionElement.textContent = restriction || 'Aucune restriction';
+      restrictionElement.style.display = restriction ? '' : 'none';
+    }
+
+    // Événement et score RM non fournis par l'API07 actuelle.
+    const eventElement = card.querySelector('#event-historic');
+    if (eventElement) eventElement.style.display = 'none';
+
+    const scoreElement = card.querySelector('#text-score-rm-historic');
+    if (scoreElement) scoreElement.textContent = '—';
+
+    // Badges : on n'invente pas une priorité qui n'est pas retournée.
+    const orangeBadge = card.querySelector('#badge-rm-orange-historic');
+    const redBadge = card.querySelector('#badge-rm-rouge-historic');
+
+    if (orangeBadge) orangeBadge.style.display = 'none';
+    if (redBadge) redBadge.style.display = 'none';
+
+    container.appendChild(card);
+  });
+
+  console.log('[API07] Cartes affichées :', {
+    onglet: activeTab,
+    count: filteredData.length
+  });
+}
+
+/* ============================================================
    API07 — INITIALISATION DE L'HISTORIQUE
    ============================================================ */
 async function initHistory() {
@@ -3243,13 +3430,11 @@ async function initHistory() {
       data: historyData
     });
 
-    // Le rendu des cartes sera ajouté à l'étape suivante.
-    window.tarifZenHistoryData = historyData;
+// Stocker les données pour les changements d'onglet.
+window.tarifZenHistoryData = historyData;
 
-  } catch (error) {
-    console.error('[API07] Erreur de chargement :', error.message);
-  }
-}
+// Afficher par défaut les actions appliquées.
+renderHistory(historyData, 'APPLIED');
 
 
  
