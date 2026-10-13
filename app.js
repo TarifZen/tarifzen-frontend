@@ -3342,19 +3342,18 @@ setText(
 
 
     // Message original + gains affichés dans le message
-   const originalMessage = item.message
-  ? String(item.message).trim()
-  : '';
+    const originalMessage = item.message
+      ? String(item.message).trim()
+      : '';
 
     const messageElement = card.querySelector('#text-reco-historic');
 
-    // Construire le message avec les mêmes règles de formatage que les cartes API02
     if (messageElement) {
       const messageLines = [
         originalMessage || 'Détail de la recommandation indisponible.'
       ];
 
-      // Gain potentiel : ajouté au message uniquement s'il est disponible
+      // Gain potentiel : ajouté au message s'il est disponible
       const potentialGain = Number(item.gain_potential);
 
       if (
@@ -3383,24 +3382,25 @@ setText(
         );
       }
 
-      // Appliquer le formatage partagé avec les cartes de recommandations
+      // Échapper le texte pour éviter d'interpréter son contenu comme du HTML
+      const escapeHtml = text => String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      // Conserver les retours à la ligne du message original
       const messageWithLineBreaks = messageLines
-        .map(line => line.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'))
-        .join('<br>');
+        .map(line => escapeHtml(line))
+        .join('\n');
 
-      messageElement.innerHTML = formatShortMessage(
-        messageWithLineBreaks
-      );
-
+      // Formater les montants et le pick-up comme dans API02
+      messageElement.innerHTML = formatShortMessage(messageWithLineBreaks);
       messageElement.style.whiteSpace = 'normal';
 
-      // Colorer le gain potentiel en vert, comme sur les cartes API02
+      // Colorer le gain potentiel en vert s'il est positif
       if (Number.isFinite(potentialGain) && potentialGain > 0) {
-        const gainText = 'Gain potentiel estimé :';
-        const elements = messageElement.querySelectorAll('div');
-
-        elements.forEach(line => {
-          if (line.textContent.includes(gainText)) {
+        messageElement.querySelectorAll('div').forEach(line => {
+          if (line.textContent.includes('Gain potentiel estimé :')) {
             line.innerHTML = line.innerHTML.replace(
               /(Gain potentiel estimé\s*:\s*)(.*)/i,
               '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
@@ -3411,9 +3411,7 @@ setText(
 
       // Colorer le gain réel en vert uniquement s'il est positif
       if (Number.isFinite(realGain) && realGain > 0) {
-        const elements = messageElement.querySelectorAll('div');
-
-        elements.forEach(line => {
+        messageElement.querySelectorAll('div').forEach(line => {
           if (line.textContent.includes('Gain réel constaté :')) {
             line.innerHTML = line.innerHTML.replace(
               /(Gain réel constaté\s*:\s*)(.*)/i,
