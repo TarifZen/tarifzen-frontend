@@ -3392,13 +3392,15 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
       item.priority !== '' &&
       Number.isFinite(priority);
 
-    if (hasPriority) {
-      if (priority <= 5) {
-        if (redBadge) redBadge.style.display = '';
-      } else {
-        if (orangeBadge) orangeBadge.style.display = '';
-      }
-    }
+    
+if (hasPriority) {
+  if (priority <= 5) {
+    if (redBadge) redBadge.style.display = 'block';
+  } else {
+    if (orangeBadge) orangeBadge.style.display = 'block';
+  }
+}
+
 
     container.appendChild(card);
   });
