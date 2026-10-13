@@ -3430,18 +3430,21 @@ async function initHistory() {
       data: historyData
     });
 
-// Stocker les données pour les changements d'onglet.
-window.tarifZenHistoryData = historyData;
 
-// Afficher par défaut les actions appliquées.
-renderHistory(historyData, 'APPLIED');
+    // Stocker les données pour les changements d'onglet.
+    window.tarifZenHistoryData = historyData;
 
+    // Afficher par défaut les actions appliquées.
+    renderHistory(historyData, 'APPLIED');
 
- 
+  } catch (error) {
+    console.error('[API07] Erreur de chargement :', error.message);
+  }
+}
 
- // ============================================================
- // LANCEMENT AU CHARGEMENT DU DOM
- // ============================================================
+/* ============================================================
+   LANCEMENT AU CHARGEMENT DU DOM
+   ============================================================ */
 
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
@@ -3455,6 +3458,3 @@ if (document.readyState === 'loading') {
   initHistory();
 }
 })();
-
-
-
