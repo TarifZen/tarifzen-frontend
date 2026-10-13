@@ -3145,21 +3145,130 @@ async function initEventsPage() {
 }
 
 
+/* ============================================================
+   API07 — INITIALISATION DE L'HISTORIQUE
+   ============================================================ */
+async function initHistory() {
+  try {
+    // 1. Vérifier la session Supabase
+    const {
+      data: { session },
+      error: sessionError
+    } = await supabaseClient.auth.getSession();
+
+    if (sessionError || !session) {
+      console.warn('[API07] Aucune session Supabase active.');
+      return;
+    }
+
+    // 2. Récupérer le profil utilisateur
+    const {
+      data: userData,
+      error: userError
+    } = await supabaseClient
+      .from('users')
+      .select('hotel_id, role')
+      .eq('auth_user_id', session.user.id)
+      .single();
+
+    if (userError || !userData) {
+      console.error(
+        '[API07] Impossible de récupérer le profil utilisateur :',
+        userError?.message
+      );
+      return;
+    }
+
+    // 3. Déterminer le hotel_id
+    let targetHotelId = userData.hotel_id;
+
+    if (userData.role === 'FOUNDER') {
+      const match = window.location.pathname.match(/\/hotels\/([^/]+)/);
+      const urlSlug = match
+        ? decodeURIComponent(match[1]).trim()
+        : '';
+
+      if (!urlSlug) {
+        console.error('[API07] Aucun slug hôtel trouvé dans l’URL.');
+        return;
+      }
+
+      targetHotelId = await getHotelIdFromSlug(urlSlug);
+    }
+
+    if (!targetHotelId) {
+      console.error('[API07] Impossible de déterminer le hotel_id.');
+      return;
+    }
+
+    // 4. Préparer les en-têtes authentifiés
+    const cleanToken = String(session.access_token || '').trim();
+
+    if (!cleanToken) {
+      console.error('[API07] Aucun access_token disponible.');
+      return;
+    }
+
+    const requestHeaders = {
+      Accept: 'application/json',
+      Authorization: `Bearer ${cleanToken}`
+    };
+
+    // 5. Récupérer l'historique depuis le backend
+    const response = await fetch(
+      `${API_BASE_URL}/api/v1/history?hotel_id=${encodeURIComponent(targetHotelId)}`,
+      {
+        method: 'GET',
+        headers: requestHeaders
+      }
+    );
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(
+        result?.details ||
+        result?.error ||
+        `Erreur HTTP ${response.status}`
+      );
+    }
+
+    const historyData = Array.isArray(result?.data)
+      ? result.data
+      : [];
+
+    console.log('[API07] Historique chargé :', {
+      hotel_id: targetHotelId,
+      count: historyData.length,
+      data: historyData
+    });
+
+    // Le rendu des cartes sera ajouté à l'étape suivante.
+    window.tarifZenHistoryData = historyData;
+
+  } catch (error) {
+    console.error('[API07] Erreur de chargement :', error.message);
+  }
+}
+
 
  
 
  // ============================================================
  // LANCEMENT AU CHARGEMENT DU DOM
  // ============================================================
- if (document.readyState === 'loading') {
-   document.addEventListener('DOMContentLoaded', () => {
-     initDashboard();
-     initEventsPage();
-   });
- } else {
-   initDashboard();
-   initEventsPage();
- }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    initDashboard();
+    initEventsPage();
+    initHistory();
+  });
+} else {
+  initDashboard();
+  initEventsPage();
+  initHistory();
+}
 })();
 
 
