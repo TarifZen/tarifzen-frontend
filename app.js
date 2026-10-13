@@ -3185,19 +3185,27 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
   // ------------------------------------------------------------
   // Formatage
   // ------------------------------------------------------------
-  const formatDate = value => {
-    if (!value) return '—';
+  
+const formatDate = value => {
+  if (!value) return '—';
 
-    const date = new Date(value);
-    if (Number.isNaN(date.getTime())) return '—';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '—';
 
-    return new Intl.DateTimeFormat('fr-FR', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-      timeZone: 'Europe/Paris'
-    }).format(date);
-  };
+  const formatted = new Intl.DateTimeFormat('fr-FR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
+    timeZone: 'Europe/Paris'
+  }).format(date);
+
+  // Première lettre du mois en majuscule
+  return formatted.replace(
+    /(\d{2}\s+)([a-zà-ÿ])/i,
+    (match, prefix, letter) => prefix + letter.toLocaleUpperCase('fr-FR')
+  );
+};
+
 
   // Arrondi à l'euro uniquement pour l'affichage
   const formatEuro = value => {
