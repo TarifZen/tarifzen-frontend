@@ -3340,88 +3340,89 @@ setText(
     );
 
 
+// Message original + gains affichés dans le message
+const originalMessage = item.message
+  ? String(item.message).trim()
+  : '';
 
-    // Message original + gains affichés dans le message
-    const originalMessage = item.message
-      ? String(item.message).trim()
-      : '';
+const normalizedOriginalMessage = originalMessage
+  .replace(/\r\n/g, '\n')
+  .replace(/\r/g, '\n')
+  .replace(/\n+/g, '\n')
+  .replace(
+    /(Augmentation\s+de[^\n]*)\n\s*(Tarif\s+cible\s*:[^\n]*)/i,
+    '$1 $2'
+  );
 
-    const messageElement = card.querySelector('#text-reco-historic');
+const messageElement = card.querySelector('#text-reco-historic');
 
-    if (messageElement) {
-      const messageLines = [
-        originalMessage || 'Détail de la recommandation indisponible.'
-      ];
+if (messageElement) {
+  const messageLines = [
+    normalizedOriginalMessage ||
+      'Détail de la recommandation indisponible.'
+  ];
 
-      // Gain potentiel : ajouté au message s'il est disponible
-      const potentialGain = Number(item.gain_potential);
+  const potentialGain = Number(item.gain_potential);
 
-      if (
-        item.gain_potential !== null &&
-        item.gain_potential !== undefined &&
-        item.gain_potential !== '' &&
-        Number.isFinite(potentialGain)
-      ) {
-        messageLines.push(
-          `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
+  if (
+    item.gain_potential !== null &&
+    item.gain_potential !== undefined &&
+    item.gain_potential !== '' &&
+    Number.isFinite(potentialGain)
+  ) {
+    messageLines.push(
+      `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
+    );
+  }
+
+  const realGain = Number(item.gain_real);
+
+  if (
+    item.gain_real !== null &&
+    item.gain_real !== undefined &&
+    item.gain_real !== '' &&
+    Number.isFinite(realGain) &&
+    realGain > 0
+  ) {
+    messageLines.push(
+      `Gain réel constaté : ${formatEuro(realGain)}.`
+    );
+  }
+
+  const escapeHtml = text => String(text)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const messageWithLineBreaks = messageLines
+    .map(line => escapeHtml(line))
+    .join('\n');
+
+  messageElement.innerHTML = formatShortMessage(messageWithLineBreaks);
+  messageElement.style.whiteSpace = 'normal';
+
+  if (Number.isFinite(potentialGain) && potentialGain > 0) {
+    messageElement.querySelectorAll('div').forEach(line => {
+      if (line.textContent.includes('Gain potentiel estimé :')) {
+        line.innerHTML = line.innerHTML.replace(
+          /(Gain potentiel estimé\s*:\s*)(.*)/i,
+          '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
         );
       }
+    });
+  }
 
-      // Gain réel : affiché uniquement s'il est strictement positif
-      const realGain = Number(item.gain_real);
-
-      if (
-        item.gain_real !== null &&
-        item.gain_real !== undefined &&
-        item.gain_real !== '' &&
-        Number.isFinite(realGain) &&
-        realGain > 0
-      ) {
-        messageLines.push(
-          `Gain réel constaté : ${formatEuro(realGain)}.`
+  if (Number.isFinite(realGain) && realGain > 0) {
+    messageElement.querySelectorAll('div').forEach(line => {
+      if (line.textContent.includes('Gain réel constaté :')) {
+        line.innerHTML = line.innerHTML.replace(
+          /(Gain réel constaté\s*:\s*)(.*)/i,
+          '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
         );
       }
-
-      // Échapper le texte pour éviter d'interpréter son contenu comme du HTML
-      const escapeHtml = text => String(text)
-        .replace(/&/g, '&amp;')
-        .replace(/</g, '&lt;')
-        .replace(/>/g, '&gt;');
-
-      // Conserver les retours à la ligne du message original
-      const messageWithLineBreaks = messageLines
-        .map(line => escapeHtml(line))
-        .join('\n');
-
-      // Formater les montants et le pick-up comme dans API02
-      messageElement.innerHTML = formatShortMessage(messageWithLineBreaks);
-      messageElement.style.whiteSpace = 'normal';
-
-      // Colorer le gain potentiel en vert s'il est positif
-      if (Number.isFinite(potentialGain) && potentialGain > 0) {
-        messageElement.querySelectorAll('div').forEach(line => {
-          if (line.textContent.includes('Gain potentiel estimé :')) {
-            line.innerHTML = line.innerHTML.replace(
-              /(Gain potentiel estimé\s*:\s*)(.*)/i,
-              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
-            );
-          }
-        });
-      }
-
-      // Colorer le gain réel en vert uniquement s'il est positif
-      if (Number.isFinite(realGain) && realGain > 0) {
-        messageElement.querySelectorAll('div').forEach(line => {
-          if (line.textContent.includes('Gain réel constaté :')) {
-            line.innerHTML = line.innerHTML.replace(
-              /(Gain réel constaté\s*:\s*)(.*)/i,
-              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
-            );
-          }
-        });
-      }
-    }
-
+    });
+  }
+}
 
     // Prix et hausses : arrondis uniquement à l'affichage
     setText(card, '#prix-avant-historic', formatEuro(item.price_before));
