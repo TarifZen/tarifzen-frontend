@@ -3181,6 +3181,24 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
       return dateB - dateA;
     });
 
+  // Affichage du message si l'historique de l'onglet est vide
+  const emptyTraitee = document.querySelector('.empty-historic-traitee');
+  const emptyIgnore = document.querySelector('.empty-historic-ignore');
+
+  if (emptyTraitee) {
+    emptyTraitee.style.display =
+      activeTab === 'APPLIED' && filteredData.length === 0
+        ? 'block'
+        : 'none';
+  }
+
+  if (emptyIgnore) {
+    emptyIgnore.style.display =
+      activeTab === 'IGNORED' && filteredData.length === 0
+        ? 'block'
+        : 'none';
+  }
+
   // ------------------------------------------------------------
   // Formatage
   // ------------------------------------------------------------
