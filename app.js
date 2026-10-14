@@ -3143,22 +3143,36 @@ async function initEventsPage() {
   }
 }
 
-
 /* ============================================================
    API07 — RENDU DES CARTES HISTORIQUE
    ============================================================ */
 function renderHistory(historyData, activeTab = 'APPLIED') {
-  const container = document.querySelector('#notif-list-historic');
+
+  // Conteneurs des deux onglets
+  const treatedContainer = document.querySelector('#notif-list-historic');
+  const ignoredContainer = document.querySelector('#notif-list-historic-ignore');
+
+  // Conteneur correspondant à l'onglet actif
+  const container = activeTab === 'IGNORED'
+    ? ignoredContainer
+    : treatedContainer;
+
+  // Modèle commun des cartes
   const template = document.querySelector('#card-historic');
 
   if (!container || !template) {
-    console.warn('[API07] Conteneur ou carte modèle introuvable.');
+    console.warn('[API07] Conteneur ou carte modèle introuvable.', {
+      activeTab,
+      containerFound: !!container,
+      templateFound: !!template
+    });
     return;
   }
 
   // Mémoriser le modèle d'origine une seule fois
   if (!template.dataset.historyTemplateInitialized) {
     template.dataset.historyTemplateInitialized = 'true';
+
     template.dataset.historyTemplateDisplay =
       getComputedStyle(template).display === 'none'
         ? 'block'
@@ -3167,10 +3181,15 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     template.style.display = 'none';
   }
 
-  // Supprimer uniquement les cartes générées par API07
-  container
-    .querySelectorAll('[data-tz-history-generated="true"]')
-    .forEach(card => card.remove());
+  // Supprimer les anciennes cartes générées dans les deux onglets
+  [treatedContainer, ignoredContainer]
+    .filter(Boolean)
+    .forEach(target => {
+      target
+        .querySelectorAll('[data-tz-history-generated="true"]')
+        .forEach(card => card.remove());
+    });
+
 
   // Filtrer et trier les actions de l'onglet actif
   const filteredData = (Array.isArray(historyData) ? historyData : [])
