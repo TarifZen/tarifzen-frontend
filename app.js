@@ -929,6 +929,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1'
             );
 
+          console.log('[POPUP HISTORIQUE] Diagnostic clic :', {
+    classeIcone: infoBtn.className,
+    messageIcone: infoBtn.getAttribute('data-message'),
+    longueurMessageIcone: infoBtn.getAttribute('data-message')?.length,
+    parentTrouve: parentItem?.className,
+    messageParent: parentItem?.getAttribute('data-popup-message')
+});
+
 let message = '';
 
 if (parentItem) {
