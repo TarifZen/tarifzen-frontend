@@ -3456,17 +3456,29 @@ setText(
     );
 
 
-// Message original + gains affichés dans le message
+// ======================================================
+// MESSAGE ORIGINAL + GAINS AFFICHÉS DANS LE MESSAGE
+// ======================================================
+
+// Message court utilisé sur la mini-carte
 const originalMessage = item.message
   ? String(item.message).trim()
   : '';
 
-    console.log('[API07] Messages disponibles pour la popup :', {
+// Message long destiné à la popup d'information
+const longMessage = item.long_message
+  ? String(item.long_message).trim()
+  : originalMessage;
+
+console.log('[API07] Messages disponibles pour la popup :', {
   message: item.message,
+  long_message: item.long_message,
   keys: Object.keys(item),
-  messageLength: item.message?.length
+  messageLength: item.message?.length,
+  longMessageLength: item.long_message?.length
 });
 
+// Normalisation du message court affiché sur la carte
 const normalizedOriginalMessage = originalMessage
   .replace(/\r\n/g, '\n')
   .replace(/\r/g, '\n')
@@ -3477,27 +3489,37 @@ const normalizedOriginalMessage = originalMessage
   );
 
 const messageElement = card.querySelector('#text-reco-historic');
-    // Message complet destiné à la popup d'information
-    const historyInfoIcon = card.querySelector(
-      '.icon-info-mini, .icon-info-carte, .info-trigger, .info'
-    );
 
-    if (historyInfoIcon) {
-      historyInfoIcon.setAttribute(
-        'data-message',
-        originalMessage || ''
-      );
+// ======================================================
+// MESSAGE COMPLET TRANSMIS À LA POPUP D'INFORMATION
+// ======================================================
 
-      historyInfoIcon.setAttribute(
-        'data-date',
-        item.date || ''
-      );
-    }
- console.log('[API07] Message transmis à la popup :', {
+const historyInfoIcon = card.querySelector(
+  '.icon-info-mini, .icon-info-carte, .info-trigger, .info'
+);
+
+if (historyInfoIcon) {
+  historyInfoIcon.setAttribute(
+    'data-message',
+    longMessage
+  );
+
+  historyInfoIcon.setAttribute(
+    'data-date',
+    item.date || ''
+  );
+}
+
+console.log('[API07] Message transmis à la popup :', {
   iconFound: !!historyInfoIcon,
   messageLength: historyInfoIcon?.getAttribute('data-message')?.length,
   message: historyInfoIcon?.getAttribute('data-message')
-});   
+});
+
+// ======================================================
+// AFFICHAGE DU MESSAGE COURT SUR LA CARTE HISTORIQUE
+// ======================================================
+
 if (messageElement) {
   const messageLines = [
     normalizedOriginalMessage ||
