@@ -3072,9 +3072,8 @@ function renderGroup(container, groupEvents) {
   const emptyPast = document.getElementById('empty-events-past');
 
 // Afficher le conteneur uniquement s'il contient des événements.
-// Le display flex permet de conserver la mise en page Webflow.
-futureContainer.style.display = futureEvents.length > 0 ? 'flex' : 'none';
-pastContainer.style.display = pastEvents.length > 0 ? 'flex' : 'none';
+futureContainer.style.display = futureEvents.length > 0 ? '' : 'none';
+pastContainer.style.display = pastEvents.length > 0 ? '' : 'none';
 
   if (emptyFuture) {
     emptyFuture.style.display =
