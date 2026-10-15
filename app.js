@@ -2942,11 +2942,7 @@ template.style.display = 'none';
       const card = template.cloneNode(true);
       card.removeAttribute('id');
       card.dataset.api09Generated = 'true';
-      
-      // Afficher uniquement la carte générée.
-card.style.display = getComputedStyle(template).display === 'none'
-  ? 'block'
-  : getComputedStyle(template).display;
+      card.style.display = '';
 
       const formatDate = value => {
         if (!value) return '';
