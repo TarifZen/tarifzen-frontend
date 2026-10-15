@@ -923,6 +923,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const infoBtn = e.target.closest(
             '.icon-info-carte, .info-trigger, #cible-info, .icon-info-mini, .info'
         );
+      console.log('[POPUP] Clic détecté', e.target);
+console.log('[POPUP] Icône identifiée', infoBtn);
         
         if (infoBtn) {
             const parentItem = infoBtn.closest(
