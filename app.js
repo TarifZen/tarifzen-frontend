@@ -3169,17 +3169,15 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     return;
   }
 
-  // Mémoriser le modèle d'origine une seule fois
-  if (!template.dataset.historyTemplateInitialized) {
-    template.dataset.historyTemplateInitialized = 'true';
 
-    template.dataset.historyTemplateDisplay =
-      getComputedStyle(template).display === 'none'
-        ? 'block'
-        : getComputedStyle(template).display;
+  // Le modèle reste toujours masqué.
+  // Seules les cartes clonées contenant des données sont affichées.
+  template.style.display = 'none';
 
-    template.style.display = 'none';
-  }
+  // Les clones reprennent l'affichage prévu pour les cartes réelles.
+  template.dataset.historyTemplateDisplay = 'block';
+
+  
 
   // Supprimer les anciennes cartes générées dans les deux onglets
   [treatedContainer, ignoredContainer]
