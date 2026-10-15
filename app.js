@@ -3073,8 +3073,11 @@ card.style.flexDirection = 'row';
   const emptyPast = document.getElementById('empty-events-past');
 
 // Afficher le conteneur uniquement s'il contient des événements.
-futureContainer.style.display = futureEvents.length > 0 ? '' : 'none';
-pastContainer.style.display = pastEvents.length > 0 ? '' : 'none';
+futureContainer.style.display = futureEvents.length > 0 ? 'flex' : 'none';
+pastContainer.style.display = pastEvents.length > 0 ? 'flex' : 'none';
+
+futureContainer.style.flexDirection = 'column';
+pastContainer.style.flexDirection = 'column';
 
   if (emptyFuture) {
     emptyFuture.style.display =
