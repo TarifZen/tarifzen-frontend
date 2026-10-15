@@ -3454,6 +3454,12 @@ const originalMessage = item.message
   ? String(item.message).trim()
   : '';
 
+    console.log('[API07] Messages disponibles pour la popup :', {
+  message: item.message,
+  keys: Object.keys(item),
+  messageLength: item.message?.length
+});
+
 const normalizedOriginalMessage = originalMessage
   .replace(/\r\n/g, '\n')
   .replace(/\r/g, '\n')
