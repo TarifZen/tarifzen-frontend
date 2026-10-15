@@ -2957,8 +2957,9 @@ function renderGroup(container, groupEvents) {
     card.removeAttribute('id');
     card.dataset.api09Generated = 'true';
 
-    // Afficher la carte générée
-    card.style.display = 'block';
+   // Afficher la carte générée en conservant la mise en page Webflow
+card.style.display = 'flex';
+card.style.flexDirection = 'row';
 
     const formatDate = value => {
       if (!value) return '';
