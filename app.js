@@ -242,17 +242,21 @@ newMiniCard.setAttribute(
             }
         );
 
+     
         // ======================================================
         // INFORMATIONS
         // ======================================================
+        console.log(
+            '[HISTORIQUE] Texte du message :',
+            JSON.stringify(item.data.message)
+        );
 
-      console.log('[HISTORIQUE] Message transmis à l’icône :', {
-    message: item.data.message,
-    longueur: item.data.message?.length,
-    cInfo
-});
-      if (cInfo) {
+        console.log(
+            '[HISTORIQUE] Longueur du message :',
+            item.data.message?.length
+        );
 
+        if (cInfo) {
             cInfo.setAttribute(
                 'data-message',
                 item.data.message || ''
@@ -263,6 +267,12 @@ newMiniCard.setAttribute(
                 item.data.dateBrute || ''
             );
         }
+
+        console.log(
+            '[HISTORIQUE] Attribut data-message de l’icône :',
+            cInfo?.getAttribute('data-message')
+        );
+
 
         // ======================================================
         // BADGE ROUGE / ORANGE
