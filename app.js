@@ -245,7 +245,13 @@ newMiniCard.setAttribute(
         // ======================================================
         // INFORMATIONS
         // ======================================================
-        if (cInfo) {
+
+      console.log('[HISTORIQUE] Message transmis à l’icône :', {
+    message: item.data.message,
+    longueur: item.data.message?.length,
+    cInfo
+});
+      if (cInfo) {
 
             cInfo.setAttribute(
                 'data-message',
