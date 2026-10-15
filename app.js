@@ -3464,7 +3464,27 @@ const normalizedOriginalMessage = originalMessage
   );
 
 const messageElement = card.querySelector('#text-reco-historic');
+    // Message complet destiné à la popup d'information
+    const historyInfoIcon = card.querySelector(
+      '.icon-info-mini, .icon-info-carte, .info-trigger, .info'
+    );
 
+    if (historyInfoIcon) {
+      historyInfoIcon.setAttribute(
+        'data-message',
+        originalMessage || ''
+      );
+
+      historyInfoIcon.setAttribute(
+        'data-date',
+        item.date || ''
+      );
+    }
+ console.log('[API07] Message transmis à la popup :', {
+  iconFound: !!historyInfoIcon,
+  messageLength: historyInfoIcon?.getAttribute('data-message')?.length,
+  message: historyInfoIcon?.getAttribute('data-message')
+});   
 if (messageElement) {
   const messageLines = [
     normalizedOriginalMessage ||
