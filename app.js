@@ -2940,9 +2940,11 @@ template.style.display = 'none';
 
     groupEvents.forEach(event => {
       const card = template.cloneNode(true);
-      card.removeAttribute('id');
-      card.dataset.api09Generated = 'true';
-      card.style.display = '';
+card.removeAttribute('id');
+card.dataset.api09Generated = 'true';
+
+// Le modèle reste masqué, mais les cartes générées sont visibles.
+card.style.display = 'block';
 
       const formatDate = value => {
         if (!value) return '';
