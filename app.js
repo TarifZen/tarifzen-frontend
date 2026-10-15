@@ -318,6 +318,7 @@ newMiniCard.setAttribute(
         // AJOUT À L'HISTORIQUE
         // ======================================================
         historyWrapper.prepend(newMiniCard);
+      console.log('[TEST] Le bloc d’insertion de la mini-carte est exécuté');
 
         // DIAGNOSTIC : vérifier l'icône réellement affichée
         const iconeAffichee =
