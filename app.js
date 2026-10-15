@@ -566,15 +566,22 @@ if (appliedPriceInput) {
 }
   
   const payload = {
-  recommendation_id: recoId,
-  action: statutValue,
-  application_method: 'CUSTOM'
-};
+    recommendation_id: recoId,
+    action: statutValue,
+    application_method: 'CUSTOM',
 
-if (appliedPriceChange !== null) {
-  payload.applied_price_change =
-    appliedPriceChange;
-}
+    // Message détaillé d'origine pour l'historique
+    long_message:
+      card.getAttribute('data-popup-message') ||
+      card.querySelector(
+        '.reco-long-message, [data-field="long_message"], #info-text, .info-text'
+      )?.textContent?.trim() ||
+      ''
+  };
+
+  if (appliedPriceChange !== null) {
+    payload.applied_price_change = appliedPriceChange;
+  }
 
   console.log('📤 Envoi action V2 :', payload);
 
