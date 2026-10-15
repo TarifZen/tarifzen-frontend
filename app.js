@@ -2935,13 +2935,18 @@ function renderEventsPage(events) {
     container.querySelectorAll('.block-event[data-api09-generated="true"]')
       .forEach(card => card.remove());
 
-    template.style.display = 'none';
+    // Le modèle reste masqué en permanence.
+template.style.display = 'none';
 
     groupEvents.forEach(event => {
       const card = template.cloneNode(true);
       card.removeAttribute('id');
       card.dataset.api09Generated = 'true';
-      card.style.display = '';
+      
+      // Afficher uniquement la carte générée.
+card.style.display = getComputedStyle(template).display === 'none'
+  ? 'block'
+  : getComputedStyle(template).display;
 
       const formatDate = value => {
         if (!value) return '';
