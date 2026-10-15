@@ -2924,58 +2924,84 @@ function renderEventsPage(events) {
     return;
   }
 
-  function renderGroup(container, groupEvents) {
-    const template = container.querySelector('.block-event');
+  
+function renderGroup(container, groupEvents) {
+  const template = container.querySelector('.block-event');
 
-    if (!template) {
-      console.error('[API09] Modèle .block-event introuvable dans', container);
-      return;
-    }
+  console.log('[API09] Conteneur :', container.id);
+  console.log('[API09] Modèle trouvé :', !!template);
+  console.log(
+    '[API09] Affichage calculé du modèle :',
+    template ? getComputedStyle(template).display : 'modèle absent'
+  );
 
-    container.querySelectorAll('.block-event[data-api09-generated="true"]')
-      .forEach(card => card.remove());
+  if (!template) {
+    console.error(
+      '[API09] Modèle .block-event introuvable dans',
+      container
+    );
+    return;
+  }
 
-    // Le modèle reste masqué en permanence.
-template.style.display = 'none';
+  // Supprimer les anciennes cartes générées
+  container
+    .querySelectorAll('.block-event[data-api09-generated="true"]')
+    .forEach(card => card.remove());
 
-    groupEvents.forEach(event => {
-      const card = template.cloneNode(true);
-card.removeAttribute('id');
-card.dataset.api09Generated = 'true';
+  // Le modèle reste masqué
+  template.style.display = 'none';
 
-// Le modèle reste masqué, mais les cartes générées sont visibles.
-card.style.display = 'block';
+  groupEvents.forEach(event => {
+    const card = template.cloneNode(true);
 
-      const formatDate = value => {
-        if (!value) return '';
-        const [year, month, day] = value.split('-');
-        return `${day}.${month}.${year}`;
+    card.removeAttribute('id');
+    card.dataset.api09Generated = 'true';
+
+    // Afficher la carte générée
+    card.style.display = 'block';
+
+    const formatDate = value => {
+      if (!value) return '';
+      const [year, month, day] = value.split('-');
+      return `${day}.${month}.${year}`;
+    };
+
+    const startEl = card.querySelector('#date-debut');
+    const endEl = card.querySelector('#date-fin');
+    const nameEl = card.querySelector('#text-nom-event');
+    const impactEl = card.querySelector('#impact-event');
+
+    if (startEl) startEl.textContent = formatDate(event.start_date);
+    if (endEl) endEl.textContent = formatDate(event.end_date);
+    if (nameEl) nameEl.textContent = event.name || '';
+
+    if (impactEl) {
+      const impact = String(event.impact || '').trim();
+
+      const impactIcons = {
+        fort: '🔥',
+        moyen: '⚡',
+        faible: '📅'
       };
 
-      const startEl = card.querySelector('#date-debut');
-      const endEl = card.querySelector('#date-fin');
-      const nameEl = card.querySelector('#text-nom-event');
-      const impactEl = card.querySelector('#impact-event');
+      const icon = impactIcons[impact.toLowerCase()] || '📅';
+      impactEl.textContent = `${icon} ${impact}`;
+    }
 
-      if (startEl) startEl.textContent = formatDate(event.start_date);
-      if (endEl) endEl.textContent = formatDate(event.end_date);
-      if (nameEl) nameEl.textContent = event.name || '';
+    container.appendChild(card);
 
-      if (impactEl) {
-        const impact = String(event.impact || '').trim();
-        const impactIcons = {
-          fort: '🔥',
-          moyen: '⚡',
-          faible: '📅'
-        };
-
-        const icon = impactIcons[impact.toLowerCase()] || '📅';
-        impactEl.textContent = `${icon} ${impact}`;
-      }
-
-      container.appendChild(card);
+    // Diagnostic de la carte après son insertion dans le DOM
+    console.log('[API09] Carte ajoutée :', {
+      nom: event.name,
+      conteneur: container.id,
+      displayInline: card.style.display,
+      displayCalcule: getComputedStyle(card).display,
+      hauteur: card.getBoundingClientRect().height,
+      largeur: card.getBoundingClientRect().width,
+      conteneurDisplay: getComputedStyle(container).display
     });
-  }
+  });
+}
 
   const futureEvents = events.filter(
     event => event.period_status !== 'PAST'
