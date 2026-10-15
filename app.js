@@ -315,11 +315,28 @@ newMiniCard.setAttribute(
         }
 
         // ======================================================
-// AJOUT À L'HISTORIQUE
-// ======================================================
-historyWrapper.prepend(
-    newMiniCard
-);
+        // AJOUT À L'HISTORIQUE
+        // ======================================================
+        historyWrapper.prepend(newMiniCard);
+
+        // DIAGNOSTIC : vérifier l'icône réellement affichée
+        const iconeAffichee =
+            newMiniCard.querySelector('.icon-info-mini');
+
+        console.log(
+            '[HISTORIQUE] Icône après insertion :',
+            iconeAffichee
+        );
+
+        console.log(
+            '[HISTORIQUE] Message après insertion :',
+            iconeAffichee?.getAttribute('data-message')
+        );
+
+        console.log(
+            '[HISTORIQUE] Longueur après insertion :',
+            iconeAffichee?.getAttribute('data-message')?.length
+        );
     });
 }
   
