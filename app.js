@@ -315,11 +315,11 @@ newMiniCard.setAttribute(
         }
 
         // ======================================================
-        // AJOUT À L'HISTORIQUE
-        // ======================================================
-        historyWrapper.prepend(
-            newMiniCard
-        );
+// AJOUT À L'HISTORIQUE
+// ======================================================
+historyWrapper.prepend(
+    newMiniCard
+);
     });
 }
   
