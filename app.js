@@ -1354,34 +1354,50 @@ function updateCalendarVisuals() {
 // SÉLECTION AUTOMATIQUE DU MOIS EN COURS
 // ============================================================
 
+
 function autoSelectCurrentMonth() {
     const monthConfig = CALENDAR_MONTHS[new Date().getMonth()];
     const pane = document.querySelector(monthConfig.selector);
 
     if (!pane) {
-        console.warn(
-            `[Calendrier] Impossible de sélectionner ${monthConfig.name} : onglet introuvable.`
-        );
+        console.warn('[Calendrier] Onglet du mois en cours introuvable.');
         return;
     }
 
     const tabId = pane.getAttribute('data-w-tab');
 
-    if (!tabId) {
-        console.warn(
-            `[Calendrier] Attribut data-w-tab manquant pour ${monthConfig.name}.`
-        );
-        return;
-    }
+    let tabLink = tabId
+        ? document.querySelector(
+            `.tabs-menu-5 a[data-w-tab="${tabId}"]`
+          )
+        : null;
 
-    const tabLink = document.querySelector(
-        `.tabs-menu-5 a[data-w-tab="${tabId}"]`
-    );
+    // Solution de secours : recherche l'onglet par son nom.
+    if (!tabLink) {
+        const monthName = monthConfig.name;
+
+        tabLink = Array.from(
+            document.querySelectorAll('.tabs-menu-5 a')
+        ).find(tab =>
+            tab.textContent.trim().toLowerCase() === monthName
+        );
+    }
 
     if (tabLink && !tabLink.classList.contains('w--current')) {
         tabLink.click();
     }
+
+    console.log(
+        '[Calendrier] Mois actuel :',
+        monthConfig.name,
+        '| Onglet trouvé :',
+        Boolean(tabLink)
+    );
 }
+
+// Laisse Webflow initialiser ses onglets avant de sélectionner le mois.
+setTimeout(autoSelectCurrentMonth, 300);
+
 
 
 // ============================================================
