@@ -1138,9 +1138,10 @@ if (!finalDate && infoBtn) {
 
     }); // fermeture du document.addEventListener('click', ...)
 
+
 /* ============================================================
    CALENDRIER TARIFZEN — GÉNÉRATION AUTOMATIQUE DES DATES
-   Étape 1 : génération des cases et alignement des jours
+   + Chargement API04 et affichage des recommandations
    ============================================================ */
 
 const CALENDAR_MONTHS = [
@@ -1158,42 +1159,38 @@ const CALENDAR_MONTHS = [
     { name: 'decembre', selector: '.decembre-calendar' }
 ];
 
+
+// ============================================================
+// GÉNÉRATION DES CASES D'UN MOIS
+// ============================================================
+
 function generateCalendarMonth(monthConfig, year) {
     const pane = document.querySelector(monthConfig.selector);
 
     if (!pane) {
-        console.warn(
-            `[Calendrier] Onglet introuvable : ${monthConfig.selector}`
-        );
+        console.warn(`[Calendrier] Onglet introuvable : ${monthConfig.selector}`);
         return;
     }
 
     const grid = pane.querySelector('.main-calendar-container');
 
     if (!grid) {
-        console.warn(
-            `[Calendrier] Grille introuvable pour ${monthConfig.name}`
-        );
+        console.warn(`[Calendrier] Grille introuvable pour ${monthConfig.name}`);
         return;
     }
 
     const template = grid.querySelector('.calendrier-case-1');
 
     if (!template) {
-        console.warn(
-            `[Calendrier] Modèle .calendrier-case-1 introuvable pour ${monthConfig.name}`
-        );
+        console.warn(`[Calendrier] Modèle .calendrier-case-1 introuvable pour ${monthConfig.name}`);
         return;
     }
 
-    // Supprime les dates et cases vides générées lors d'une précédente initialisation.
     grid.querySelectorAll('[data-tz-calendar-generated="true"]')
         .forEach(element => element.remove());
 
-    // Le modèle original reste présent dans le DOM, mais invisible.
     template.style.setProperty('display', 'none', 'important');
 
-    // Le bandeau des jours de la semaine doit occuper toute la largeur de la grille.
     const header = grid.querySelector('.calendar-header');
 
     if (header) {
@@ -1203,22 +1200,18 @@ function generateCalendarMonth(monthConfig, year) {
     const monthIndex = CALENDAR_MONTHS.indexOf(monthConfig);
     const firstDay = new Date(year, monthIndex, 1);
     const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-
-    // JavaScript : dimanche = 0. Le calendrier commence le lundi.
     const mondayOffset = (firstDay.getDay() + 6) % 7;
 
-    // Cases vides avant le premier jour du mois.
+    // Cases vides avant le premier jour.
     for (let i = 0; i < mondayOffset; i++) {
         const emptyCell = document.createElement('div');
-
         emptyCell.className = 'calendar-empty-cell';
         emptyCell.setAttribute('data-tz-calendar-generated', 'true');
         emptyCell.setAttribute('aria-hidden', 'true');
-
         grid.appendChild(emptyCell);
     }
 
-    // Génération des jours du mois à partir du modèle Webflow.
+    // Génération des dates.
     for (let day = 1; day <= daysInMonth; day++) {
         const cell = template.cloneNode(true);
 
@@ -1235,8 +1228,7 @@ function generateCalendarMonth(monthConfig, year) {
         cell.setAttribute('data-calendar-date', dateString);
         cell.setAttribute('data-calendar-day', String(day));
 
-        // Convertit les ID du modèle en classes avant de supprimer les ID.
-        // Cela permet de retrouver les éléments dans chaque copie sans ID dupliqué.
+        // Convertit les ID des éléments clonés en classes.
         const idToClass = {
             'past-days': 'past-days',
             'pastille-jour-j': 'pastille-jour-j',
@@ -1256,21 +1248,18 @@ function generateCalendarMonth(monthConfig, year) {
             element.removeAttribute('id');
         });
 
-        // Affiche la date dans la case.
         const dayElement = cell.querySelector('.text-date-calendar');
 
         if (dayElement) {
             dayElement.textContent = String(day);
         }
 
-        // Masque l'indicateur des jours passés avant de recalculer son état.
         const pastOverlay = cell.querySelector('.past-days');
 
         if (pastOverlay) {
             pastOverlay.style.setProperty('display', 'none', 'important');
         }
 
-        // Masque la pastille du jour J avant de recalculer son état.
         const todayPill = cell.querySelector('.pastille-jour-j');
 
         if (todayPill) {
@@ -1278,23 +1267,30 @@ function generateCalendarMonth(monthConfig, year) {
             todayPill.style.setProperty('display', 'none', 'important');
         }
 
-        // Retire le display inline qui masquait le modèle original.
-        cell.style.removeProperty('display');
+        // Masque les badges de priorité jusqu'au chargement des recommandations.
+        [
+            '.score-rm-red-calendar',
+            '.score-rm-orange-calendar',
+            '.score-rm-green-calendar'
+        ].forEach(selector => {
+            cell.querySelectorAll(selector).forEach(badge => {
+                badge.style.setProperty('display', 'none', 'important');
+            });
+        });
 
+        cell.style.removeProperty('display');
         grid.appendChild(cell);
     }
 
-    // Cases vides après le dernier jour pour terminer la dernière semaine.
+    // Cases vides après le dernier jour.
     const totalCells = mondayOffset + daysInMonth;
     const trailingCells = (7 - (totalCells % 7)) % 7;
 
     for (let i = 0; i < trailingCells; i++) {
         const emptyCell = document.createElement('div');
-
         emptyCell.className = 'calendar-empty-cell';
         emptyCell.setAttribute('data-tz-calendar-generated', 'true');
         emptyCell.setAttribute('aria-hidden', 'true');
-
         grid.appendChild(emptyCell);
     }
 
@@ -1305,7 +1301,7 @@ function generateCalendarMonth(monthConfig, year) {
 
 
 // ============================================================
-// JOUR J ET JOURS PASSÉS
+// JOUR J ET JOURS PASSÉS — HEURE LOCALE DU NAVIGATEUR
 // ============================================================
 
 function updateCalendarVisuals() {
@@ -1321,11 +1317,9 @@ function updateCalendarVisuals() {
         '[data-tz-calendar-generated="true"].calendar-date-cell'
     ).forEach(cell => {
         const date = cell.getAttribute('data-calendar-date');
-
         const pastOverlay = cell.querySelector('.past-days');
         const todayPill = cell.querySelector('.pastille-jour-j');
 
-        // Voile sur les jours antérieurs à aujourd'hui.
         if (pastOverlay) {
             pastOverlay.style.setProperty(
                 'display',
@@ -1334,12 +1328,10 @@ function updateCalendarVisuals() {
             );
         }
 
-        // Pastille bleue sur le jour J uniquement.
         if (todayPill) {
             const isToday = date === todayDate;
 
             todayPill.classList.toggle('is-active', isToday);
-
             todayPill.style.setProperty(
                 'display',
                 isToday ? 'flex' : 'none',
@@ -1353,7 +1345,6 @@ function updateCalendarVisuals() {
 // ============================================================
 // SÉLECTION AUTOMATIQUE DU MOIS EN COURS
 // ============================================================
-
 
 function autoSelectCurrentMonth() {
     const monthConfig = CALENDAR_MONTHS[new Date().getMonth()];
@@ -1369,17 +1360,14 @@ function autoSelectCurrentMonth() {
     let tabLink = tabId
         ? document.querySelector(
             `.tabs-menu-5 a[data-w-tab="${tabId}"]`
-          )
+        )
         : null;
 
-    // Solution de secours : recherche l'onglet par son nom.
     if (!tabLink) {
-        const monthName = monthConfig.name;
-
         tabLink = Array.from(
             document.querySelectorAll('.tabs-menu-5 a')
         ).find(tab =>
-            tab.textContent.trim().toLowerCase() === monthName
+            tab.textContent.trim().toLowerCase() === monthConfig.name
         );
     }
 
@@ -1395,9 +1383,183 @@ function autoSelectCurrentMonth() {
     );
 }
 
-// Laisse Webflow initialiser ses onglets avant de sélectionner le mois.
-setTimeout(autoSelectCurrentMonth, 300);
 
+// ============================================================
+// API04 — CHARGEMENT DES RECOMMANDATIONS DU CALENDRIER
+// ============================================================
+
+async function loadCalendarRecommendations() {
+    try {
+        const hotelId =
+            typeof targetHotelId !== 'undefined'
+                ? targetHotelId
+                : window.targetHotelId;
+
+        if (!hotelId) {
+            console.warn('[API04 Calendrier] Hotel ID indisponible.');
+            return;
+        }
+
+        const supabaseClient = window.supabaseClient;
+
+        if (!supabaseClient) {
+            console.error('[API04 Calendrier] Client Supabase indisponible.');
+            return;
+        }
+
+        const { data: sessionData, error: sessionError } =
+            await supabaseClient.auth.getSession();
+
+        if (sessionError) {
+            throw sessionError;
+        }
+
+        const token = sessionData?.session?.access_token;
+
+        if (!token) {
+            console.warn('[API04 Calendrier] Session utilisateur absente.');
+            return;
+        }
+
+        const apiBase =
+            typeof API_BASE_URL !== 'undefined'
+                ? API_BASE_URL
+                : 'https://tarifzen-backend.onrender.com';
+
+        const response = await fetch(
+            `${apiBase}/api/v1/calendar?hotel_id=${encodeURIComponent(hotelId)}`,
+            {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                }
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(
+                `API04 HTTP ${response.status}: ${await response.text()}`
+            );
+        }
+
+        const result = await response.json();
+
+        const recommendations = Array.isArray(result.recommendations)
+            ? result.recommendations
+            : [];
+
+        console.log('[API04 Calendrier] Période reçue :', {
+            start_date: result.start_date,
+            end_date: result.end_date,
+            recommendations: recommendations.length
+        });
+
+        // Indexe les recommandations par date de séjour.
+        const recommendationsByDate = new Map(
+            recommendations.map(reco => [
+                reco.recommendation_date,
+                reco
+            ])
+        );
+
+        // Réinitialise les valeurs avant le rendu.
+        document.querySelectorAll(
+            '[data-tz-calendar-generated="true"].calendar-date-cell'
+        ).forEach(cell => {
+            const score = cell.querySelector('.text-score-rm-calendar');
+
+            if (score) {
+                score.textContent = '';
+            }
+
+            [
+                '.score-rm-red-calendar',
+                '.score-rm-orange-calendar',
+                '.score-rm-green-calendar'
+            ].forEach(selector => {
+                cell.querySelectorAll(selector).forEach(badge => {
+                    badge.style.setProperty('display', 'none', 'important');
+                });
+            });
+
+            cell.removeAttribute('data-message-long');
+            cell.removeAttribute('data-recommendation-id');
+        });
+
+        let displayed = 0;
+
+        document.querySelectorAll(
+            '[data-tz-calendar-generated="true"].calendar-date-cell'
+        ).forEach(cell => {
+            const date = cell.getAttribute('data-calendar-date');
+            const reco = recommendationsByDate.get(date);
+
+            if (!reco) return;
+
+            displayed++;
+
+            cell.setAttribute(
+                'data-recommendation-id',
+                reco.recommendation_id || ''
+            );
+
+            cell.setAttribute(
+                'data-message-long',
+                reco.long_message || reco.short_message || ''
+            );
+
+            const score = cell.querySelector('.text-score-rm-calendar');
+
+            if (score) {
+                score.textContent =
+                    reco.score_rm != null ? String(reco.score_rm) : '';
+            }
+
+            const badgeSelectors = {
+                RED: '.score-rm-red-calendar',
+                ORANGE: '.score-rm-orange-calendar',
+                GREEN: '.score-rm-green-calendar'
+            };
+
+            const badgeSelector = badgeSelectors[reco.priority_type];
+
+            if (badgeSelector) {
+                cell.querySelectorAll(badgeSelector).forEach(badge => {
+                    badge.style.setProperty('display', 'flex', 'important');
+                });
+            }
+
+            // Prépare l'icône d'information pour une connexion à la popup.
+            const infoIcon = cell.querySelector('.icon-info-calendar');
+
+            if (infoIcon) {
+                infoIcon.setAttribute(
+                    'data-message-long',
+                    reco.long_message || reco.short_message || ''
+                );
+
+                infoIcon.setAttribute(
+                    'data-date',
+                    reco.recommendation_date || date
+                );
+
+                infoIcon.setAttribute(
+                    'data-recommendation-id',
+                    reco.recommendation_id || ''
+                );
+            }
+        });
+
+        console.log('[API04 Calendrier] Affichage terminé :', {
+            recommendations_received: recommendations.length,
+            recommendations_displayed: displayed
+        });
+
+    } catch (error) {
+        console.error('[API04 Calendrier] Erreur de chargement :', error);
+    }
+}
 
 
 // ============================================================
@@ -1415,6 +1577,9 @@ function initializeTarifZenCalendar() {
     autoSelectCurrentMonth();
 
     console.log(`[Calendrier] Initialisation terminée pour ${year}.`);
+
+    // Charge les recommandations une fois les cases créées.
+    loadCalendarRecommendations();
 }
 
 // Ce code s'exécute dans le DOMContentLoaded déjà ouvert plus haut.
@@ -1426,7 +1591,6 @@ document.querySelectorAll('.tabs-menu-5 a').forEach(tab => {
         setTimeout(updateCalendarVisuals, 150);
     });
 });
-
 
 }); // fermeture du document.addEventListener('DOMContentLoaded', ...)
 
