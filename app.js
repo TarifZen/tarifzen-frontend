@@ -1137,208 +1137,280 @@ if (!finalDate && infoBtn) {
         }
 
     }); // fermeture du document.addEventListener('click', ...)
-// ============================================================
-// CALENDRIER
-// ============================================================
-function updateCalendarVisuals() {
 
-    const today = new Date();
-    const currentDay = today.getDate();
-    const currentMonthIndex = today.getMonth();
+/* ============================================================
+   CALENDRIER TARIFZEN — GÉNÉRATION AUTOMATIQUE DES DATES
+   Étape 1 : génération des cases et alignement des jours
+   ============================================================ */
 
-    const monthNames = [
-        "janvier",
-        "février",
-        "mars",
-        "avril",
-        "mai",
-        "juin",
-        "juillet",
-        "août",
-        "septembre",
-        "octobre",
-        "novembre",
-        "décembre"
-    ];
+const CALENDAR_MONTHS = [
+    { name: 'janvier', selector: '.janvier-calendar' },
+    { name: 'fevrier', selector: '.fevrier-calendar' },
+    { name: 'mars', selector: '.mars-calendar' },
+    { name: 'avril', selector: '.avril-calendar' },
+    { name: 'mai', selector: '.mai-calendar' },
+    { name: 'juin', selector: '.juin-calendar' },
+    { name: 'juillet', selector: '.juillet-calendar' },
+    { name: 'aout', selector: '.aout-calendar' },
+    { name: 'septembre', selector: '.septembre-calendar' },
+    { name: 'octobre', selector: '.octobre-calendar' },
+    { name: 'novembre', selector: '.novembre-calendar' },
+    { name: 'decembre', selector: '.decembre-calendar' }
+];
 
-    document.querySelectorAll('.w-tab-pane').forEach(pane => {
+function generateCalendarMonth(monthConfig, year) {
+    const pane = document.querySelector(monthConfig.selector);
 
-        const tabId = pane.getAttribute('data-w-tab');
-
-        const tabLink = document.querySelector(
-            `.tabs-menu-5 a[data-w-tab="${tabId}"]`
+    if (!pane) {
+        console.warn(
+            `[Calendrier] Onglet introuvable : ${monthConfig.selector}`
         );
+        return;
+    }
 
-        const paneMonthName = tabLink
-            ? tabLink.innerText.trim().toLowerCase()
-            : "";
+    const grid = pane.querySelector('.main-calendar-container');
 
-        const paneMonthIndex =
-            monthNames.indexOf(paneMonthName);
+    if (!grid) {
+        console.warn(
+            `[Calendrier] Grille introuvable pour ${monthConfig.name}`
+        );
+        return;
+    }
 
-        pane.querySelectorAll(
-            '.calendrier-case, .calendrier-case-1'
-        ).forEach(item => {
+    const template = grid.querySelector('.calendrier-case-1');
 
-            const dayEl =
-                item.querySelector('.text-block-35') ||
-                item.querySelector('.text-4');
+    if (!template) {
+        console.warn(
+            `[Calendrier] Modèle .calendrier-case-1 introuvable pour ${monthConfig.name}`
+        );
+        return;
+    }
 
-            if (!dayEl) return;
+    // Supprime les dates et cases vides générées lors d'une précédente initialisation.
+    grid.querySelectorAll('[data-tz-calendar-generated="true"]')
+        .forEach(element => element.remove());
 
-            const dayValue =
-                parseInt(dayEl.innerText.trim());
+    // Le modèle original reste présent dans le DOM, mais invisible.
+    template.style.setProperty('display', 'none', 'important');
 
-            const pastOverlay =
-                item.querySelector('.past-days');
+    // Le bandeau des jours de la semaine doit occuper toute la largeur de la grille.
+    const header = grid.querySelector('.calendar-header');
 
-            const dayCircle =
-                item.querySelector('.pastille-jour-j');
+    if (header) {
+        header.style.gridColumn = '1 / -1';
+    }
 
-            if (!isNaN(dayValue)) {
+    const monthIndex = CALENDAR_MONTHS.indexOf(monthConfig);
+    const firstDay = new Date(year, monthIndex, 1);
+    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
 
-                // ------------------------------------------------
-                // JOURS PASSÉS
-                // ------------------------------------------------
-                if (pastOverlay) {
+    // JavaScript : dimanche = 0. Le calendrier commence le lundi.
+    const mondayOffset = (firstDay.getDay() + 6) % 7;
 
-                    if (
-                        paneMonthIndex <
-                        currentMonthIndex
-                    ) {
+    // Cases vides avant le premier jour du mois.
+    for (let i = 0; i < mondayOffset; i++) {
+        const emptyCell = document.createElement('div');
 
-                        pastOverlay.style.setProperty(
-                            'display',
-                            'block',
-                            'important'
-                        );
+        emptyCell.className = 'calendar-empty-cell';
+        emptyCell.setAttribute('data-tz-calendar-generated', 'true');
+        emptyCell.setAttribute('aria-hidden', 'true');
 
-                    } else if (
-                        paneMonthIndex ===
-                        currentMonthIndex
-                    ) {
+        grid.appendChild(emptyCell);
+    }
 
-                        pastOverlay.style.setProperty(
-                            'display',
-                            dayValue < currentDay
-                                ? 'block'
-                                : 'none',
-                            'important'
-                        );
+    // Génération des jours du mois à partir du modèle Webflow.
+    for (let day = 1; day <= daysInMonth; day++) {
+        const cell = template.cloneNode(true);
 
-                    } else {
+        cell.removeAttribute('id');
+        cell.classList.add('calendar-date-cell');
+        cell.setAttribute('data-tz-calendar-generated', 'true');
 
-                        pastOverlay.style.setProperty(
-                            'display',
-                            'none',
-                            'important'
-                        );
-                    }
-                }
+        const dateString = [
+            year,
+            String(monthIndex + 1).padStart(2, '0'),
+            String(day).padStart(2, '0')
+        ].join('-');
 
-                // ------------------------------------------------
-                // JOUR ACTUEL
-                // ------------------------------------------------
-                if (dayCircle) {
+        cell.setAttribute('data-calendar-date', dateString);
+        cell.setAttribute('data-calendar-day', String(day));
 
-                    if (
-                        paneMonthIndex ===
-                            currentMonthIndex &&
-                        dayValue === currentDay
-                    ) {
+        // Convertit les ID du modèle en classes avant de supprimer les ID.
+        // Cela permet de retrouver les éléments dans chaque copie sans ID dupliqué.
+        const idToClass = {
+            'past-days': 'past-days',
+            'pastille-jour-j': 'pastille-jour-j',
+            'text-score-rm-calendar': 'text-score-rm-calendar',
+            'bottom-block': 'bottom-block',
+            'restriction-calendar': 'restriction-calendar',
+            'icon-info-calendar': 'icon-info-calendar'
+        };
 
-                        dayCircle.classList.add(
-                            'is-active'
-                        );
+        cell.querySelectorAll('[id]').forEach(element => {
+            const originalId = element.id;
 
-                        dayCircle.style.setProperty(
-                            'display',
-                            'flex',
-                            'important'
-                        );
-
-                    } else {
-
-                        dayCircle.classList.remove(
-                            'is-active'
-                        );
-
-                        dayCircle.style.setProperty(
-                            'display',
-                            'none',
-                            'important'
-                        );
-                    }
-                }
+            if (idToClass[originalId]) {
+                element.classList.add(idToClass[originalId]);
             }
+
+            element.removeAttribute('id');
         });
+
+        // Affiche la date dans la case.
+        const dayElement = cell.querySelector('.text-date-calendar');
+
+        if (dayElement) {
+            dayElement.textContent = String(day);
+        }
+
+        // Masque l'indicateur des jours passés avant de recalculer son état.
+        const pastOverlay = cell.querySelector('.past-days');
+
+        if (pastOverlay) {
+            pastOverlay.style.setProperty('display', 'none', 'important');
+        }
+
+        // Masque la pastille du jour J avant de recalculer son état.
+        const todayPill = cell.querySelector('.pastille-jour-j');
+
+        if (todayPill) {
+            todayPill.classList.remove('is-active');
+            todayPill.style.setProperty('display', 'none', 'important');
+        }
+
+        // Retire le display inline qui masquait le modèle original.
+        cell.style.removeProperty('display');
+
+        grid.appendChild(cell);
+    }
+
+    // Cases vides après le dernier jour pour terminer la dernière semaine.
+    const totalCells = mondayOffset + daysInMonth;
+    const trailingCells = (7 - (totalCells % 7)) % 7;
+
+    for (let i = 0; i < trailingCells; i++) {
+        const emptyCell = document.createElement('div');
+
+        emptyCell.className = 'calendar-empty-cell';
+        emptyCell.setAttribute('data-tz-calendar-generated', 'true');
+        emptyCell.setAttribute('aria-hidden', 'true');
+
+        grid.appendChild(emptyCell);
+    }
+
+    console.log(
+        `[Calendrier] ${monthConfig.name} ${year} : ${daysInMonth} dates générées.`
+    );
+}
+
+
+// ============================================================
+// JOUR J ET JOURS PASSÉS
+// ============================================================
+
+function updateCalendarVisuals() {
+    const today = new Date();
+
+    const todayDate = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0')
+    ].join('-');
+
+    document.querySelectorAll(
+        '[data-tz-calendar-generated="true"].calendar-date-cell'
+    ).forEach(cell => {
+        const date = cell.getAttribute('data-calendar-date');
+
+        const pastOverlay = cell.querySelector('.past-days');
+        const todayPill = cell.querySelector('.pastille-jour-j');
+
+        // Voile sur les jours antérieurs à aujourd'hui.
+        if (pastOverlay) {
+            pastOverlay.style.setProperty(
+                'display',
+                date < todayDate ? 'block' : 'none',
+                'important'
+            );
+        }
+
+        // Pastille bleue sur le jour J uniquement.
+        if (todayPill) {
+            const isToday = date === todayDate;
+
+            todayPill.classList.toggle('is-active', isToday);
+
+            todayPill.style.setProperty(
+                'display',
+                isToday ? 'flex' : 'none',
+                'important'
+            );
+        }
     });
 }
 
 
+// ============================================================
+// SÉLECTION AUTOMATIQUE DU MOIS EN COURS
+// ============================================================
+
 function autoSelectCurrentMonth() {
+    const monthConfig = CALENDAR_MONTHS[new Date().getMonth()];
+    const pane = document.querySelector(monthConfig.selector);
 
-    const monthNames = [
-        "janvier",
-        "février",
-        "mars",
-        "avril",
-        "mai",
-        "juin",
-        "juillet",
-        "août",
-        "septembre",
-        "octobre",
-        "novembre",
-        "décembre"
-    ];
-
-    const currentMonthName =
-        monthNames[new Date().getMonth()];
-
-    const tabs =
-        document.querySelectorAll('.tabs-menu-5 a');
-
-    let tabFound = false;
-
-    tabs.forEach(tab => {
-
-        const tabText =
-            tab.innerText.trim().toLowerCase();
-
-        if (tabText === currentMonthName) {
-
-            tabFound = true;
-
-            if (!tab.classList.contains('w--current')) {
-                tab.click();
-            }
-        }
-    });
-
-    if (!tabFound && tabs.length === 0) {
-        setTimeout(
-            autoSelectCurrentMonth,
-            300
+    if (!pane) {
+        console.warn(
+            `[Calendrier] Impossible de sélectionner ${monthConfig.name} : onglet introuvable.`
         );
+        return;
+    }
+
+    const tabId = pane.getAttribute('data-w-tab');
+
+    if (!tabId) {
+        console.warn(
+            `[Calendrier] Attribut data-w-tab manquant pour ${monthConfig.name}.`
+        );
+        return;
+    }
+
+    const tabLink = document.querySelector(
+        `.tabs-menu-5 a[data-w-tab="${tabId}"]`
+    );
+
+    if (tabLink && !tabLink.classList.contains('w--current')) {
+        tabLink.click();
     }
 }
 
 
-setTimeout(() => {
+// ============================================================
+// INITIALISATION DU CALENDRIER
+// ============================================================
 
-    autoSelectCurrentMonth();
+function initializeTarifZenCalendar() {
+    const year = new Date().getFullYear();
+
+    CALENDAR_MONTHS.forEach(monthConfig => {
+        generateCalendarMonth(monthConfig, year);
+    });
+
     updateCalendarVisuals();
+    autoSelectCurrentMonth();
 
-}, 200);
+    console.log(`[Calendrier] Initialisation terminée pour ${year}.`);
+}
 
+// Ce code s'exécute dans le DOMContentLoaded déjà ouvert plus haut.
+initializeTarifZenCalendar();
 
-$('.tabs-menu-5 a').on('click', function() {
-    setTimeout(
-        updateCalendarVisuals,
-        150
-    );
+// Actualise les indicateurs lors du changement d'onglet.
+document.querySelectorAll('.tabs-menu-5 a').forEach(tab => {
+    tab.addEventListener('click', () => {
+        setTimeout(updateCalendarVisuals, 150);
+    });
 });
+
 
 }); // fermeture du document.addEventListener('DOMContentLoaded', ...)
 
