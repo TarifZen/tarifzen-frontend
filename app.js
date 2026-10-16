@@ -1384,22 +1384,13 @@ function autoSelectCurrentMonth() {
 }
 
 
-// ============================================================
-// API04 — CHARGEMENT DES RECOMMANDATIONS DU CALENDRIER
-// ============================================================
+
+ // ============================================================
+ // API04 — CHARGEMENT DES RECOMMANDATIONS DU CALENDRIER
+ // ============================================================
 
 async function loadCalendarRecommendations() {
     try {
-        const hotelId =
-            typeof targetHotelId !== 'undefined'
-                ? targetHotelId
-                : window.targetHotelId;
-
-        if (!hotelId) {
-            console.warn('[API04 Calendrier] Hotel ID indisponible.');
-            return;
-        }
-
         const supabaseClient = window.supabaseClient;
 
         if (!supabaseClient) {
@@ -1407,20 +1398,67 @@ async function loadCalendarRecommendations() {
             return;
         }
 
+        // 1. Récupération de la session utilisateur
         const { data: sessionData, error: sessionError } =
             await supabaseClient.auth.getSession();
 
-        if (sessionError) {
-            throw sessionError;
-        }
+        if (sessionError) throw sessionError;
 
-        const token = sessionData?.session?.access_token;
+        const session = sessionData?.session;
+        const token = session?.access_token;
+        const authUserId = session?.user?.id;
 
-        if (!token) {
+        if (!session || !authUserId || !token) {
             console.warn('[API04 Calendrier] Session utilisateur absente.');
             return;
         }
 
+        // 2. Récupération du rôle et de l'hôtel associé
+        const { data: userData, error: userError } =
+            await supabaseClient
+                .from('users')
+                .select('hotel_id, role')
+                .eq('auth_user_id', authUserId)
+                .single();
+
+        if (userError) throw userError;
+
+        let hotelId = userData?.hotel_id;
+
+        // Le compte FOUNDER sélectionne l'hôtel via son URL.
+        if (userData?.role === 'FOUNDER') {
+            const urlMatch =
+                window.location.pathname.match(/\/hotels\/([^/]+)/);
+
+            if (!urlMatch) {
+                console.warn(
+                    '[API04 Calendrier] Slug de l’hôtel introuvable dans l’URL.'
+                );
+                return;
+            }
+
+            const urlSlug = urlMatch[1];
+
+            const { data: hotelData, error: hotelError } =
+                await supabaseClient
+                    .from('data-store-hotels')
+                    .select('id')
+                    .eq('nom_hotel', urlSlug)
+                    .maybeSingle();
+
+            if (hotelError) throw hotelError;
+
+            hotelId = hotelData?.id;
+        }
+
+        if (!hotelId) {
+            console.warn('[API04 Calendrier] Hotel ID indisponible.');
+            return;
+        }
+
+        console.log('[API04 Calendrier] Hôtel identifié :', hotelId);
+
+        // 3. Chargement des recommandations API04
         const apiBase =
             typeof API_BASE_URL !== 'undefined'
                 ? API_BASE_URL
@@ -1455,7 +1493,6 @@ async function loadCalendarRecommendations() {
             recommendations: recommendations.length
         });
 
-        // Indexe les recommandations par date de séjour.
         const recommendationsByDate = new Map(
             recommendations.map(reco => [
                 reco.recommendation_date,
@@ -1463,15 +1500,13 @@ async function loadCalendarRecommendations() {
             ])
         );
 
-        // Réinitialise les valeurs avant le rendu.
+        // 4. Réinitialisation des indicateurs des cases
         document.querySelectorAll(
             '[data-tz-calendar-generated="true"].calendar-date-cell'
         ).forEach(cell => {
             const score = cell.querySelector('.text-score-rm-calendar');
 
-            if (score) {
-                score.textContent = '';
-            }
+            if (score) score.textContent = '';
 
             [
                 '.score-rm-red-calendar',
@@ -1485,8 +1520,17 @@ async function loadCalendarRecommendations() {
 
             cell.removeAttribute('data-message-long');
             cell.removeAttribute('data-recommendation-id');
+
+            const infoIcon = cell.querySelector('.icon-info-calendar');
+
+            if (infoIcon) {
+                infoIcon.removeAttribute('data-message-long');
+                infoIcon.removeAttribute('data-date');
+                infoIcon.removeAttribute('data-recommendation-id');
+            }
         });
 
+        // 5. Affichage des recommandations sur les dates concernées
         let displayed = 0;
 
         document.querySelectorAll(
@@ -1499,15 +1543,15 @@ async function loadCalendarRecommendations() {
 
             displayed++;
 
+            const message =
+                reco.long_message || reco.short_message || '';
+
             cell.setAttribute(
                 'data-recommendation-id',
                 reco.recommendation_id || ''
             );
 
-            cell.setAttribute(
-                'data-message-long',
-                reco.long_message || reco.short_message || ''
-            );
+            cell.setAttribute('data-message-long', message);
 
             const score = cell.querySelector('.text-score-rm-calendar');
 
@@ -1530,20 +1574,11 @@ async function loadCalendarRecommendations() {
                 });
             }
 
-            // Prépare l'icône d'information pour une connexion à la popup.
             const infoIcon = cell.querySelector('.icon-info-calendar');
 
             if (infoIcon) {
-                infoIcon.setAttribute(
-                    'data-message-long',
-                    reco.long_message || reco.short_message || ''
-                );
-
-                infoIcon.setAttribute(
-                    'data-date',
-                    reco.recommendation_date || date
-                );
-
+                infoIcon.setAttribute('data-message-long', message);
+                infoIcon.setAttribute('data-date', date);
                 infoIcon.setAttribute(
                     'data-recommendation-id',
                     reco.recommendation_id || ''
