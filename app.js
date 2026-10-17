@@ -1301,9 +1301,10 @@ const mondayOffset = (firstDay.getDay() + 6) % 7;
 }
 
 
-// ============================================================
-// JOUR J ET JOURS PASSÉS — HEURE LOCALE DU NAVIGATEUR
-// ============================================================
+
+ // ============================================================
+ // JOUR J ET JOURS PASSÉS — HEURE LOCALE DU NAVIGATEUR
+ // ============================================================
 
 function updateCalendarVisuals() {
     const today = new Date();
@@ -1320,7 +1321,9 @@ function updateCalendarVisuals() {
         const date = cell.getAttribute('data-calendar-date');
         const pastOverlay = cell.querySelector('.past-days');
         const todayPill = cell.querySelector('.pastille-jour-j');
+        const dayElement = cell.querySelector('.text-date-calendar');
 
+        // Affiche le voile sur les jours passés.
         if (pastOverlay) {
             pastOverlay.style.setProperty(
                 'display',
@@ -1329,13 +1332,23 @@ function updateCalendarVisuals() {
             );
         }
 
-        if (todayPill) {
-            const isToday = date === todayDate;
+        // Active la pastille bleue du jour actuel.
+        const isToday = date === todayDate;
 
+        if (todayPill) {
             todayPill.classList.toggle('is-active', isToday);
             todayPill.style.setProperty(
                 'display',
                 isToday ? 'flex' : 'none',
+                'important'
+            );
+        }
+
+        // Numéro blanc pour aujourd'hui, noir pour les autres jours.
+        if (dayElement) {
+            dayElement.style.setProperty(
+                'color',
+                isToday ? '#FFFFFF' : '#000000',
                 'important'
             );
         }
