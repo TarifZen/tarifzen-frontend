@@ -1624,6 +1624,93 @@ async function loadCalendarRecommendations() {
 }
 
 
+ // ============================================================
+ // LIBELLÉS DU CALENDRIER — MOIS ET ANNÉES
+ // ============================================================
+
+function updateCalendarMonthLabels() {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonthIndex = today.getMonth();
+
+    const tabs = document.querySelectorAll('.tabs-menu-5 a');
+
+    CALENDAR_MONTHS.forEach(monthConfig => {
+        const monthYear =
+            currentYear + (
+                monthConfig.monthIndex < currentMonthIndex ? 1 : 0
+            );
+
+        const pane = document.querySelector(monthConfig.selector);
+
+        if (!pane) return;
+
+        const tabId = pane.getAttribute('data-w-tab');
+
+        let tab = tabId
+            ? document.querySelector(
+                `.tabs-menu-5 a[data-w-tab="${tabId}"]`
+            )
+            : null;
+
+        if (!tab) {
+            console.warn(
+                '[Calendrier] Onglet introuvable pour :',
+                monthConfig.name
+            );
+            return;
+        }
+
+        const monthName =
+            monthConfig.name.charAt(0).toUpperCase() +
+            monthConfig.name.slice(1);
+
+        const label = tab.querySelector('div') || tab;
+
+        label.textContent = `${monthName} ${monthYear}`;
+    });
+
+    // Réorganise les onglets chronologiquement à partir du mois actuel.
+    const dropdown = document.querySelector('.tabs-menu-dropdown');
+
+    if (dropdown) {
+        const orderedTabs = CALENDAR_MONTHS
+            .map(monthConfig => {
+                const pane = document.querySelector(monthConfig.selector);
+                if (!pane) return null;
+
+                const tabId = pane.getAttribute('data-w-tab');
+
+                return tabId
+                    ? dropdown.querySelector(
+                        `a[data-w-tab="${tabId}"]`
+                    )
+                    : null;
+            })
+            .filter(Boolean);
+
+        const orderedConfigs = [
+            ...CALENDAR_MONTHS.slice(currentMonthIndex),
+            ...CALENDAR_MONTHS.slice(0, currentMonthIndex)
+        ];
+
+        orderedConfigs.forEach(monthConfig => {
+            const pane = document.querySelector(monthConfig.selector);
+            if (!pane) return;
+
+            const tabId = pane.getAttribute('data-w-tab');
+            const tab = tabId
+                ? dropdown.querySelector(`a[data-w-tab="${tabId}"]`)
+                : null;
+
+            if (tab) dropdown.appendChild(tab);
+        });
+    }
+
+    console.log('[Calendrier] Libellés et ordre des mois actualisés.');
+}
+
+
 
  // ============================================================
  // INITIALISATION DU CALENDRIER — 12 MOIS GLISSANTS
@@ -1641,6 +1728,9 @@ function initializeTarifZenCalendar() {
 
         generateCalendarMonth(monthConfig, monthYear);
     });
+
+    // Met à jour les libellés et l'ordre chronologique des onglets.
+    updateCalendarMonthLabels();
 
     // Met à jour les indicateurs visuels.
     updateCalendarVisuals();
@@ -1668,7 +1758,6 @@ document.querySelectorAll('.tabs-menu-5 a').forEach(tab => {
 });
 
 }); // fermeture du document.addEventListener('DOMContentLoaded', ...)
-
 
 /**
  * FORMULAIRE AJOUT ÉVÉNEMENT COMPLÉMENTAIRE
