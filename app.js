@@ -1533,6 +1533,21 @@ async function loadCalendarRecommendations() {
             recommendations: recommendations.length
         });
 
+      
+console.table(
+    recommendations.map(reco => ({
+        id: reco.recommendation_id,
+        date: reco.recommendation_date,
+        score_rm: reco.score_rm,
+        priority_type: reco.priority_type,
+        rule_code: reco.rule_code,
+        status: reco.status,
+        recommendation_status: reco.recommendation_status,
+        short_message: reco.short_message
+    }))
+);
+
+
         const recommendationsByDate = new Map(
             recommendations.map(reco => [
                 reco.recommendation_date,
