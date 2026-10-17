@@ -1145,19 +1145,20 @@ if (!finalDate && infoBtn) {
    ============================================================ */
 
 const CALENDAR_MONTHS = [
-    { name: 'janvier', selector: '.janvier-calendar' },
-    { name: 'fevrier', selector: '.fevrier-calendar' },
-    { name: 'mars', selector: '.mars-calendar' },
-    { name: 'avril', selector: '.avril-calendar' },
-    { name: 'mai', selector: '.mai-calendar' },
-    { name: 'juin', selector: '.juin-calendar' },
-    { name: 'juillet', selector: '.juillet-calendar' },
-    { name: 'aout', selector: '.aout-calendar' },
-    { name: 'septembre', selector: '.septembre-calendar' },
-    { name: 'octobre', selector: '.octobre-calendar' },
-    { name: 'novembre', selector: '.novembre-calendar' },
-    { name: 'decembre', selector: '.decembre-calendar' }
+    { name: 'janvier', selector: '.janvier-calendar', monthIndex: 0 },
+    { name: 'fevrier', selector: '.fevrier-calendar', monthIndex: 1 },
+    { name: 'mars', selector: '.mars-calendar', monthIndex: 2 },
+    { name: 'avril', selector: '.avril-calendar', monthIndex: 3 },
+    { name: 'mai', selector: '.mai-calendar', monthIndex: 4 },
+    { name: 'juin', selector: '.juin-calendar', monthIndex: 5 },
+    { name: 'juillet', selector: '.juillet-calendar', monthIndex: 6 },
+    { name: 'aout', selector: '.aout-calendar', monthIndex: 7 },
+    { name: 'septembre', selector: '.septembre-calendar', monthIndex: 8 },
+    { name: 'octobre', selector: '.octobre-calendar', monthIndex: 9 },
+    { name: 'novembre', selector: '.novembre-calendar', monthIndex: 10 },
+    { name: 'decembre', selector: '.decembre-calendar', monthIndex: 11 }
 ];
+
 
 
 // ============================================================
