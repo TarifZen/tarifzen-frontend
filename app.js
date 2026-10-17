@@ -1342,16 +1342,17 @@ function updateCalendarVisuals() {
 }
 
 
-// ============================================================
-// SÉLECTION AUTOMATIQUE DU MOIS EN COURS
-// ============================================================
+
+ // ============================================================
+ // SÉLECTION AUTOMATIQUE DU MOIS EN COURS
+ // ============================================================
 
 function autoSelectCurrentMonth() {
     const monthConfig = CALENDAR_MONTHS[new Date().getMonth()];
     const pane = document.querySelector(monthConfig.selector);
 
     if (!pane) {
-        console.warn('[Calendrier] Onglet du mois en cours introuvable.');
+        console.warn('[Calendrier] Panneau du mois en cours introuvable.');
         return;
     }
 
@@ -1364,24 +1365,49 @@ function autoSelectCurrentMonth() {
         : null;
 
     if (!tabLink) {
+        const monthName = monthConfig.name
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase();
+
         tabLink = Array.from(
             document.querySelectorAll('.tabs-menu-5 a')
         ).find(tab =>
-            tab.textContent.trim().toLowerCase() === monthConfig.name
+            tab.textContent
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .trim()
+                .toLowerCase() === monthName
         );
     }
 
-    if (tabLink && !tabLink.classList.contains('w--current')) {
+    if (!tabLink) {
+        console.warn(
+            '[Calendrier] Onglet introuvable pour :',
+            monthConfig.name
+        );
+        return;
+    }
+
+    // Clique uniquement si le bon onglet n'est pas actif.
+    if (!tabLink.classList.contains('w--current')) {
         tabLink.click();
     }
 
-    console.log(
-        '[Calendrier] Mois actuel :',
-        monthConfig.name,
-        '| Onglet trouvé :',
-        Boolean(tabLink)
-    );
+    // Vérifie à nouveau après la mise à jour des onglets Webflow.
+    setTimeout(() => {
+        if (!tabLink.classList.contains('w--current')) {
+            tabLink.click();
+        }
+
+        console.log('[Calendrier] Vérification du mois sélectionné :', {
+            moisAttendu: monthConfig.name,
+            ongletActif: tabLink.classList.contains('w--current'),
+            onglet: tabLink.textContent.trim()
+        });
+    }, 250);
 }
+
 
 
 
