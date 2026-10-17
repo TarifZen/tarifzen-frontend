@@ -1624,21 +1624,34 @@ async function loadCalendarRecommendations() {
 }
 
 
-// ============================================================
-// INITIALISATION DU CALENDRIER
-// ============================================================
+
+ // ============================================================
+ // INITIALISATION DU CALENDRIER — 12 MOIS GLISSANTS
+ // ============================================================
 
 function initializeTarifZenCalendar() {
-    const year = new Date().getFullYear();
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonthIndex = today.getMonth();
 
+    // Génère chaque calendrier avec l'année correspondante.
     CALENDAR_MONTHS.forEach(monthConfig => {
-        generateCalendarMonth(monthConfig, year);
+        const monthYear =
+            currentYear + (monthConfig.monthIndex < currentMonthIndex ? 1 : 0);
+
+        generateCalendarMonth(monthConfig, monthYear);
     });
 
+    // Met à jour les indicateurs visuels.
     updateCalendarVisuals();
+
+    // Sélectionne automatiquement le mois en cours.
     autoSelectCurrentMonth();
 
-    console.log(`[Calendrier] Initialisation terminée pour ${year}.`);
+    console.log('[Calendrier] Initialisation des 12 mois glissants terminée.', {
+        moisActuel: CALENDAR_MONTHS[currentMonthIndex].name,
+        anneeActuelle: currentYear
+    });
 
     // Charge les recommandations une fois les cases créées.
     loadCalendarRecommendations();
