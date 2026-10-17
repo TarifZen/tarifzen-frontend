@@ -1198,10 +1198,10 @@ function generateCalendarMonth(monthConfig, year) {
         header.style.gridColumn = '1 / -1';
     }
 
-    const monthIndex = CALENDAR_MONTHS.indexOf(monthConfig);
-    const firstDay = new Date(year, monthIndex, 1);
-    const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-    const mondayOffset = (firstDay.getDay() + 6) % 7;
+    const monthIndex = monthConfig.monthIndex;
+const firstDay = new Date(year, monthIndex, 1);
+const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+const mondayOffset = (firstDay.getDay() + 6) % 7;
 
     // Cases vides avant le premier jour.
     for (let i = 0; i < mondayOffset; i++) {
