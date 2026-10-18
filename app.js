@@ -1653,14 +1653,22 @@ if (Array.isArray(recommendations)) {
             }
 
             
+
 const infoIcon = cell.querySelector('.icon-info-calendar');
 
 if (infoIcon) {
     // Message détaillé de la recommandation.
     infoIcon.setAttribute('data-message-long', message);
 
-    // Date ISO conservée pour compatibilité.
+    // Date de séjour au format ISO.
     infoIcon.setAttribute('data-date', date);
+
+    // Date de création initiale de la recommandation.
+    infoIcon.setAttribute(
+        'data-recommendation-created-at',
+        reco.recommendation_created_at || ''
+    );
+
 
     // Date lisible en français : Mardi 22 Décembre.
 const readableDate = new Date(date + 'T12:00:00')
