@@ -1565,11 +1565,52 @@ async function loadCalendarRecommendations() {
             );
         }
 
-        const result = await response.json();
+        
+const result = await response.json();
 
-        const recommendations = Array.isArray(result.recommendations)
-            ? result.recommendations
-            : [];
+const recommendations = Array.isArray(result.recommendations)
+    ? result.recommendations
+    : [];
+
+// ============================================================
+// API09 — CHARGEMENT INDÉPENDANT DES ÉVÉNEMENTS DU CALENDRIER
+// ============================================================
+
+let calendarEvents = [];
+
+try {
+    const eventsResponse = await fetch(
+        `${apiBase}/api/v1/events?hotel_id=${encodeURIComponent(hotelId)}`,
+        {
+            method: 'GET',
+            headers: {
+                'Accept': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        }
+    );
+
+    if (!eventsResponse.ok) {
+        throw new Error(`API09 HTTP ${eventsResponse.status}`);
+    }
+
+    const eventsResult = await eventsResponse.json();
+
+    calendarEvents = [
+        ...(eventsResult?.data?.upcoming || []),
+        ...(eventsResult?.data?.ongoing || [])
+    ];
+
+    console.log('[Calendrier API09] Événements reçus :', calendarEvents);
+
+} catch (eventsError) {
+    // Une erreur API09 ne doit pas bloquer les recommandations API04.
+    console.error(
+        '[Calendrier API09] Erreur de chargement des événements :',
+        eventsError
+    );
+}
+
 
         console.log('[API04 Calendrier] Période reçue :', {
             start_date: result.start_date,
