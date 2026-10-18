@@ -942,82 +942,95 @@ document.addEventListener('DOMContentLoaded', () => {
     // GESTION DES CLICS
     document.addEventListener('click', (e) => {
 
+        
         // ============================================================
-        // 1. BOUTONS INFO / BULLE
+        // 1. BOUTONS INFO / BULLE — CARTES, HISTORIQUE ET CALENDRIER
         // ============================================================
         const infoBtn = e.target.closest(
-            '.icon-info-carte, .info-trigger, #cible-info, .icon-info-mini, .info'
+            '.icon-info-carte, .info-trigger, #cible-info, .icon-info-mini, .info, .icon-info-calendar'
         );
-      console.log('[POPUP] Clic détecté', e.target);
-console.log('[POPUP] Icône identifiée', infoBtn);
-        
+
         if (infoBtn) {
+            const isCalendarInfo = infoBtn.matches('.icon-info-calendar');
+
             const parentItem = infoBtn.closest(
-                '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1'
+                '.reco-card-item, .collection-item-3, .div-block-16, .calendrier-case, .calendrier-case-1, .calendar-date-cell'
             );
 
-          console.log('[POPUP HISTORIQUE] Diagnostic clic :', {
-    classeIcone: infoBtn.className,
-    messageIcone: infoBtn.getAttribute('data-message'),
-    longueurMessageIcone: infoBtn.getAttribute('data-message')?.length,
-    parentTrouve: parentItem?.className,
-    messageParent: parentItem?.getAttribute('data-popup-message')
-});
+            // --------------------------------------------------------
+            // MESSAGE : calendrier, cartes de recommandation, historique
+            // --------------------------------------------------------
+            let message = '';
 
-let message = '';
+            if (isCalendarInfo) {
+                message =
+                    infoBtn.getAttribute('data-message-long') ||
+                    parentItem?.getAttribute('data-message-long') ||
+                    '';
+            } else {
+                message =
+                    parentItem?.getAttribute('data-popup-message') ||
+                    infoBtn.getAttribute('data-message') ||
+                    infoBtn.getAttribute('data-message-long') ||
+                    parentItem?.getAttribute('data-message-long') ||
+                    '';
+            }
 
-if (parentItem) {
-
-    // Carte reco API02
-    message =
-        parentItem.getAttribute('data-popup-message') || '';
-}
-
-// Mini-carte historique
-// Le message est directement porté par l'icône
-if (!message && infoBtn) {
-    message =
-        infoBtn.getAttribute('data-message') || '';
-}
-
+            // Repli sur un éventuel champ de texte détaillé.
             if (!message && parentItem) {
-                const hiddenField =
-                    parentItem.querySelector('.hide, .reco-long-message');
+                const hiddenField = parentItem.querySelector(
+                    '.hide, .reco-long-message'
+                );
 
                 if (hiddenField) {
                     message =
                         hiddenField.innerText ||
-                        hiddenField.textContent;
+                        hiddenField.textContent ||
+                        '';
                 }
             }
 
-let finalDate = '';
+            // --------------------------------------------------------
+            // DATE : date lisible du calendrier ou date des autres cartes
+            // --------------------------------------------------------
+            let finalDate = '';
 
-if (parentItem) {
+            if (isCalendarInfo) {
+                finalDate =
+                    infoBtn.getAttribute('data-date-readable') ||
+                    '';
 
-    // Carte reco API02
-    const rawPopupDate =
-        parentItem.getAttribute('data-popup-date') || '';
+                // Repli si la date lisible n'est pas renseignée.
+                if (!finalDate) {
+                    const rawDate =
+                        infoBtn.getAttribute('data-date') ||
+                        parentItem?.getAttribute('data-calendar-date') ||
+                        '';
 
-    if (rawPopupDate) {
-        finalDate =
-            formatDateFr(rawPopupDate);
-    }
-}
+                    if (rawDate) {
+                        finalDate = formatDateFr(rawDate);
+                    }
+                }
+            } else {
+                const rawPopupDate =
+                    parentItem?.getAttribute('data-popup-date') || '';
 
-// Mini-carte historique
-// La date est directement portée par l'icône
-if (!finalDate && infoBtn) {
+                if (rawPopupDate) {
+                    finalDate = formatDateFr(rawPopupDate);
+                }
 
-    const rawInfoDate =
-        infoBtn.getAttribute('data-date') || '';
+                if (!finalDate) {
+                    finalDate =
+                        infoBtn.getAttribute('data-date') || '';
+                }
+            }
 
-    if (rawInfoDate) {
-        finalDate = rawInfoDate;
-    }
-}
-        
-          
+            console.log('[POPUP] Informations sélectionnées :', {
+                calendrier: isCalendarInfo,
+                date: finalDate,
+                messageDisponible: !!message,
+                longueurMessage: message.length
+            });
 
             const popDate =
                 document.getElementById('text-date-pop-up');
@@ -1031,12 +1044,12 @@ if (!finalDate && infoBtn) {
 
             if (popMsg) {
                 popMsg.innerText =
-                    (message && message.trim() !== "")
+                    message && message.trim() !== ''
                         ? message
                         : "Détails de l'analyse non disponibles.";
             }
 
-            if (bulle) { 
+            if (bulle) {
                 $(bulle)
                     .fadeIn()
                     .css('display', 'flex');
@@ -1046,6 +1059,7 @@ if (!finalDate && infoBtn) {
                 }
             }
         }
+
 
 
         // ============================================================
