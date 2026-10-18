@@ -1662,15 +1662,17 @@ if (infoIcon) {
     // Date ISO conservée pour compatibilité.
     infoIcon.setAttribute('data-date', date);
 
-    // Date lisible en français : mardi 22 décembre.
-    const readableDate = new Date(date + 'T12:00:00').toLocaleDateString(
-        'fr-FR',
-        {
-            weekday: 'long',
-            day: 'numeric',
-            month: 'long',
-            timeZone: 'Europe/Paris'
-        }
+    // Date lisible en français : Mardi 22 Décembre.
+const readableDate = new Date(date + 'T12:00:00')
+    .toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        timeZone: 'Europe/Paris'
+    })
+    .replace(/^./, lettre => lettre.toUpperCase())
+    .replace(/(\d+)\s+(\p{L})/u, (_, jour, lettre) =>
+        `${jour} ${lettre.toUpperCase()}`
     );
 
     infoIcon.setAttribute('data-date-readable', readableDate);
