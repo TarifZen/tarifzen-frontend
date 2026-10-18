@@ -1637,16 +1637,35 @@ if (Array.isArray(recommendations)) {
                 });
             }
 
-            const infoIcon = cell.querySelector('.icon-info-calendar');
+            
+const infoIcon = cell.querySelector('.icon-info-calendar');
 
-            if (infoIcon) {
-                infoIcon.setAttribute('data-message-long', message);
-                infoIcon.setAttribute('data-date', date);
-                infoIcon.setAttribute(
-                    'data-recommendation-id',
-                    reco.recommendation_id || ''
-                );
-            }
+if (infoIcon) {
+    // Message détaillé de la recommandation.
+    infoIcon.setAttribute('data-message-long', message);
+
+    // Date ISO conservée pour compatibilité.
+    infoIcon.setAttribute('data-date', date);
+
+    // Date lisible en français : mardi 22 décembre.
+    const readableDate = new Date(date + 'T12:00:00').toLocaleDateString(
+        'fr-FR',
+        {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            timeZone: 'Europe/Paris'
+        }
+    );
+
+    infoIcon.setAttribute('data-date-readable', readableDate);
+
+    infoIcon.setAttribute(
+        'data-recommendation-id',
+        reco.recommendation_id || ''
+    );
+}
+
         });
 
         console.log('[API04 Calendrier] Affichage terminé :', {
