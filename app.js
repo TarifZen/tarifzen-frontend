@@ -990,12 +990,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
 
+            
             // --------------------------------------------------------
-            // DATE : date lisible du calendrier ou date des autres cartes
+            // DATE : date du séjour + date de création de la recommandation
             // --------------------------------------------------------
             let finalDate = '';
 
             if (isCalendarInfo) {
+                // Date lisible du séjour.
                 finalDate =
                     infoBtn.getAttribute('data-date-readable') ||
                     '';
@@ -1011,7 +1013,34 @@ document.addEventListener('DOMContentLoaded', () => {
                         finalDate = formatDateFr(rawDate);
                     }
                 }
+
+                // Date de création initiale de la recommandation.
+                const createdAt =
+                    infoBtn.getAttribute('data-recommendation-created-at') ||
+                    '';
+
+                if (createdAt) {
+                    const createdDate = new Date(createdAt);
+
+                    if (!Number.isNaN(createdDate.getTime())) {
+                        const readableCreatedDate = createdDate
+                            .toLocaleDateString('fr-FR', {
+                                day: 'numeric',
+                                month: 'long',
+                                year: 'numeric',
+                                timeZone: 'Europe/Paris'
+                            })
+                            .replace(/^./, lettre => lettre.toUpperCase())
+                            .replace(/(\d+)\s+(\p{L})/u, (_, jour, lettre) =>
+                                `${jour} ${lettre.toUpperCase()}`
+                            );
+
+                        finalDate +=
+                            `${finalDate ? '\n' : ''}Recommandation proposée le ${readableCreatedDate}`;
+                    }
+                }
             } else {
+                // Comportement existant pour les autres cartes.
                 const rawPopupDate =
                     parentItem?.getAttribute('data-popup-date') || '';
 
@@ -1040,6 +1069,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (popDate) {
                 popDate.innerText = finalDate;
+                popDate.style.whiteSpace = 'pre-line';
             }
 
             if (popMsg) {
