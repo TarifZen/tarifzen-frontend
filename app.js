@@ -1600,12 +1600,15 @@ if (Array.isArray(recommendations)) {
 
             const infoIcon = cell.querySelector('.icon-info-calendar');
 
-            if (infoIcon) {
+
+if (infoIcon) {
     infoIcon.removeAttribute('data-message-long');
     infoIcon.removeAttribute('data-date');
     infoIcon.removeAttribute('data-date-readable');
     infoIcon.removeAttribute('data-recommendation-id');
+    infoIcon.removeAttribute('data-recommendation-created-at');
 }
+
         });
 
         // 5. Affichage des recommandations sur les dates concernées
