@@ -1648,6 +1648,37 @@ if (Array.isArray(recommendations)) {
             ])
         );
 
+      
+        // Événements indexés par date de séjour.
+        const eventsByDate = new Map();
+
+        calendarEvents.forEach(event => {
+            if (!event.start_date || !event.end_date) return;
+
+            const start = new Date(event.start_date + 'T12:00:00Z');
+            const end = new Date(event.end_date + 'T12:00:00Z');
+
+            for (
+                const current = new Date(start);
+                current <= end;
+                current.setUTCDate(current.getUTCDate() + 1)
+            ) {
+                const date = current.toISOString().slice(0, 10);
+
+                if (!eventsByDate.has(date)) {
+                    eventsByDate.set(date, []);
+                }
+
+                eventsByDate.get(date).push(event);
+            }
+        });
+
+        console.log(
+            '[Calendrier API09] Événements indexés par date :',
+            Object.fromEntries(eventsByDate)
+        );
+
+      
         // 4. Réinitialisation des indicateurs des cases
         document.querySelectorAll(
             '[data-tz-calendar-generated="true"].calendar-date-cell'
