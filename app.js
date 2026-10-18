@@ -2733,7 +2733,11 @@ const requestHeaders = {
        ...(result09?.data?.ongoing || [])
      ];
 
-     console.log('📅 [API09] Événements chargés :', eventsAPI09);
+     console.log('📅 [API09] Réponse complète :', result09);
+
+console.log('📅 [API09] Événements à venir :', result09?.data?.upcoming);
+
+console.log('📅 [API09] Événements chargés :', eventsAPI09);
    }
  } catch (err09) {
    console.error('[API09] Erreur inattendue :', err09.message);
