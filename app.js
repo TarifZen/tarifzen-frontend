@@ -1713,16 +1713,91 @@ if (infoIcon) {
 
         });
 
-        // 5. Affichage des recommandations sur les dates concernées
+        
+        // 5. Affichage indépendant des événements et recommandations
         let displayed = 0;
+        let eventsDisplayed = 0;
 
         document.querySelectorAll(
             '[data-tz-calendar-generated="true"].calendar-date-cell'
         ).forEach(cell => {
             const date = cell.getAttribute('data-calendar-date');
             const reco = recommendationsByDate.get(date);
+            const events = eventsByDate.get(date) || [];
 
+            // Nettoyer les anciennes icônes d'événement.
+            const bottomBlock = cell.querySelector('.bottom-block');
+
+            if (bottomBlock) {
+                bottomBlock
+                    .querySelectorAll('[data-tz-calendar-event="true"]')
+                    .forEach(icon => icon.remove());
+            }
+
+            // Afficher les événements même sans recommandation.
+            if (bottomBlock && events.length > 0) {
+                events.forEach(event => {
+                    const impact = (event.impact || '').toLowerCase();
+
+                    let emoji = '📅';
+
+                    if (impact.includes('fort')) {
+                        emoji = '🔥';
+                    } else if (impact.includes('moyen')) {
+                        emoji = '⚡';
+                    }
+
+                    const eventIcon = document.createElement('span');
+
+                    eventIcon.setAttribute('data-tz-calendar-event', 'true');
+                    eventIcon.textContent = emoji;
+                    eventIcon.title = `${event.name || 'Événement'} — ${event.impact || 'Impact non précisé'}`;
+                    eventIcon.setAttribute('role', 'button');
+                    eventIcon.setAttribute('tabindex', '0');
+                    eventIcon.setAttribute('aria-label', `Ouvrir les événements : ${event.name || 'Événement'}`);
+
+                    eventIcon.style.cursor = 'pointer';
+                    eventIcon.style.display = 'inline-flex';
+                    eventIcon.style.alignItems = 'center';
+                    eventIcon.style.justifyContent = 'center';
+                    eventIcon.style.marginLeft = '4px';
+
+                    const openEventsTab = () => {
+                        const eventsTab = document.querySelector(
+                            '.tabs.w-tabs .w-tab-link[href="#w-tabs-0-data-w-pane-6"]'
+                        );
+
+                        if (eventsTab) {
+                            eventsTab.click();
+                        } else {
+                            console.warn(
+                                '[Calendrier API09] Onglet Événements introuvable.'
+                            );
+                        }
+                    };
+
+                    eventIcon.addEventListener('click', eventClick => {
+                        eventClick.preventDefault();
+                        eventClick.stopPropagation();
+                        openEventsTab();
+                    });
+
+                    eventIcon.addEventListener('keydown', keyEvent => {
+                        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+                            keyEvent.preventDefault();
+                            keyEvent.stopPropagation();
+                            openEventsTab();
+                        }
+                    });
+
+                    bottomBlock.appendChild(eventIcon);
+                    eventsDisplayed++;
+                });
+            }
+
+            // Sans recommandation, on conserve l'événement et on passe à la case suivante.
             if (!reco) return;
+
 
             displayed++;
 
