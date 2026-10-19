@@ -2216,18 +2216,47 @@ function formatProfitability(val) {
 function formatDateFR(dateStr) {
   if (!dateStr) return '';
 
-  const d = new Date(dateStr);
+  // Éviter les décalages de date liés au fuseau horaire.
+  const dateOnly = String(dateStr).slice(0, 10);
+  const match = dateOnly.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+
+  let d;
+
+  if (match) {
+    d = new Date(
+      Number(match[1]),
+      Number(match[2]) - 1,
+      Number(match[3]),
+      12
+    );
+  } else {
+    d = new Date(dateStr);
+  }
 
   if (isNaN(d.getTime())) return dateStr;
 
-  const formatted = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
+  const weekday = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long'
   }).format(d);
 
-  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+  const day = String(d.getDate()).padStart(2, '0');
+
+  const month = new Intl.DateTimeFormat('fr-FR', {
+    month: 'long'
+  }).format(d);
+
+  const year = d.getFullYear();
+
+  const weekdayCapitalized =
+    weekday.charAt(0).toUpperCase() + weekday.slice(1);
+
+  const monthCapitalized =
+    month.charAt(0).toUpperCase() + month.slice(1);
+
+  const dayFormatted =
+    Number(day) === 1 ? '01ᵉʳ' : day;
+
+  return `${weekdayCapitalized} ${dayFormatted} ${monthCapitalized} ${year}`;
 }
 
 function formatRestrictionCode(code) {
