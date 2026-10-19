@@ -1820,7 +1820,7 @@ if (infoIcon) {
             // Afficher une coche verte si la recommandation a été appliquée.
             if (
                 bottomBlock &&
-                appliedRecommendationIds.has(reco.recommendation_id)
+                reco.is_applied === true
             ) {
                 const appliedIcon = document.createElement('span');
 
