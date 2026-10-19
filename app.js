@@ -2597,6 +2597,7 @@ if (shortMsgEl) {
       dateEl.textContent = dateFormatted || item.date || '';
     }
 
+    
     // ============================================================
     // DATE DU BAS DE CARTE
     // ID WEBFLOW : #reco-date-bottom
@@ -2609,9 +2610,17 @@ if (shortMsgEl) {
       dateBottomEl.textContent =
         dateFormatted || item.date || '';
 
-      // L'élément est visible par défaut dans Webflow.
-      // On s'assure simplement qu'il reste visible.
-      dateBottomEl.style.display = 'block';
+      const isFirstCard =
+        newCard.classList.contains('is-urgent') &&
+        !document.querySelector(
+          '.reco-card-item.is-urgent'
+        );
+
+      dateBottomEl.style.setProperty(
+        'display',
+        isFirstCard ? 'none' : 'block',
+        'important'
+      );
     }
 
     
