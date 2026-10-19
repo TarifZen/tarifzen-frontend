@@ -2865,6 +2865,25 @@ if (isAnalyse) {
     // AJOUT DE LA CARTE AU CONTENEUR
     // ============================================================
     container.appendChild(newCard);
+
+// Masquer la date bottom de la première carte urgente
+const firstUrgentCard = container.querySelector(
+  '.reco-card-item.is-urgent'
+);
+
+if (firstUrgentCard) {
+  const firstDateBottom = firstUrgentCard.querySelector(
+    '#reco-date-bottom'
+  );
+
+  if (firstDateBottom) {
+    firstDateBottom.style.setProperty(
+      'display',
+      'none',
+      'important'
+    );
+  }
+}
   });
 }
 // ============================================================
