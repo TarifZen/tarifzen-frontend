@@ -2178,12 +2178,22 @@ function formatPercent(val) {
 }
 
 function formatUrgentActions(count) {
-  const n = count || 0;
+  const n = Number(count) || 0;
+
+  if (n === 0) {
+    return 'Toutes les actions urgentes sont traitées. Bravo !';
+  }
+
   return `${n} action${n > 1 ? 's' : ''} urgente${n > 1 ? 's' : ''}`;
 }
 
 function formatAnalysisActions(count) {
-  const n = count || 0;
+  const n = Number(count) || 0;
+
+  if (n === 0) {
+    return 'Toutes les analyses sont traitées. Bravo !';
+  }
+
   return `${n} analyse${n > 1 ? 's' : ''}`;
 }
 
