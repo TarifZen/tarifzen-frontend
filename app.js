@@ -464,10 +464,17 @@ function refreshUI() {
             let txt = el.innerText.trim();
             if (txt.length > 1) el.innerText = formatDateFr(txt);
         });
-        const dateBottom = item.querySelector('.text-date-bottom, .reco-date-bottom');
-        if (dateBottom) {
-            dateBottom.style.setProperty('display', (i === 0) ? 'none' : 'block', 'important');
-        }
+        const dateBottom = item.querySelector(
+    '#reco-date-bottom, .text-date-bottom, .reco-date-bottom'
+);
+
+if (dateBottom) {
+    dateBottom.style.setProperty(
+        'display',
+        i === 0 ? 'none' : 'block',
+        'important'
+    );
+}
         const badge = item.querySelector('.text-block-73');
         if (badge) badge.style.setProperty('display', (i === 0) ? 'none' : 'block', 'important');
     });
