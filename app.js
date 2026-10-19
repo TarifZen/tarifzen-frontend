@@ -3941,14 +3941,10 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
 
   
 
-  // Supprimer les anciennes cartes générées dans les deux onglets
-  [treatedContainer, ignoredContainer]
-    .filter(Boolean)
-    .forEach(target => {
-      target
-        .querySelectorAll('[data-tz-history-generated="true"]')
-        .forEach(card => card.remove());
-    });
+  // Supprimer uniquement les anciennes cartes de l'onglet rendu
+container
+  .querySelectorAll('[data-tz-history-generated="true"]')
+  .forEach(card => card.remove());
 
 
   // Filtrer et trier les actions de l'onglet actif
