@@ -464,14 +464,21 @@ function refreshUI() {
             let txt = el.innerText.trim();
             if (txt.length > 1) el.innerText = formatDateFr(txt);
         });
-        const dateBottom = item.querySelector(
+const dateBottom = item.querySelector(
     '#reco-date-bottom, .text-date-bottom, .reco-date-bottom'
 );
 
 if (dateBottom) {
+    const isFirstRecoCard =
+        item.classList.contains('reco-card-item') &&
+        item.classList.contains('is-urgent') &&
+        document.querySelectorAll(
+            '.reco-card-item.is-urgent'
+        )[0] === item;
+
     dateBottom.style.setProperty(
         'display',
-        i === 0 ? 'none' : 'block',
+        isFirstRecoCard ? 'none' : 'block',
         'important'
     );
 }
