@@ -4116,11 +4116,21 @@ setText(
   formatRecommendationDate(item.date)
 );
 
-    setText(
-      card,
-      '#date-application-historic',
-      formatDate(item.created_at)
-    );
+    // Libellé adapté au type d'action
+const dateLabel = card.querySelector('.text-block-151');
+
+if (dateLabel) {
+  dateLabel.textContent = item.action === 'IGNORED'
+    ? 'Ignorée le :'
+    : 'Appliquée le :';
+}
+
+// Date de traitement de l'action
+setText(
+  card,
+  '#date-application-historic',
+  formatDate(item.created_at)
+);
 
     // Titre original de la recommandation
     const title = cleanText(item.title);
