@@ -1871,11 +1871,6 @@ if (infoIcon) {
 
                 bottomBlock.appendChild(appliedIcon);
             }
-```
-
-La coche sera ajoutée **uniquement aux recommandations dont l’action Supabase est `APPLIED`**. Les recommandations `IGNORED` et celles qui n’ont pas été traitées n’auront pas de coche. Les événements continueront de s’afficher indépendamment.
-
-Enregistre, publie et teste le calendrier avec une recommandation déjà appliquée. Dis-moi si la coche apparaît.
 
             displayed++;
 
