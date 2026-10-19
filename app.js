@@ -3036,6 +3036,12 @@ return;
 const data =
 await response03.json();
 
+  console.log('[API03 Dashboard] Compteurs reçus du backend :', {
+    urgent_actions: data.urgent_actions,
+    analysis_actions: data.analysis_actions,
+    recommendations_total: data.recommendations_total
+});
+
 const elUrgent =
 document.getElementById('count-urgent');
 if (elUrgent) {
