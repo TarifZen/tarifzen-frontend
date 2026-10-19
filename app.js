@@ -4473,6 +4473,24 @@ async function initHistory() {
       data: historyData
     });
 
+    console.table(
+  historyData.map(item => ({
+    action: item.action,
+    recommendation_id: item.recommendation_id,
+    date: item.date,
+    created_at: item.created_at,
+    title: item.title
+  }))
+);
+
+console.log('[API07] Répartition des actions :', {
+  APPLIED: historyData.filter(item => item.action === 'APPLIED').length,
+  IGNORED: historyData.filter(item => item.action === 'IGNORED').length,
+  autres: historyData.filter(
+    item => !['APPLIED', 'IGNORED'].includes(item.action)
+  ).length
+});
+
     // 6. Charger les événements API09 pour le même hôtel
     // Une erreur API09 ne doit pas empêcher l'affichage de l'historique.
     let allEvents = [];
