@@ -469,18 +469,15 @@ const dateBottom = item.querySelector(
 );
 
 if (dateBottom) {
-    const isFirstRecoCard =
-        item.classList.contains('reco-card-item') &&
-        item.classList.contains('is-urgent') &&
-        document.querySelectorAll(
-            '.reco-card-item.is-urgent'
-        )[0] === item;
-
-    dateBottom.style.setProperty(
-        'display',
-        isFirstRecoCard ? 'none' : 'block',
-        'important'
+    const firstRecoCard = document.querySelector(
+        '.reco-card-item.is-urgent'
     );
+
+    if (item === firstRecoCard) {
+        dateBottom.style.setProperty('display', 'none', 'important');
+    } else {
+        dateBottom.style.setProperty('display', 'block', 'important');
+    }
 }
         const badge = item.querySelector('.text-block-73');
         if (badge) badge.style.setProperty('display', (i === 0) ? 'none' : 'block', 'important');
