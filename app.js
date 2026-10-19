@@ -1572,6 +1572,8 @@ const recommendations = Array.isArray(result.recommendations)
     ? result.recommendations
     : [];
 
+      window.tarifZenCalendarRecommendations = recommendations;
+
 // ============================================================
 // API09 — CHARGEMENT INDÉPENDANT DES ÉVÉNEMENTS DU CALENDRIER
 // ============================================================
