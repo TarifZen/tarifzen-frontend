@@ -4540,13 +4540,12 @@ console.log('[API07] Répartition des actions :', {
     }
 
     
+    
     // 7. Afficher les actions appliquées par défaut
     renderHistory(historyData, 'APPLIED');
 
-    // 8. Préparer l'affichage des actions ignorées au clic sur "Autres"
-    const ignoredTab = document.querySelector(
-      '[data-history-tab="IGNORED"]'
-    );
+    // 8. Afficher les actions ignorées au clic sur l'onglet Webflow
+    const ignoredTab = document.querySelector('.onglet-ignored-historic');
 
     if (ignoredTab) {
       ignoredTab.addEventListener('click', () => {
@@ -4554,7 +4553,7 @@ console.log('[API07] Répartition des actions :', {
       });
     } else {
       console.warn(
-        '[API07] Sélecteur de l’onglet "Autres" à identifier.'
+        '[API07] Onglet .onglet-ignored-historic introuvable.'
       );
     }
 
