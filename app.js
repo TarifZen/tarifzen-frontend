@@ -4544,18 +4544,20 @@ console.log('[API07] Répartition des actions :', {
     // 7. Afficher les actions appliquées par défaut
     renderHistory(historyData, 'APPLIED');
 
-    // 8. Afficher les actions ignorées au clic sur l'onglet Webflow
-    const ignoredTab = document.querySelector('.onglet-ignored-historic');
+    
+    // 8. Afficher les actions ignorées lors de l'ouverture de l'onglet Webflow
+    const ignoredTabLink = document.querySelector(
+      '.w-tab-link[href="#w-tabs-2-data-w-pane-1"]'
+    );
 
-    if (ignoredTab) {
-      ignoredTab.addEventListener('click', () => {
+    if (ignoredTabLink) {
+      ignoredTabLink.addEventListener('click', () => {
         renderHistory(window.tarifZenHistoryData, 'IGNORED');
       });
     } else {
-      console.warn(
-        '[API07] Onglet .onglet-ignored-historic introuvable.'
-      );
+      console.warn('[API07] Lien Webflow de l’onglet "Autres" introuvable.');
     }
+
 
 
   } catch (error) {
