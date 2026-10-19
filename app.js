@@ -4539,8 +4539,25 @@ console.log('[API07] Répartition des actions :', {
       );
     }
 
+    
     // 7. Afficher les actions appliquées par défaut
     renderHistory(historyData, 'APPLIED');
+
+    // 8. Préparer l'affichage des actions ignorées au clic sur "Autres"
+    const ignoredTab = document.querySelector(
+      '[data-history-tab="IGNORED"]'
+    );
+
+    if (ignoredTab) {
+      ignoredTab.addEventListener('click', () => {
+        renderHistory(window.tarifZenHistoryData, 'IGNORED');
+      });
+    } else {
+      console.warn(
+        '[API07] Sélecteur de l’onglet "Autres" à identifier.'
+      );
+    }
+
 
   } catch (error) {
     console.error('[API07] Erreur de chargement :', error.message);
