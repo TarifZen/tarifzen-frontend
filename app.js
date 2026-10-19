@@ -1600,10 +1600,10 @@ if (recommendationIds.length > 0) {
     );
 }
 
-console.log('[API04 Calendrier] Recommandations appliquées :', 
-    appliedRecommendationIds.size
+console.log(
+    '[API04 Calendrier] Identifiants des recommandations appliquées :',
+    [...appliedRecommendationIds]
 );
-
 
 // ============================================================
 // API09 — CHARGEMENT INDÉPENDANT DES ÉVÉNEMENTS DU CALENDRIER
