@@ -1828,16 +1828,38 @@ if (infoIcon) {
                     'data-tz-calendar-applied',
                     'true'
                 );
-                appliedIcon.textContent = '✓';
+                appliedIcon.innerHTML = `
+    <svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="18"
+        height="18"
+        viewBox="0 0 18 18"
+        aria-hidden="true"
+    >
+        <rect
+            x="1"
+            y="1"
+            width="16"
+            height="16"
+            rx="3"
+            fill="#16A34A"
+        />
+        <path
+            d="M4.5 9L7.5 12L13.5 6"
+            fill="none"
+            stroke="#FFFFFF"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+        />
+    </svg>
+`;
                 appliedIcon.title = 'Recommandation appliquée';
                 appliedIcon.setAttribute('aria-label', 'Recommandation appliquée');
 
                 appliedIcon.style.display = 'inline-flex';
                 appliedIcon.style.alignItems = 'center';
                 appliedIcon.style.justifyContent = 'center';
-                appliedIcon.style.color = '#16A34A';
-                appliedIcon.style.fontWeight = '700';
-                appliedIcon.style.fontSize = '14px';
                 appliedIcon.style.marginLeft = '4px';
 
                 bottomBlock.appendChild(appliedIcon);
