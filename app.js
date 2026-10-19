@@ -1716,6 +1716,7 @@ if (infoIcon) {
         });
 
         
+        
         // 5. Affichage indépendant des événements et recommandations
         let displayed = 0;
         let eventsDisplayed = 0;
@@ -1727,12 +1728,18 @@ if (infoIcon) {
             const reco = recommendationsByDate.get(date);
             const events = eventsByDate.get(date) || [];
 
-            // Nettoyer les anciennes icônes d'événement.
+            // Récupérer le conteneur des événements et de la coche.
             const bottomBlock = cell.querySelector('.bottom-block');
 
             if (bottomBlock) {
+                // Nettoyer les anciennes icônes d'événement.
                 bottomBlock
                     .querySelectorAll('[data-tz-calendar-event="true"]')
+                    .forEach(icon => icon.remove());
+
+                // Nettoyer les anciennes coches de recommandations appliquées.
+                bottomBlock
+                    .querySelectorAll('[data-tz-calendar-applied="true"]')
                     .forEach(icon => icon.remove());
             }
 
@@ -1753,10 +1760,14 @@ if (infoIcon) {
 
                     eventIcon.setAttribute('data-tz-calendar-event', 'true');
                     eventIcon.textContent = emoji;
-                    eventIcon.title = `${event.name || 'Événement'} — ${event.impact || 'Impact non précisé'}`;
+                    eventIcon.title =
+                        `${event.name || 'Événement'} — ${event.impact || 'Impact non précisé'}`;
                     eventIcon.setAttribute('role', 'button');
                     eventIcon.setAttribute('tabindex', '0');
-                    eventIcon.setAttribute('aria-label', `Ouvrir les événements : ${event.name || 'Événement'}`);
+                    eventIcon.setAttribute(
+                        'aria-label',
+                        `Ouvrir les événements : ${event.name || 'Événement'}`
+                    );
 
                     eventIcon.style.cursor = 'pointer';
                     eventIcon.style.display = 'inline-flex';
@@ -1785,7 +1796,10 @@ if (infoIcon) {
                     });
 
                     eventIcon.addEventListener('keydown', keyEvent => {
-                        if (keyEvent.key === 'Enter' || keyEvent.key === ' ') {
+                        if (
+                            keyEvent.key === 'Enter' ||
+                            keyEvent.key === ' '
+                        ) {
                             keyEvent.preventDefault();
                             keyEvent.stopPropagation();
                             openEventsTab();
@@ -1797,9 +1811,8 @@ if (infoIcon) {
                 });
             }
 
-            // Sans recommandation, on conserve l'événement et on passe à la case suivante.
+            // Sans recommandation, conserver les événements et continuer.
             if (!reco) return;
-
 
             displayed++;
 
@@ -1834,54 +1847,57 @@ if (infoIcon) {
                 });
             }
 
-            
+            const infoIcon = cell.querySelector('.icon-info-calendar');
 
-const infoIcon = cell.querySelector('.icon-info-calendar');
+            if (infoIcon) {
+                // Message détaillé de la recommandation.
+                infoIcon.setAttribute('data-message-long', message);
 
-if (infoIcon) {
-    // Message détaillé de la recommandation.
-    infoIcon.setAttribute('data-message-long', message);
+                // Date de séjour au format ISO.
+                infoIcon.setAttribute('data-date', date);
 
-    // Date de séjour au format ISO.
-    infoIcon.setAttribute('data-date', date);
+                // Date de création initiale de la recommandation.
+                infoIcon.setAttribute(
+                    'data-recommendation-created-at',
+                    reco.recommendation_created_at || ''
+                );
 
-    // Date de création initiale de la recommandation.
-    infoIcon.setAttribute(
-        'data-recommendation-created-at',
-        reco.recommendation_created_at || ''
-    );
+                // Date lisible en français : Mardi 22 Décembre.
+                const readableDate = new Date(date + 'T12:00:00')
+                    .toLocaleDateString('fr-FR', {
+                        weekday: 'long',
+                        day: 'numeric',
+                        month: 'long',
+                        timeZone: 'Europe/Paris'
+                    })
+                    .replace(/^./, lettre => lettre.toUpperCase())
+                    .replace(/(\d+)\s+(\p{L})/u, (_, jour, lettre) =>
+                        `${jour} ${lettre.toUpperCase()}`
+                    );
 
+                infoIcon.setAttribute(
+                    'data-date-readable',
+                    readableDate
+                );
 
-    // Date lisible en français : Mardi 22 Décembre.
-const readableDate = new Date(date + 'T12:00:00')
-    .toLocaleDateString('fr-FR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-        timeZone: 'Europe/Paris'
-    })
-    .replace(/^./, lettre => lettre.toUpperCase())
-    .replace(/(\d+)\s+(\p{L})/u, (_, jour, lettre) =>
-        `${jour} ${lettre.toUpperCase()}`
-    );
-
-    infoIcon.setAttribute('data-date-readable', readableDate);
-
-    infoIcon.setAttribute(
-        'data-recommendation-id',
-        reco.recommendation_id || ''
-    );
-}
-
+                infoIcon.setAttribute(
+                    'data-recommendation-id',
+                    reco.recommendation_id || ''
+                );
+            }
         });
 
         console.log('[API04 Calendrier] Affichage terminé :', {
             recommendations_received: recommendations.length,
-            recommendations_displayed: displayed
+            recommendations_displayed: displayed,
+            events_displayed: eventsDisplayed
         });
 
     } catch (error) {
-        console.error('[API04 Calendrier] Erreur de chargement :', error);
+        console.error(
+            '[API04 Calendrier] Erreur de chargement :',
+            error
+        );
     }
 }
 
