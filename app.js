@@ -1575,35 +1575,6 @@ const recommendations = Array.isArray(result.recommendations)
 
 window.tarifZenCalendarRecommendations = recommendations;
 
-// 3 bis. Récupération des recommandations déjà appliquées.
-const recommendationIds = recommendations
-    .map(reco => reco.recommendation_id)
-    .filter(Boolean);
-
-let appliedRecommendationIds = new Set();
-
-if (recommendationIds.length > 0) {
-    const { data: actionsData, error: actionsError } =
-        await supabaseClient
-            .from('recommendation_actions')
-            .select('recommendation_id, action')
-            .eq('hotel_id', hotelId)
-            .eq('action', 'APPLIED')
-            .in('recommendation_id', recommendationIds);
-
-    if (actionsError) {
-        throw actionsError;
-    }
-
-    appliedRecommendationIds = new Set(
-        (actionsData || []).map(action => action.recommendation_id)
-    );
-}
-
-console.log(
-    '[API04 Calendrier] Identifiants des recommandations appliquées :',
-    [...appliedRecommendationIds]
-);
 
 // ============================================================
 // API09 — CHARGEMENT INDÉPENDANT DES ÉVÉNEMENTS DU CALENDRIER
