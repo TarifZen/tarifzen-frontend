@@ -1842,8 +1842,40 @@ if (infoIcon) {
                 });
             }
 
+           
             // Sans recommandation, conserver les événements et continuer.
             if (!reco) return;
+
+            // Afficher une coche verte si la recommandation a été appliquée.
+            if (
+                bottomBlock &&
+                appliedRecommendationIds.has(reco.recommendation_id)
+            ) {
+                const appliedIcon = document.createElement('span');
+
+                appliedIcon.setAttribute(
+                    'data-tz-calendar-applied',
+                    'true'
+                );
+                appliedIcon.textContent = '✓';
+                appliedIcon.title = 'Recommandation appliquée';
+                appliedIcon.setAttribute('aria-label', 'Recommandation appliquée');
+
+                appliedIcon.style.display = 'inline-flex';
+                appliedIcon.style.alignItems = 'center';
+                appliedIcon.style.justifyContent = 'center';
+                appliedIcon.style.color = '#16A34A';
+                appliedIcon.style.fontWeight = '700';
+                appliedIcon.style.fontSize = '14px';
+                appliedIcon.style.marginLeft = '4px';
+
+                bottomBlock.appendChild(appliedIcon);
+            }
+```
+
+La coche sera ajoutée **uniquement aux recommandations dont l’action Supabase est `APPLIED`**. Les recommandations `IGNORED` et celles qui n’ont pas été traitées n’auront pas de coche. Les événements continueront de s’afficher indépendamment.
+
+Enregistre, publie et teste le calendrier avec une recommandation déjà appliquée. Dis-moi si la coche apparaît.
 
             displayed++;
 
