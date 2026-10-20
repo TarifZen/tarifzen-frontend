@@ -3828,8 +3828,8 @@ function renderGroup(container, groupEvents) {
     )
     .forEach(card => card.remove());
 
-  // Conserver le modèle original masqué.
-  template.style.display = 'none';
+  // Garder le modèle Webflow masqué, même si une règle CSS le réaffiche.
+template.style.setProperty('display', 'none', 'important');
 
   const formatDate = value => {
     if (!value) return '';
