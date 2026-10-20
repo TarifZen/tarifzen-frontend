@@ -3912,9 +3912,9 @@ card.style.alignItems = 'center';
   
   // Gestion du popup de suppression pour les cartes générées
   [futureContainer, pastContainer].forEach(container => {
-    container.querySelectorAll(
-      '.block-event[data-api09-generated="true"] #btn-delete-event'
-    ).forEach(button => {
+  container.parentElement?.querySelectorAll(
+    '[data-api09-generated="true"] #btn-delete-event'
+  ).forEach(button => {
       if (button.dataset.deletePopupBound === 'true') return;
 
       button.dataset.deletePopupBound = 'true';
