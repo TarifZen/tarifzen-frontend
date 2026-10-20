@@ -3168,6 +3168,8 @@ if (Number(data.recommendations_total) === 0) {
   if (elRecosTotal) {
     elRecosTotal.innerText =
       "Aucune action à prioriser aujourd’hui";
+
+    elRecosTotal.style.visibility = 'visible';
   }
 
   if (elGainPotentiel) {
