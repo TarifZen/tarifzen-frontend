@@ -3115,7 +3115,8 @@ try {
   renderRecommandations([], eventsAPI09);
 }
 
-// 5. API03 — DASHBOARD
+
+ // 5. API03 — DASHBOARD
 try {
   const response03 = await fetch(
     `${API_BASE_URL}/api/v1/dashboard/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
@@ -3154,22 +3155,29 @@ try {
     recommendations_total: data.recommendations_total
   });
 
+  // COMPTEUR URGENT
   const elUrgent =
     document.getElementById('count-urgent');
 
   if (elUrgent) {
     elUrgent.innerText =
       formatUrgentActions(data.urgent_actions);
+
+    elUrgent.style.visibility = 'visible';
   }
 
+  // COMPTEUR ANALYSE
   const elAnalyse =
     document.getElementById('count-analyse');
 
   if (elAnalyse) {
     elAnalyse.innerText =
       formatAnalysisActions(data.analysis_actions);
+
+    elAnalyse.style.visibility = 'visible';
   }
 
+  // TOTAL DES RECOMMANDATIONS
   const elRecosTotal =
     document.getElementById('recommendations_total');
 
@@ -3206,6 +3214,7 @@ try {
     }
   }
 
+  // GAIN RÉEL DU MOIS
   const elGainReel =
     document.getElementById('gain_real_month');
 
@@ -3214,6 +3223,7 @@ try {
       formatGainReal(data.gain_real_month);
   }
 
+  // RENTABILITÉ DU MOIS
   const elProfitability =
     document.getElementById('profitability-month');
 
@@ -3222,6 +3232,7 @@ try {
       formatProfitability(data.profitability);
   }
 
+  // ÉVÉNEMENTS DU MOIS
   const elEvents =
     document.getElementById('events_month');
 
@@ -3230,6 +3241,7 @@ try {
       data.events_text || 'Aucun événement majeur';
   }
 
+  // OCCUPATION ACTUELLE
   const elCurrOcc =
     document.getElementById('current_occupancy');
 
@@ -3238,6 +3250,7 @@ try {
       formatPercent(data.current_occupancy);
   }
 
+  // PRIX MOYEN ACTUEL
   const elCurrAdr =
     document.getElementById('current_adr');
 
@@ -3246,6 +3259,7 @@ try {
       formatPrice(data.current_adr);
   }
 
+  // OCCUPATION N-1
   const elN1Occ =
     document.getElementById('n1_occupancy');
 
@@ -3254,6 +3268,7 @@ try {
       formatPercent(data.n1_occupancy);
   }
 
+  // PRIX MOYEN N-1
   const elN1Adr =
     document.getElementById('n1_adr');
 
@@ -3262,6 +3277,7 @@ try {
       formatPrice(data.n1_adr);
   }
 
+  // TEXTE DE SYNTHÈSE
   const elSummary =
     document.getElementById('summary-text');
 
@@ -3276,10 +3292,11 @@ try {
 
 } catch (err03) {
   console.error(
-    ' [API03] Erreur inattendue :',
+    '[API03] Erreur inattendue :',
     err03.message
   );
 }
+
 
 
 
