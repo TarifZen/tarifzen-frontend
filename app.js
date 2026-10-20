@@ -3809,56 +3809,67 @@ function renderEventsPage(events) {
   }
 
   
+
 function renderGroup(container, groupEvents) {
-  const template = container.querySelector('.block-event');
+  const parent = container.parentElement;
 
-  console.log('[API09] Conteneur :', container.id);
-  console.log('[API09] Modèle trouvé :', !!template);
-  console.log(
-    '[API09] Affichage calculé du modèle :',
-    template ? getComputedStyle(template).display : 'modèle absent'
-  );
+  // Le conteneur complet sert de modèle.
+  const template = container;
 
-  if (!template) {
-    console.error(
-      '[API09] Modèle .block-event introuvable dans',
-      container
-    );
+  if (!parent || !template.querySelector('.block-event')) {
+    console.error('[API09] Modèle ou parent introuvable :', container.id);
     return;
   }
 
-  // Supprimer les anciennes cartes générées
-  container
-    .querySelectorAll('.block-event[data-api09-generated="true"]')
+  // Supprimer les anciens clones associés à ce modèle.
+  parent
+    .querySelectorAll(
+      `[data-api09-generated="true"][data-api09-group="${container.id}"]`
+    )
     .forEach(card => card.remove());
 
-  // Le modèle reste masqué
+  // Conserver le modèle original masqué.
   template.style.display = 'none';
 
+  const formatDate = value => {
+    if (!value) return '';
+    const [year, month, day] = value.split('-');
+    return `${day}.${month}.${year}`;
+  };
+
   groupEvents.forEach(event => {
+    // Cloner la carte complète.
     const card = template.cloneNode(true);
 
+    // Le clone ne doit pas conserver l'ID du modèle.
     card.removeAttribute('id');
     card.dataset.api09Generated = 'true';
+    card.dataset.api09Group = container.id;
 
-   // Afficher la carte générée en conservant la mise en page Webflow
-card.style.display = 'flex';
-card.style.flexDirection = 'row';
+    // Remplir les données dans .block-event.
+    const block = card.querySelector('.block-event');
 
-    const formatDate = value => {
-      if (!value) return '';
-      const [year, month, day] = value.split('-');
-      return `${day}.${month}.${year}`;
-    };
+    if (!block) {
+      console.error('[API09] .block-event absent du clone.');
+      return;
+    }
 
-    const startEl = card.querySelector('#date-debut');
-    const endEl = card.querySelector('#date-fin');
-    const nameEl = card.querySelector('#text-nom-event');
-    const impactEl = card.querySelector('#impact-event');
+    const startEl = block.querySelector('#date-debut');
+    const endEl = block.querySelector('#date-fin');
+    const nameEl = block.querySelector('#text-nom-event');
+    const impactEl = block.querySelector('#impact-event');
 
-    if (startEl) startEl.textContent = formatDate(event.start_date);
-    if (endEl) endEl.textContent = formatDate(event.end_date);
-    if (nameEl) nameEl.textContent = event.name || '';
+    if (startEl) {
+      startEl.textContent = formatDate(event.start_date);
+    }
+
+    if (endEl) {
+      endEl.textContent = formatDate(event.end_date);
+    }
+
+    if (nameEl) {
+      nameEl.textContent = event.name || '';
+    }
 
     if (impactEl) {
       const impact = String(event.impact || '').trim();
@@ -3873,17 +3884,13 @@ card.style.flexDirection = 'row';
       impactEl.textContent = `${icon} ${impact}`;
     }
 
-    container.appendChild(card);
+    // Insérer la carte complète après le modèle.
+    parent.appendChild(card);
+    card.style.display = 'block';
 
-    // Diagnostic de la carte après son insertion dans le DOM
-    console.log('[API09] Carte ajoutée :', {
+    console.log('[API09] Carte événement ajoutée :', {
       nom: event.name,
-      conteneur: container.id,
-      displayInline: card.style.display,
-      displayCalcule: getComputedStyle(card).display,
-      hauteur: card.getBoundingClientRect().height,
-      largeur: card.getBoundingClientRect().width,
-      conteneurDisplay: getComputedStyle(container).display
+      modèle: container.id
     });
   });
 }
