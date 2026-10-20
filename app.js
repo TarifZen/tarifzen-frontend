@@ -3885,8 +3885,10 @@ function renderGroup(container, groupEvents) {
     }
 
     // Insérer la carte complète après le modèle.
-    parent.appendChild(card);
-    card.style.display = 'block';
+parent.appendChild(card);
+card.style.display = 'flex';
+card.style.flexDirection = 'row';
+card.style.alignItems = 'center';
 
     console.log('[API09] Carte événement ajoutée :', {
       nom: event.name,
