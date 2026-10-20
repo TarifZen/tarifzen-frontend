@@ -3116,6 +3116,7 @@ try {
 }
 
 
+
  // 5. API03 — DASHBOARD
 try {
   const response03 = await fetch(
@@ -3194,6 +3195,7 @@ try {
 
     if (elGainPotentiel) {
       elGainPotentiel.innerText = '-';
+      elGainPotentiel.style.visibility = 'visible';
     }
 
   } else {
@@ -3211,6 +3213,8 @@ try {
         formatGainPotential(
           data.gain_potential_today
         );
+
+      elGainPotentiel.style.visibility = 'visible';
     }
   }
 
@@ -3221,6 +3225,8 @@ try {
   if (elGainReel) {
     elGainReel.innerText =
       formatGainReal(data.gain_real_month);
+
+    elGainReel.style.visibility = 'visible';
   }
 
   // RENTABILITÉ DU MOIS
