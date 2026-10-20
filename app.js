@@ -1072,9 +1072,19 @@ document.addEventListener('DOMContentLoaded', () => {
 }
 
                 if (!finalDate) {
-                    finalDate =
-                        infoBtn.getAttribute('data-date') || '';
-                }
+    const rawDate =
+        infoBtn.getAttribute('data-date') || '';
+
+    if (rawDate) {
+        const formattedDate = formatDateFr(rawDate);
+
+        finalDate = formattedDate.replace(
+            /^(\p{L})(\p{L}*)\s+(\d{1,2})(?:er|ᵉʳ)?\s+(\p{L})(\p{L}*)\s+(\d{4})$/u,
+            (_, jour1, jourReste, jour, mois1, moisReste, annee) =>
+                `${jour1.toUpperCase()}${jourReste} ${jour} ${mois1.toUpperCase()}${moisReste} ${annee}`
+        );
+    }
+}
             }
 
             console.log('[POPUP] Informations sélectionnées :', {
