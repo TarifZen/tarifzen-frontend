@@ -1062,8 +1062,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     parentItem?.getAttribute('data-popup-date') || '';
 
                 if (rawPopupDate) {
-                    finalDate = formatDateFr(rawPopupDate);
-                }
+    const formattedDate = formatDateFr(rawPopupDate);
+
+    finalDate = formattedDate.replace(
+        /^(\p{L})(\p{L}*)\s+(\d{1,2})(?:er|ᵉʳ)?\s+(\p{L})(\p{L}*)\s+(\d{4})$/u,
+        (_, jour1, jourReste, jour, mois1, moisReste, annee) =>
+            `${jour1.toUpperCase()}${jourReste} ${jour} ${mois1.toUpperCase()}${moisReste} ${annee}`
+    );
+}
 
                 if (!finalDate) {
                     finalDate =
