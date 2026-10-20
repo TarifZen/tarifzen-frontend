@@ -3181,6 +3181,7 @@ if (Number(data.recommendations_total) === 0) {
       formatRecommendationsTotal(
         data.recommendations_total
       );
+      elRecosTotal.style.visibility = 'visible';
   }
 
   if (elGainPotentiel) {
