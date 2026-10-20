@@ -3229,6 +3229,7 @@ try {
     elGainReel.style.visibility = 'visible';
   }
 
+  
   // RENTABILITÉ DU MOIS
   const elProfitability =
     document.getElementById('profitability-month');
@@ -3236,8 +3237,12 @@ try {
   if (elProfitability) {
     elProfitability.innerText =
       formatProfitability(data.profitability);
+
+    elProfitability.style.visibility = 'visible';
   }
 
+
+ 
   // ÉVÉNEMENTS DU MOIS
   const elEvents =
     document.getElementById('events_month');
@@ -3245,6 +3250,8 @@ try {
   if (elEvents) {
     elEvents.innerText =
       data.events_text || 'Aucun événement majeur';
+
+    elEvents.style.visibility = 'visible';
   }
 
   // OCCUPATION ACTUELLE
@@ -3254,6 +3261,8 @@ try {
   if (elCurrOcc) {
     elCurrOcc.innerText =
       formatPercent(data.current_occupancy);
+
+    elCurrOcc.style.visibility = 'visible';
   }
 
   // PRIX MOYEN ACTUEL
@@ -3263,6 +3272,8 @@ try {
   if (elCurrAdr) {
     elCurrAdr.innerText =
       formatPrice(data.current_adr);
+
+    elCurrAdr.style.visibility = 'visible';
   }
 
   // OCCUPATION N-1
@@ -3272,6 +3283,8 @@ try {
   if (elN1Occ) {
     elN1Occ.innerText =
       formatPercent(data.n1_occupancy);
+
+    elN1Occ.style.visibility = 'visible';
   }
 
   // PRIX MOYEN N-1
@@ -3281,7 +3294,10 @@ try {
   if (elN1Adr) {
     elN1Adr.innerText =
       formatPrice(data.n1_adr);
+
+    elN1Adr.style.visibility = 'visible';
   }
+
 
   // TEXTE DE SYNTHÈSE
   const elSummary =
