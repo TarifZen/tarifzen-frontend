@@ -1021,8 +1021,14 @@ document.addEventListener('DOMContentLoaded', () => {
                         '';
 
                     if (rawDate) {
-                        finalDate = formatDateFr(rawDate);
-                    }
+    const formattedDate = formatDateFr(rawDate);
+
+    finalDate = formattedDate.replace(
+        /^(\p{L})(\p{L}*)\s+(\d{1,2})(?:er|ᵉʳ)?\s+(\p{L})(\p{L}*)\s+(\d{4})$/u,
+        (_, jour1, jourReste, jour, mois1, moisReste, annee) =>
+            `${jour1.toUpperCase()}${jourReste} ${jour} ${mois1.toUpperCase()}${moisReste} ${annee}`
+    );
+}
                 }
 
                 // Date de création initiale de la recommandation.
