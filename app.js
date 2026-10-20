@@ -3157,6 +3157,9 @@ formatAnalysisActions(data.analysis_actions);
 
 const elRecosTotal =
   document.getElementById('recommendations_total');
+  if (elRecosTotal) {
+  elRecosTotal.style.visibility = 'hidden';
+}
 
 const elGainPotentiel =
   document.getElementById('gain_potential_today');
