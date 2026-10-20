@@ -3061,7 +3061,16 @@ console.log('📅 [API09] Événements chargés :', eventsAPI09);
 
   
 
- // 4. API02 — RECOMMANDATIONS
+
+ // Masquer le compteur avant le chargement des données API
+const elRecosTotalInitial =
+  document.getElementById('recommendations_total');
+
+if (elRecosTotalInitial) {
+  elRecosTotalInitial.style.visibility = 'hidden';
+}
+
+// 4. API02 — RECOMMANDATIONS
 try {
   const response02 = await fetch(
     `${API_BASE_URL}/api/reco-engine/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
@@ -3108,182 +3117,170 @@ try {
 
 // 5. API03 — DASHBOARD
 try {
-const response03 = await fetch(
-`${API_BASE_URL}/api/v1/dashboard/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
-{
-method: 'GET',
-headers: requestHeaders
-}
-);
-if (response03.status === 401) {
-console.error(
-" [API03 - HTTP 401] Token d'authentification invalide ou expiré."
-);
-return;
-}
-if (response03.status === 403) {
-console.error(
-" [API03 - HTTP 403] Accès refusé pour cet établissement."
-);
-return;
-}
-if (!response03.ok) {
-console.error(
-` [API03 - HTTP ${response03.status}] Erreur serveur lors de la récupération du Dashboard.`
-);
-return;
-}
-const data =
-await response03.json();
+  const response03 = await fetch(
+    `${API_BASE_URL}/api/v1/dashboard/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
+    {
+      method: 'GET',
+      headers: requestHeaders
+    }
+  );
+
+  if (response03.status === 401) {
+    console.error(
+      " [API03 - HTTP 401] Token d'authentification invalide ou expiré."
+    );
+    return;
+  }
+
+  if (response03.status === 403) {
+    console.error(
+      " [API03 - HTTP 403] Accès refusé pour cet établissement."
+    );
+    return;
+  }
+
+  if (!response03.ok) {
+    console.error(
+      ` [API03 - HTTP ${response03.status}] Erreur serveur lors de la récupération du Dashboard.`
+    );
+    return;
+  }
+
+  const data = await response03.json();
 
   console.log('[API03 Dashboard] Compteurs reçus du backend :', {
     urgent_actions: data.urgent_actions,
     analysis_actions: data.analysis_actions,
     recommendations_total: data.recommendations_total
-});
+  });
 
-const elUrgent =
-document.getElementById('count-urgent');
-if (elUrgent) {
-elUrgent.innerText =
-formatUrgentActions(data.urgent_actions);
-}
-const elAnalyse =
-document.getElementById('count-analyse');
-if (elAnalyse) {
-elAnalyse.innerText =
-formatAnalysisActions(data.analysis_actions);
-}
+  const elUrgent =
+    document.getElementById('count-urgent');
 
-const elRecosTotal =
-  document.getElementById('recommendations_total');
-  if (elRecosTotal) {
-  elRecosTotal.style.visibility = 'hidden';
-}
-
-const elGainPotentiel =
-  document.getElementById('gain_potential_today');
-
-if (Number(data.recommendations_total) === 0) {
-  if (elRecosTotal) {
-    elRecosTotal.innerText =
-      "Aucune action à prioriser aujourd’hui";
-
-    elRecosTotal.style.visibility = 'visible';
+  if (elUrgent) {
+    elUrgent.innerText =
+      formatUrgentActions(data.urgent_actions);
   }
 
-  if (elGainPotentiel) {
-    elGainPotentiel.innerText = "-";
+  const elAnalyse =
+    document.getElementById('count-analyse');
+
+  if (elAnalyse) {
+    elAnalyse.innerText =
+      formatAnalysisActions(data.analysis_actions);
   }
-} else {
-  if (elRecosTotal) {
-    elRecosTotal.innerText =
-      formatRecommendationsTotal(
-        data.recommendations_total
-      );
+
+  const elRecosTotal =
+    document.getElementById('recommendations_total');
+
+  const elGainPotentiel =
+    document.getElementById('gain_potential_today');
+
+  if (Number(data.recommendations_total) === 0) {
+    if (elRecosTotal) {
+      elRecosTotal.innerText =
+        "Aucune action à prioriser aujourd’hui";
+
       elRecosTotal.style.visibility = 'visible';
+    }
+
+    if (elGainPotentiel) {
+      elGainPotentiel.innerText = '-';
+    }
+
+  } else {
+    if (elRecosTotal) {
+      elRecosTotal.innerText =
+        formatRecommendationsTotal(
+          data.recommendations_total
+        );
+
+      elRecosTotal.style.visibility = 'visible';
+    }
+
+    if (elGainPotentiel) {
+      elGainPotentiel.innerText =
+        formatGainPotential(
+          data.gain_potential_today
+        );
+    }
   }
 
-  if (elGainPotentiel) {
-    elGainPotentiel.innerText =
-      formatGainPotential(
-        data.gain_potential_today
-      );
+  const elGainReel =
+    document.getElementById('gain_real_month');
+
+  if (elGainReel) {
+    elGainReel.innerText =
+      formatGainReal(data.gain_real_month);
   }
-}
 
-const elGainReel =
-document.getElementById(
-'gain_real_month'
-);
-if (elGainReel) {
-elGainReel.innerText =
-formatGainReal(
-data.gain_real_month
-);
-}
+  const elProfitability =
+    document.getElementById('profitability-month');
 
-const elProfitability =
-document.getElementById(
-'profitability-month'
-);
-if (elProfitability) {
-elProfitability.innerText =
-formatProfitability(
-data.profitability
-);
-}
+  if (elProfitability) {
+    elProfitability.innerText =
+      formatProfitability(data.profitability);
+  }
 
-const elEvents =
-document.getElementById(
-'events_month'
-);
-if (elEvents) {
-elEvents.innerText =
-data.events_text ||
-"Aucun événement majeur";
-}
+  const elEvents =
+    document.getElementById('events_month');
 
-const elCurrOcc =
-document.getElementById(
-'current_occupancy'
-);
-if (elCurrOcc) {
-elCurrOcc.innerText =
-formatPercent(
-data.current_occupancy
-);
-}
-const elCurrAdr =
-document.getElementById(
-'current_adr'
-);
-if (elCurrAdr) {
-elCurrAdr.innerText =
-formatPrice(
-data.current_adr
-);
-}
+  if (elEvents) {
+    elEvents.innerText =
+      data.events_text || 'Aucun événement majeur';
+  }
 
-const elN1Occ =
-document.getElementById(
-'n1_occupancy'
-);
-if (elN1Occ) {
-elN1Occ.innerText =
-formatPercent(
-data.n1_occupancy
-);
-}
-const elN1Adr =
-document.getElementById(
-'n1_adr'
-);
-if (elN1Adr) {
-elN1Adr.innerText =
-formatPrice(
-data.n1_adr
-);
-}
+  const elCurrOcc =
+    document.getElementById('current_occupancy');
 
-const elSummary =
-document.getElementById(
-'summary-text'
-);
-if (
-elSummary &&
-data.summary &&
-data.summary.text
-) {
-elSummary.innerText =
-data.summary.text;
-}
+  if (elCurrOcc) {
+    elCurrOcc.innerText =
+      formatPercent(data.current_occupancy);
+  }
+
+  const elCurrAdr =
+    document.getElementById('current_adr');
+
+  if (elCurrAdr) {
+    elCurrAdr.innerText =
+      formatPrice(data.current_adr);
+  }
+
+  const elN1Occ =
+    document.getElementById('n1_occupancy');
+
+  if (elN1Occ) {
+    elN1Occ.innerText =
+      formatPercent(data.n1_occupancy);
+  }
+
+  const elN1Adr =
+    document.getElementById('n1_adr');
+
+  if (elN1Adr) {
+    elN1Adr.innerText =
+      formatPrice(data.n1_adr);
+  }
+
+  const elSummary =
+    document.getElementById('summary-text');
+
+  if (
+    elSummary &&
+    data.summary &&
+    data.summary.text
+  ) {
+    elSummary.innerText =
+      data.summary.text;
+  }
+
 } catch (err03) {
-console.error(
-" [API03] Erreur inattendue :",
-err03.message
-);
+  console.error(
+    ' [API03] Erreur inattendue :',
+    err03.message
+  );
 }
+
 
 
  
