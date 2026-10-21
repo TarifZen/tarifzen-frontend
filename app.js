@@ -3549,6 +3549,7 @@ try {
  
     
     
+    
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -3620,99 +3621,84 @@ try {
           dateTemplate.style.display = 'none';
           dataTemplate.style.display = 'none';
 
-          // 3 bis. Forcer la largeur de la colonne des dates
-const isMobileCompetition = window.matchMedia(
-  '(max-width: 479px)'
-).matches;
+          // 3 bis. Largeur de la colonne fixe
+          const isMobileCompetition = window.matchMedia(
+            '(max-width: 479px)'
+          ).matches;
 
-const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
+          const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
 
-datesContainer.style.setProperty(
-  'width',
-  dateColumnWidth,
-  'important'
-);
-datesContainer.style.setProperty(
-  'min-width',
-  dateColumnWidth,
-  'important'
-);
-datesContainer.style.setProperty(
-  'max-width',
-  dateColumnWidth,
-  'important'
-);
-datesContainer.style.setProperty(
-  'flex-shrink',
-  '0',
-  'important'
-);
-datesContainer.style.setProperty(
-  'box-sizing',
-  'border-box',
-  'important'
-);
+          datesContainer.style.setProperty(
+            'width', dateColumnWidth, 'important'
+          );
+          datesContainer.style.setProperty(
+            'min-width', dateColumnWidth, 'important'
+          );
+          datesContainer.style.setProperty(
+            'max-width', dateColumnWidth, 'important'
+          );
+          datesContainer.style.setProperty(
+            'flex', '0 0 ' + dateColumnWidth, 'important'
+          );
+          datesContainer.style.setProperty(
+            'box-sizing', 'border-box', 'important'
+          );
 
-          // 4. Format des dates : long sur desktop, court sur mobile
-const formatDate = value => {
-  if (!value) return '—';
+          // 4. Format des dates
+          const formatDate = value => {
+            if (!value) return '—';
 
-  const parts = String(value).split('-').map(Number);
+            const parts = String(value).split('-').map(Number);
 
-  if (parts.length !== 3 || parts.some(Number.isNaN)) {
-    return '—';
-  }
+            if (parts.length !== 3 || parts.some(Number.isNaN)) {
+              return '—';
+            }
 
-  const date = new Date(parts[0], parts[1] - 1, parts[2]);
+            const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-  // Détecter le mobile
-  const isMobile = window.matchMedia(
-    '(max-width: 479px)'
-  ).matches;
+            if (isMobileCompetition) {
+              const jour = new Intl.DateTimeFormat('fr-FR', {
+                weekday: 'short'
+              }).format(date).replace(/\.$/, '');
 
-  if (isMobile) {
-    const jour = new Intl.DateTimeFormat('fr-FR', {
-      weekday: 'short'
-    }).format(date).replace('.', '');
+              const mois = new Intl.DateTimeFormat('fr-FR', {
+                month: 'short'
+              }).format(date).replace(/\.$/, '');
 
-    const mois = new Intl.DateTimeFormat('fr-FR', {
-      month: 'short'
-    }).format(date).replace('.', '');
+              const jourCapitalise =
+                jour.charAt(0).toUpperCase() + jour.slice(1);
 
-    const jourCapitalise =
-      jour.charAt(0).toUpperCase() + jour.slice(1);
+              const moisCapitalise =
+                mois.charAt(0).toUpperCase() + mois.slice(1);
 
-    const moisCapitalise =
-      mois.charAt(0).toUpperCase() + mois.slice(1);
+              const numeroFormate = String(parts[2]).padStart(2, '0');
 
-    const numeroFormate = String(parts[2]).padStart(2, '0');
+              return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
+            }
 
-    return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
-  }
+            const jour = new Intl.DateTimeFormat('fr-FR', {
+              weekday: 'long'
+            }).format(date);
 
-  // Format desktop conservé
-  const jour = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long'
-  }).format(date);
+            const mois = new Intl.DateTimeFormat('fr-FR', {
+              month: 'long'
+            }).format(date);
 
-  const mois = new Intl.DateTimeFormat('fr-FR', {
-    month: 'long'
-  }).format(date);
+            const jourCapitalise =
+              jour.charAt(0).toUpperCase() + jour.slice(1);
 
-  const jourCapitalise =
-    jour.charAt(0).toUpperCase() + jour.slice(1);
+            const moisCapitalise =
+              mois.charAt(0).toUpperCase() + mois.slice(1);
 
-  const moisCapitalise =
-    mois.charAt(0).toUpperCase() + mois.slice(1);
+            const numeroFormate = String(parts[2]).padStart(2, '0');
 
-  const numeroFormate = String(parts[2]).padStart(2, '0');
+            if (parts[2] === 1) {
+              return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
+            }
 
-  if (parts[2] === 1) {
-    return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
-  }
+            return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
+          };
 
-  return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
-};
           // 5. Format des tarifs en euros
           const formatPrice = value => {
             if (value === null || value === undefined || value === '') {
@@ -3729,15 +3715,14 @@ const formatDate = value => {
             }) + ' €';
           };
 
-          // 6. Alternance des fonds : blanc / bleu clair
+          // 6. Alternance des fonds
           const getRowBackground = index =>
             index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
 
-          // 7. Générer une date et une ligne tarifaire par relevé
+          // 7. Générer les dates et lignes tarifaires
           competitionData.forEach((row, index) => {
             const rowBackground = getRowBackground(index);
 
-           
             // Colonne fixe des dates
             const dateClone = dateTemplate.cloneNode(true);
 
@@ -3747,120 +3732,135 @@ const formatDate = value => {
               'true'
             );
 
-            // Largeur de la colonne fixe
-            dateClone.style.setProperty(
-              'display',
-              'flex',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'align-items',
-              'center',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'justify-content',
-              'flex-start',
-              'important'
-            );
+            dateClone.style.setProperty('display', 'flex', 'important');
+            dateClone.style.setProperty('align-items', 'center', 'important');
+            dateClone.style.setProperty('justify-content', 'flex-start', 'important');
 
             dateClone.style.setProperty(
-              'width',
-              dateColumnWidth,
-              'important'
+              'width', dateColumnWidth, 'important'
             );
             dateClone.style.setProperty(
-              'min-width',
-              dateColumnWidth,
-              'important'
+              'min-width', dateColumnWidth, 'important'
             );
             dateClone.style.setProperty(
-              'max-width',
-              dateColumnWidth,
-              'important'
+              'max-width', dateColumnWidth, 'important'
             );
             dateClone.style.setProperty(
-              'flex',
-              '0 0 30px',
-              'important'
+              'flex', '0 0 ' + dateColumnWidth, 'important'
             );
 
-            // Hauteur identique à une ligne de tarifs
-            dateClone.style.setProperty(
-              'height',
-              '30px',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'min-height',
-              '30px',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'max-height',
-              '30px',
-              'important'
-            );
+            // Hauteur identique à une ligne tarifaire
+            dateClone.style.setProperty('height', '30px', 'important');
+            dateClone.style.setProperty('min-height', '30px', 'important');
+            dateClone.style.setProperty('max-height', '30px', 'important');
 
             // Texte sur une seule ligne
-            dateClone.style.setProperty(
-              'white-space',
-              'nowrap',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'overflow',
-              'visible',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'box-sizing',
-              'border-box',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'padding',
-              '0',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'margin',
-              '0',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'line-height',
-              'normal',
-              'important'
-            );
-            dateClone.style.setProperty(
-              'letter-spacing',
-              'normal',
-              'important'
-            );
+            dateClone.style.setProperty('white-space', 'nowrap', 'important');
+            dateClone.style.setProperty('overflow', 'visible', 'important');
+            dateClone.style.setProperty('box-sizing', 'border-box', 'important');
+            dateClone.style.setProperty('padding', '0', 'important');
+            dateClone.style.setProperty('margin', '0', 'important');
+            dateClone.style.setProperty('line-height', 'normal', 'important');
+            dateClone.style.setProperty('letter-spacing', 'normal', 'important');
 
             dateClone.style.backgroundColor = rowBackground;
-            dateClone.innerHTML = formatDate(row.date);
             dateClone.style.color = '#111111';
+            dateClone.innerHTML = formatDate(row.date);
 
-            // Police mobile lisible
             if (isMobileCompetition) {
-              dateClone.style.setProperty(
-                'font-size',
-                '12px',
-                'important'
-              );
-              dateClone.style.setProperty(
-                'font-family',
-                'inherit',
-                'important'
-              );
-              dateClone.style.setProperty(
-                'font-weight',
-                '400',
-                'important'
-              );
+              dateClone.style.setProperty('font-size', '12px', 'important');
+              dateClone.style.setProperty('font-family', 'inherit', 'important');
+              dateClone.style.setProperty('font-weight', '400', 'important');
             }
+
+            datesContainer.appendChild(dateClone);
+
+            // Ligne des tarifs
+            const dataClone = dataTemplate.cloneNode(true);
+
+            dataClone.removeAttribute('id');
+            dataClone.setAttribute(
+              'data-tz-concurrence-generated',
+              'true'
+            );
+            dataClone.style.display = '';
+            dataClone.style.backgroundColor = 'transparent';
+
+            // Appliquer le fond aux cinq cases
+            dataClone.querySelectorAll(
+              '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
+            ).forEach(cell => {
+              cell.style.setProperty(
+                'background-color',
+                rowBackground,
+                'important'
+              );
+            });
+
+            const fields = [
+              ['tarif-mon-hotel', row.hotel_price],
+              ['tarif-concurrent-1', row.competitor_1_price],
+              ['tarif-concurrent-2', row.competitor_2_price],
+              ['tarif-concurrent-3', row.competitor_3_price],
+              ['tarif-median', row.competitor_median]
+            ];
+
+            fields.forEach(([fieldId, value]) => {
+              const cell = dataClone.querySelector(`#${fieldId}`);
+
+              if (!cell) {
+                console.warn(
+                  `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
+                );
+                return;
+              }
+
+              cell.textContent = formatPrice(value);
+
+              // Couleur du tarif de l'hôtel selon la médiane
+              if (fieldId === 'tarif-mon-hotel') {
+                const hasHotelPrice =
+                  value !== null &&
+                  value !== undefined &&
+                  value !== '';
+
+                const hasMedian =
+                  row.competitor_median !== null &&
+                  row.competitor_median !== undefined &&
+                  row.competitor_median !== '';
+
+                const hotelPrice = Number(value);
+                const medianPrice = Number(row.competitor_median);
+
+                if (
+                  !hasHotelPrice ||
+                  !hasMedian ||
+                  !Number.isFinite(hotelPrice) ||
+                  !Number.isFinite(medianPrice)
+                ) {
+                  cell.style.color = '#6B7280';
+                } else if (hotelPrice >= medianPrice) {
+                  cell.style.color = '#16A34A';
+                } else {
+                  cell.style.color = '#DC2626';
+                }
+              }
+
+              cell.removeAttribute('id');
+            });
+
+            dataContainer.appendChild(dataClone);
+          });
+
+          console.log('📊 [API06] Concurrence chargée :', {
+            dates: competitionData.length,
+            concurrents: competitors
+          });
+        }
+      }
+    } catch (err06) {
+      console.error('[API06] Erreur de chargement :', err06);
+    }
 
  
 
