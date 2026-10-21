@@ -3620,41 +3620,66 @@ try {
           dateTemplate.style.display = 'none';
           dataTemplate.style.display = 'none';
 
-          // 4. Format de date : Jeudi 01er Octobre 2026
-          const formatDate = value => {
-            if (!value) return '—';
+          // 4. Format des dates : long sur desktop, court sur mobile
+const formatDate = value => {
+  if (!value) return '—';
 
-            const parts = String(value).split('-').map(Number);
+  const parts = String(value).split('-').map(Number);
 
-            if (parts.length !== 3 || parts.some(Number.isNaN)) {
-              return '—';
-            }
+  if (parts.length !== 3 || parts.some(Number.isNaN)) {
+    return '—';
+  }
 
-            const date = new Date(parts[0], parts[1] - 1, parts[2]);
+  const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
-            const weekday = new Intl.DateTimeFormat('fr-FR', {
-              weekday: 'long'
-            }).format(date);
+  // Détecter le mobile
+  const isMobile = window.matchMedia(
+    '(max-width: 479px)'
+  ).matches;
 
-            const month = new Intl.DateTimeFormat('fr-FR', {
-              month: 'long'
-            }).format(date);
+  if (isMobile) {
+    const jour = new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'short'
+    }).format(date).replace('.', '');
 
-            const weekdayCapitalized =
-              weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    const mois = new Intl.DateTimeFormat('fr-FR', {
+      month: 'short'
+    }).format(date).replace('.', '');
 
-            const monthCapitalized =
-              month.charAt(0).toUpperCase() + month.slice(1);
+    const jourCapitalise =
+      jour.charAt(0).toUpperCase() + jour.slice(1);
 
-            const day = String(parts[2]).padStart(2, '0');
+    const moisCapitalise =
+      mois.charAt(0).toUpperCase() + mois.slice(1);
 
-            if (parts[2] === 1) {
-              return `${weekdayCapitalized} ${day}<sup>er</sup> ${monthCapitalized} ${parts[0]}`;
-            }
+    const numeroFormate = String(parts[2]).padStart(2, '0');
 
-            return `${weekdayCapitalized} ${day} ${monthCapitalized} ${parts[0]}`;
-          };
+    return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
+  }
 
+  // Format desktop conservé
+  const jour = new Intl.DateTimeFormat('fr-FR', {
+    weekday: 'long'
+  }).format(date);
+
+  const mois = new Intl.DateTimeFormat('fr-FR', {
+    month: 'long'
+  }).format(date);
+
+  const jourCapitalise =
+    jour.charAt(0).toUpperCase() + jour.slice(1);
+
+  const moisCapitalise =
+    mois.charAt(0).toUpperCase() + mois.slice(1);
+
+  const numeroFormate = String(parts[2]).padStart(2, '0');
+
+  if (parts[2] === 1) {
+    return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
+  }
+
+  return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
+};
           // 5. Format des tarifs en euros
           const formatPrice = value => {
             if (value === null || value === undefined || value === '') {
