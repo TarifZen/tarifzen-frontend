@@ -3737,6 +3737,7 @@ const formatDate = value => {
           competitionData.forEach((row, index) => {
             const rowBackground = getRowBackground(index);
 
+           
             // Colonne fixe des dates
             const dateClone = dateTemplate.cloneNode(true);
 
@@ -3745,114 +3746,121 @@ const formatDate = value => {
               'data-tz-concurrence-generated',
               'true'
             );
-           dateClone.style.setProperty('display', 'block', 'important');
-dateClone.style.setProperty('width', dateColumnWidth, 'important');
-dateClone.style.setProperty('min-width', dateColumnWidth, 'important');
-dateClone.style.setProperty('max-width', dateColumnWidth, 'important');
-dateClone.style.setProperty('flex', '0 0 ' + dateColumnWidth, 'important');
-dateClone.style.setProperty('white-space', 'nowrap', 'important');
-dateClone.style.setProperty('overflow', 'visible', 'important');
-dateClone.style.setProperty('box-sizing', 'border-box', 'important');
-dateClone.style.setProperty('line-height', 'normal', 'important');
 
-dateClone.style.backgroundColor = rowBackground;
-dateClone.innerHTML = formatDate(row.date);
-dateClone.style.color = '#111111';
-
-// Taille de texte adaptée au mobile
-if (isMobileCompetition) {
-  dateClone.style.setProperty('font-size', '11px', 'important');
-  dateClone.style.setProperty('letter-spacing', '-0.3px', 'important');
-}
-
-            datesContainer.appendChild(dateClone);
-
-            // Ligne des tarifs
-            const dataClone = dataTemplate.cloneNode(true);
-
-            dataClone.removeAttribute('id');
-            dataClone.setAttribute(
-              'data-tz-concurrence-generated',
-              'true'
+            // Largeur de la colonne fixe
+            dateClone.style.setProperty(
+              'display',
+              'flex',
+              'important'
             );
-            dataClone.style.display = '';
-            dataClone.style.backgroundColor = 'transparent';
+            dateClone.style.setProperty(
+              'align-items',
+              'center',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'justify-content',
+              'flex-start',
+              'important'
+            );
 
-            // Appliquer le fond directement aux cinq cases
-            dataClone.querySelectorAll(
-              '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
-            ).forEach(cell => {
-              cell.style.setProperty(
-                'background-color',
-                rowBackground,
+            dateClone.style.setProperty(
+              'width',
+              dateColumnWidth,
+              'important'
+            );
+            dateClone.style.setProperty(
+              'min-width',
+              dateColumnWidth,
+              'important'
+            );
+            dateClone.style.setProperty(
+              'max-width',
+              dateColumnWidth,
+              'important'
+            );
+            dateClone.style.setProperty(
+              'flex',
+              '0 0 30px',
+              'important'
+            );
+
+            // Hauteur identique à une ligne de tarifs
+            dateClone.style.setProperty(
+              'height',
+              '30px',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'min-height',
+              '30px',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'max-height',
+              '30px',
+              'important'
+            );
+
+            // Texte sur une seule ligne
+            dateClone.style.setProperty(
+              'white-space',
+              'nowrap',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'overflow',
+              'visible',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'box-sizing',
+              'border-box',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'padding',
+              '0',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'margin',
+              '0',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'line-height',
+              'normal',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'letter-spacing',
+              'normal',
+              'important'
+            );
+
+            dateClone.style.backgroundColor = rowBackground;
+            dateClone.innerHTML = formatDate(row.date);
+            dateClone.style.color = '#111111';
+
+            // Police mobile lisible
+            if (isMobileCompetition) {
+              dateClone.style.setProperty(
+                'font-size',
+                '12px',
                 'important'
               );
-            });
-
-            const fields = [
-              ['tarif-mon-hotel', row.hotel_price],
-              ['tarif-concurrent-1', row.competitor_1_price],
-              ['tarif-concurrent-2', row.competitor_2_price],
-              ['tarif-concurrent-3', row.competitor_3_price],
-              ['tarif-median', row.competitor_median]
-            ];
-
-            fields.forEach(([fieldId, value]) => {
-              const cell = dataClone.querySelector(`#${fieldId}`);
-
-              if (!cell) {
-                console.warn(
-                  `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
-                );
-                return;
-              }
-
-              cell.textContent = formatPrice(value);
-
-              // 8. Couleur du tarif de mon hôtel selon le tarif médian
-              if (fieldId === 'tarif-mon-hotel') {
-                const hasHotelPrice =
-                  value !== null &&
-                  value !== undefined &&
-                  value !== '';
-
-                const hasMedian =
-                  row.competitor_median !== null &&
-                  row.competitor_median !== undefined &&
-                  row.competitor_median !== '';
-
-                const hotelPrice = Number(value);
-                const medianPrice = Number(row.competitor_median);
-
-                if (
-                  !hasHotelPrice ||
-                  !hasMedian ||
-                  !Number.isFinite(hotelPrice) ||
-                  !Number.isFinite(medianPrice)
-                ) {
-                  cell.style.color = '#6B7280';
-                } else if (hotelPrice >= medianPrice) {
-                  cell.style.color = '#16A34A';
-                } else {
-                  cell.style.color = '#DC2626';
-                }
-              }
-
-              cell.removeAttribute('id');
-            });
-
-            dataContainer.appendChild(dataClone);
-          });
-
-          console.log('📊 [API06] Concurrence chargée :', {
-            dates: competitionData.length,
-            concurrents: competitors
-          });
-        }
-      }
-    } catch (err06) {
-      console.error('[API06] Erreur de chargement :', err06);
-    }
+              dateClone.style.setProperty(
+                'font-family',
+                'inherit',
+                'important'
+              );
+              dateClone.style.setProperty(
+                'font-weight',
+                '400',
+                'important'
+              );
+            }
 
  
 
