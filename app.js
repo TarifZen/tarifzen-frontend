@@ -3590,8 +3590,19 @@ try {
       ? result06.data
       : [];
 
-    // 1. En-têtes des concurrents
+    
+    // --------------------------------------------------
+    // 1. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
+    // --------------------------------------------------
+
     const headerNames = [
+      [
+        'name-mon-hotel',
+        result06?.hotel?.name
+          ?? result06?.hotel_name
+          ?? result06?.hotel?.nom
+          ?? result06?.hotel?.nom_hotel
+      ],
       ['name-concurrent-1', competitors.competitor_1_name],
       ['name-concurrent-2', competitors.competitor_2_name],
       ['name-concurrent-3', competitors.competitor_3_name]
@@ -3601,11 +3612,21 @@ try {
       const element = document.getElementById(id);
 
       if (element) {
-        element.textContent = name || 'Concurrent non renseigné';
+        element.textContent = name || 'Non renseigné';
       } else {
         console.warn(`[API06] Élément #${id} introuvable.`);
       }
     });
+
+    // Libellé de la médiane
+    const medianElement = document.querySelector('.prix.median');
+
+    if (medianElement) {
+      medianElement.textContent = 'Médiane';
+    } else {
+      console.warn('[API06] Élément .prix.median introuvable.');
+    }
+
 
     // 2. Conteneurs et modèles Webflow
     const datesContainer = document.getElementById(
