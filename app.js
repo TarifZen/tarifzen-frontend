@@ -3727,6 +3727,7 @@ try {
       competitionData.forEach((row, index) => {
         const rowBackground = getRowBackground(index);
 
+       
         // --------------------------------------------------
         // COLONNE FIXE DES DATES
         // --------------------------------------------------
@@ -3738,12 +3739,12 @@ try {
           'true'
         );
 
+        // Affichage et alignement
         dateClone.style.setProperty('display', 'flex', 'important');
         dateClone.style.setProperty('align-items', 'center', 'important');
-        dateClone.style.setProperty(
-          'justify-content', 'flex-start', 'important'
-        );
+        dateClone.style.setProperty('justify-content', 'center', 'important');
 
+        // Largeur de la colonne fixe
         dateClone.style.setProperty(
           'width', dateColumnWidth, 'important'
         );
@@ -3753,7 +3754,6 @@ try {
         dateClone.style.setProperty(
           'max-width', dateColumnWidth, 'important'
         );
-
         dateClone.style.setProperty(
           'flex', '0 0 ' + dateColumnWidth, 'important'
         );
@@ -3771,62 +3771,62 @@ try {
           'border-radius', '10px', 'important'
         );
 
-        // Espacement : 12 px sous chaque date
+        // Espacement sous chaque date
         dateClone.style.setProperty(
           'margin', '0 0 12px 0', 'important'
         );
 
-       // Texte et alignement des dates
-dateClone.style.setProperty(
-  'padding', '0 5px', 'important'
-);
-dateClone.style.setProperty(
-  'box-sizing', 'border-box', 'important'
-);
-dateClone.style.setProperty(
-  'text-align', 'center', 'important'
-);
-dateClone.style.setProperty(
-  'justify-content', 'center', 'important'
-);
-dateClone.style.setProperty(
-  'align-items', 'center', 'important'
-);
-dateClone.style.setProperty(
-  'white-space', 'nowrap', 'important'
-);
-dateClone.style.setProperty(
-  'overflow', 'visible', 'important'
-);
-dateClone.style.setProperty(
-  'line-height', '20px', 'important'
-);
-dateClone.style.setProperty(
-  'letter-spacing', 'normal', 'important'
-);
-dateClone.style.setProperty(
-  'font-family', 'Inter, sans-serif', 'important'
-);
-dateClone.style.setProperty(
-  'font-size', '14px', 'important'
-);
-dateClone.style.setProperty(
-  'font-weight', '400', 'important'
-);
-dateClone.style.setProperty(
-  'color', '#333333', 'important'
-);
-        dateClone.style.backgroundColor = rowBackground;
-        dateClone.style.color = '#111111';
+        // Texte et dimensions internes
+        dateClone.style.setProperty(
+          'padding', '0 5px', 'important'
+        );
+        dateClone.style.setProperty(
+          'box-sizing', 'border-box', 'important'
+        );
+        dateClone.style.setProperty(
+          'text-align', 'center', 'important'
+        );
+        dateClone.style.setProperty(
+          'white-space', 'nowrap', 'important'
+        );
+        dateClone.style.setProperty(
+          'overflow', 'visible', 'important'
+        );
+
+        // Police harmonisée : desktop et mobile
+        dateClone.style.setProperty(
+          'font-family', 'Inter, sans-serif', 'important'
+        );
+        dateClone.style.setProperty(
+          'font-size', '14px', 'important'
+        );
+        dateClone.style.setProperty(
+          'font-weight', '400', 'important'
+        );
+        dateClone.style.setProperty(
+          'font-style', 'normal', 'important'
+        );
+        dateClone.style.setProperty(
+          'line-height', '20px', 'important'
+        );
+        dateClone.style.setProperty(
+          'letter-spacing', 'normal', 'important'
+        );
+        dateClone.style.setProperty(
+          'color', '#333333', 'important'
+        );
+
+        // Fond de la ligne
+        dateClone.style.setProperty(
+          'background-color', rowBackground, 'important'
+        );
+
+        // Contenu de la date
         dateClone.innerHTML = formatDate(row.date);
 
-        if (isMobileCompetition) {
-          dateClone.style.setProperty('font-size', '12px', 'important');
-          dateClone.style.setProperty('font-family', 'inherit', 'important');
-          dateClone.style.setProperty('font-weight', '400', 'important');
-        }
-
+        // Ajout au conteneur
         datesContainer.appendChild(dateClone);
+
 
         // --------------------------------------------------
         // COLONNE DES TARIFS
