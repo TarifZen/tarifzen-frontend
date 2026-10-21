@@ -3749,10 +3749,30 @@ try {
               'flex', '0 0 ' + dateColumnWidth, 'important'
             );
 
-            // Hauteur identique à une ligne tarifaire
+            
+            // Hauteur et apparence des dates sur mobile
             dateClone.style.setProperty('height', '30px', 'important');
             dateClone.style.setProperty('min-height', '30px', 'important');
             dateClone.style.setProperty('max-height', '30px', 'important');
+
+            // Bordure et coins arrondis identiques à Webflow
+            dateClone.style.setProperty(
+              'border',
+              '1px solid #d1d1d6',
+              'important'
+            );
+            dateClone.style.setProperty(
+              'border-radius',
+              '10px',
+              'important'
+            );
+
+            // Espacement entre les cellules
+            dateClone.style.setProperty(
+              'margin-bottom',
+              '10px',
+              'important'
+            );
 
             // Texte sur une seule ligne
             dateClone.style.setProperty('white-space', 'nowrap', 'important');
