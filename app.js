@@ -3620,6 +3620,39 @@ try {
           dateTemplate.style.display = 'none';
           dataTemplate.style.display = 'none';
 
+          // 3 bis. Forcer la largeur de la colonne des dates
+const isMobileCompetition = window.matchMedia(
+  '(max-width: 479px)'
+).matches;
+
+const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
+
+datesContainer.style.setProperty(
+  'width',
+  dateColumnWidth,
+  'important'
+);
+datesContainer.style.setProperty(
+  'min-width',
+  dateColumnWidth,
+  'important'
+);
+datesContainer.style.setProperty(
+  'max-width',
+  dateColumnWidth,
+  'important'
+);
+datesContainer.style.setProperty(
+  'flex-shrink',
+  '0',
+  'important'
+);
+datesContainer.style.setProperty(
+  'box-sizing',
+  'border-box',
+  'important'
+);
+
           // 4. Format des dates : long sur desktop, court sur mobile
 const formatDate = value => {
   if (!value) return '—';
