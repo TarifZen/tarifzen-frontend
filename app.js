@@ -4394,6 +4394,13 @@ if (elSubscriptionProfitability) {
    );
  }
 
+} catch (err) {
+  console.error(
+    "Erreur globale lors de l'initialisation :",
+    err.message
+  );
+}
+}
 
 
   
