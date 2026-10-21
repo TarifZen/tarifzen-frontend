@@ -4280,7 +4280,7 @@ try {
             );
           });
 
-          console.log('📊 [API06] Concurrence chargée :', {
+                    console.log('📊 [API06] Concurrence chargée :', {
             dates: competitionData.length,
             hotel: hotelName,
             concurrents: [
@@ -4289,6 +4289,14 @@ try {
               competitor3Name
             ]
           });
+        }
+      }
+    } catch (err06) {
+      console.error(
+        '[API06] Erreur de chargement :',
+        err06
+      );
+    }
 
  
 
