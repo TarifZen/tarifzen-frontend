@@ -3776,26 +3776,46 @@ try {
           'margin', '0 0 12px 0', 'important'
         );
 
-        // Texte et alignement
-        dateClone.style.setProperty(
-          'padding', isMobileCompetition ? '0 5px' : '0', 'important'
-        );
-        dateClone.style.setProperty(
-          'box-sizing', 'border-box', 'important'
-        );
-        dateClone.style.setProperty(
-          'white-space', 'nowrap', 'important'
-        );
-        dateClone.style.setProperty(
-          'overflow', 'visible', 'important'
-        );
-        dateClone.style.setProperty(
-          'line-height', 'normal', 'important'
-        );
-        dateClone.style.setProperty(
-          'letter-spacing', 'normal', 'important'
-        );
-
+       // Texte et alignement des dates
+dateClone.style.setProperty(
+  'padding', '0 5px', 'important'
+);
+dateClone.style.setProperty(
+  'box-sizing', 'border-box', 'important'
+);
+dateClone.style.setProperty(
+  'text-align', 'center', 'important'
+);
+dateClone.style.setProperty(
+  'justify-content', 'center', 'important'
+);
+dateClone.style.setProperty(
+  'align-items', 'center', 'important'
+);
+dateClone.style.setProperty(
+  'white-space', 'nowrap', 'important'
+);
+dateClone.style.setProperty(
+  'overflow', 'visible', 'important'
+);
+dateClone.style.setProperty(
+  'line-height', 'normal', 'important'
+);
+dateClone.style.setProperty(
+  'letter-spacing', 'normal', 'important'
+);
+dateClone.style.setProperty(
+  'font-family', 'Inter, sans-serif', 'important'
+);
+dateClone.style.setProperty(
+  'font-size', '14px', 'important'
+);
+dateClone.style.setProperty(
+  'font-weight', '400', 'important'
+);
+dateClone.style.setProperty(
+  'color', '#333333', 'important'
+);
         dateClone.style.backgroundColor = rowBackground;
         dateClone.style.color = '#111111';
         dateClone.innerHTML = formatDate(row.date);
