@@ -4062,7 +4062,7 @@ try {
 
             datesContainer.appendChild(dateClone);
 
-            // ----------------------------------------------
+                        // ----------------------------------------------
             // COLONNE DES TARIFS
             // ----------------------------------------------
 
@@ -4201,6 +4201,85 @@ try {
             dataContainer.appendChild(dataClone);
           });
 
+          // --------------------------------------------------
+          // 8. ALIGNEMENT PRÉCIS DES DATES ET DES TARIFS
+          // --------------------------------------------------
+
+          requestAnimationFrame(() => {
+            const firstDate = datesContainer.querySelector(
+              ':scope > [data-tz-concurrence-generated="true"]'
+            );
+
+            const firstDataRow = dataContainer.querySelector(
+              ':scope > [data-tz-concurrence-generated="true"]'
+            );
+
+            if (!firstDate || !firstDataRow) {
+              console.warn(
+                '[API06] Alignement impossible : première date ou première ligne tarifaire introuvable.',
+                {
+                  firstDateFound: !!firstDate,
+                  firstDataRowFound: !!firstDataRow
+                }
+              );
+              return;
+            }
+
+            // Annuler tout ancien décalage avant la mesure
+            datesContainer
+              .querySelectorAll(
+                ':scope > [data-tz-concurrence-generated="true"]'
+              )
+              .forEach(dateElement => {
+                dateElement.style.setProperty(
+                  'transform',
+                  'none',
+                  'important'
+                );
+
+                dateElement.style.setProperty(
+                  'top',
+                  '0px',
+                  'important'
+                );
+              });
+
+            // Mesurer après suppression des anciens décalages
+            const dateTop =
+              firstDate.getBoundingClientRect().top;
+
+            const dataTop =
+              firstDataRow.getBoundingClientRect().top;
+
+            // Écart vertical réel entre les deux premières lignes
+            const offset = dataTop - dateTop;
+
+            // Appliquer exactement le même décalage à chaque date
+            datesContainer
+              .querySelectorAll(
+                ':scope > [data-tz-concurrence-generated="true"]'
+              )
+              .forEach(dateElement => {
+                dateElement.style.setProperty(
+                  'transform',
+                  `translateY(${offset}px)`,
+                  'important'
+                );
+              });
+
+            console.log(
+              '[API06] Alignement dates/tarifs :',
+              {
+                premiereDateTop: Math.round(dateTop * 100) / 100,
+                premiereLigneTarifTop:
+                  Math.round(dataTop * 100) / 100,
+                decalageApplique:
+                  Math.round(offset * 100) / 100,
+                mobile: isMobileCompetition
+              }
+            );
+          });
+
           console.log('📊 [API06] Concurrence chargée :', {
             dates: competitionData.length,
             hotel: hotelName,
@@ -4210,14 +4289,6 @@ try {
               competitor3Name
             ]
           });
-        }
-      }
-    } catch (err06) {
-      console.error(
-        '[API06] Erreur de chargement :',
-        err06
-      );
-    }
 
  
 
