@@ -3799,7 +3799,7 @@ dateClone.style.setProperty(
   'overflow', 'visible', 'important'
 );
 dateClone.style.setProperty(
-  'line-height', 'normal', 'important'
+  'line-height', '20px', 'important'
 );
 dateClone.style.setProperty(
   'letter-spacing', 'normal', 'important'
