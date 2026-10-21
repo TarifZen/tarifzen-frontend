@@ -3900,7 +3900,10 @@ try {
             return;
           }
 
-          cell.textContent = formatPrice(value);
+          cell.textContent =
+  value === null || value === undefined || value === ''
+    ? '—'
+    : `${Math.round(Number(value)).toLocaleString('fr-FR')} €`;
 
           // Couleur du tarif de l'hôtel selon la médiane
           if (fieldId === 'tarif-mon-hotel') {
