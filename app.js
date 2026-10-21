@@ -2852,36 +2852,51 @@ if (gainEl) {
       newCard.classList.remove('is-analyse');
     }
     
-// ============================================================
-// BOTTOM ROUGE / ORANGE
-// ============================================================
-const bottomOrange = newCard.querySelector(
-  '.bottom-orange, .bandeau-orange, #bottom-orange'
-);
 
-const bottomRed = newCard.querySelector(
-  '.bottom-red, .bottom-rouge, .bandeau-rouge, #bottom-rouge'
-);
+ // ============================================================
+ // BOTTOM ROUGE / ORANGE
+ // ============================================================
+ const bottomOrange = newCard.querySelector(
+   '.bottom-orange, .bandeau-orange, #bottom-orange'
+ );
 
-if (isAnalyse) {
-  if (bottomOrange) {
-    bottomOrange.style.display = 'block';
-  }
+ const bottomRed = newCard.querySelector(
+   '.bottom-red, .bottom-rouge, .bandeau-rouge, #bottom-rouge'
+ );
 
-  if (bottomRed) {
-    bottomRed.style.display = 'none';
-  }
+ // Sur mobile : aucun bandeau en bas des cartes
+ if (window.matchMedia('(max-width: 767px)').matches) {
 
-} else {
+   if (bottomOrange) {
+     bottomOrange.style.setProperty('display', 'none', 'important');
+   }
 
-  if (bottomOrange) {
-    bottomOrange.style.display = 'none';
-  }
+   if (bottomRed) {
+     bottomRed.style.setProperty('display', 'none', 'important');
+   }
 
-  if (bottomRed) {
-    bottomRed.style.display = 'block';
-  }
-}
+ } else {
+
+   // Sur desktop : comportement actuel conservé
+   if (isAnalyse) {
+     if (bottomOrange) {
+       bottomOrange.style.display = 'block';
+     }
+
+     if (bottomRed) {
+       bottomRed.style.display = 'none';
+     }
+
+   } else {
+     if (bottomOrange) {
+       bottomOrange.style.display = 'none';
+     }
+
+     if (bottomRed) {
+       bottomRed.style.display = 'block';
+     }
+   }
+ }
 
     // ============================================================
     // AJOUT DE LA CARTE AU CONTENEUR
