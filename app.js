@@ -3498,6 +3498,11 @@ try {
          dataClone.setAttribute('data-tz-pickup-generated', 'true');
          dataClone.style.display = '';
          dataClone.style.backgroundColor = 'transparent';
+          dataClone.style.setProperty(
+              'margin-bottom',
+              '10px',
+              'important'
+            );
 
          // Appliquer le fond directement à chaque case
          dataClone.querySelectorAll(
