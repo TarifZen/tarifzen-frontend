@@ -3935,18 +3935,29 @@ template.style.setProperty('display', 'none', 'important');
       nameEl.textContent = event.name || '';
     }
 
-    if (impactEl) {
-      const impact = String(event.impact || '').trim();
+if (impactEl) {
+  const impact = String(event.impact || '').trim();
 
-      const impactIcons = {
-        fort: '🔥',
-        moyen: '⚡',
-        faible: '📅'
-      };
+  const impactIcons = {
+    fort: '🔥',
+    moyen: '⚡',
+    faible: '📅'
+  };
 
-      const icon = impactIcons[impact.toLowerCase()] || '📅';
-      impactEl.textContent = `${icon} ${impact}`;
-    }
+  const icon = impactIcons[impact.toLowerCase()] || '📅';
+
+  impactEl.replaceChildren();
+
+  const iconEl = document.createElement('span');
+  iconEl.className = 'tz-calendar-event-icon';
+  iconEl.textContent = icon;
+
+  const textEl = document.createElement('span');
+  textEl.className = 'tz-calendar-event-impact';
+  textEl.textContent = impact;
+
+  impactEl.append(iconEl, document.createTextNode(' '), textEl);
+}
 
     // Insérer la carte complète après le modèle.
 parent.appendChild(card);
