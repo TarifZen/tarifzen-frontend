@@ -4386,6 +4386,7 @@ if (elSubscriptionProfitability) {
 
      console.log('📊 [API08] Performances chargées :', data08);
    }
+ 
  } catch (err08) {
    console.error(
      '[API08] Erreur inattendue :',
@@ -4393,14 +4394,6 @@ if (elSubscriptionProfitability) {
    );
  }
 
-
-} catch (err) {
-console.error(
-" Erreur globale lors de l'initialisation :",
-err.message
-);
-}
-}
 
 
   
