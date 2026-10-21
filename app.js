@@ -3745,10 +3745,25 @@ const formatDate = value => {
               'data-tz-concurrence-generated',
               'true'
             );
-            dateClone.style.display = '';
-            dateClone.style.backgroundColor = rowBackground;
-            dateClone.innerHTML = formatDate(row.date);
-            dateClone.style.color = '#111111';
+           dateClone.style.setProperty('display', 'block', 'important');
+dateClone.style.setProperty('width', dateColumnWidth, 'important');
+dateClone.style.setProperty('min-width', dateColumnWidth, 'important');
+dateClone.style.setProperty('max-width', dateColumnWidth, 'important');
+dateClone.style.setProperty('flex', '0 0 ' + dateColumnWidth, 'important');
+dateClone.style.setProperty('white-space', 'nowrap', 'important');
+dateClone.style.setProperty('overflow', 'visible', 'important');
+dateClone.style.setProperty('box-sizing', 'border-box', 'important');
+dateClone.style.setProperty('line-height', 'normal', 'important');
+
+dateClone.style.backgroundColor = rowBackground;
+dateClone.innerHTML = formatDate(row.date);
+dateClone.style.color = '#111111';
+
+// Taille de texte adaptée au mobile
+if (isMobileCompetition) {
+  dateClone.style.setProperty('font-size', '11px', 'important');
+  dateClone.style.setProperty('letter-spacing', '-0.3px', 'important');
+}
 
             datesContainer.appendChild(dateClone);
 
