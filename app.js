@@ -3569,407 +3569,656 @@ try {
  
     
     
-// ----------------------------------------------------------
-// API06 — CONCURRENCE
-// ----------------------------------------------------------
-try {
-  const response06 = await fetch(
-    `${API_BASE_URL}/api/v1/competition?hotel_id=${encodeURIComponent(targetHotelId)}`,
-    {
-      method: 'GET',
-      headers: requestHeaders
-    }
-  );
 
-  if (!response06.ok) {
-    console.error('[API06] Erreur HTTP :', response06.status);
-  } else {
-    const result06 = await response06.json();
-    const competitors = result06?.competitors ?? {};
-    const competitionData = Array.isArray(result06?.data)
-      ? result06.data
-      : [];
+    // ----------------------------------------------------------
+    // API06 — CONCURRENCE
+    // ----------------------------------------------------------
+    try {
+      const response06 = await fetch(
+        `${API_BASE_URL}/api/v1/competition?hotel_id=${encodeURIComponent(targetHotelId)}`,
+        {
+          method: 'GET',
+          headers: requestHeaders
+        }
+      );
 
-    
-    // --------------------------------------------------
-    // 1. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
-    // --------------------------------------------------
-
-    const headerNames = [
-      [
-        'name-mon-hotel',
-        result06?.hotel?.name
-          ?? result06?.hotel_name
-          ?? result06?.hotel?.nom
-          ?? result06?.hotel?.nom_hotel
-      ],
-      ['name-concurrent-1', competitors.competitor_1_name],
-      ['name-concurrent-2', competitors.competitor_2_name],
-      ['name-concurrent-3', competitors.competitor_3_name]
-    ];
-
-    headerNames.forEach(([id, name]) => {
-      const element = document.getElementById(id);
-
-      if (element) {
-        element.textContent = name || 'Non renseigné';
+      if (!response06.ok) {
+        console.error('[API06] Erreur HTTP :', response06.status);
       } else {
-        console.warn(`[API06] Élément #${id} introuvable.`);
-      }
-    });
-
-    // Libellé de la médiane
-    const medianElement = document.querySelector('.prix.median');
-
-    if (medianElement) {
-      medianElement.textContent = 'Médiane';
-    } else {
-      console.warn('[API06] Élément .prix.median introuvable.');
-    }
-
-
-    // 2. Conteneurs et modèles Webflow
-    const datesContainer = document.getElementById(
-      'colonne-date-fixe-concurrence'
-    );
-
-    const dataContainer = document.getElementById(
-      'colonne-date-scroll-concurrence'
-    );
-
-    const dateTemplate = document.getElementById('date-concurrence');
-    const dataTemplate = document.getElementById('line-concurrence');
-
-    if (!datesContainer || !dataContainer || !dateTemplate || !dataTemplate) {
-      console.error('[API06] Conteneurs ou modèles introuvables.', {
-        datesContainer: !!datesContainer,
-        dataContainer: !!dataContainer,
-        dateTemplate: !!dateTemplate,
-        dataTemplate: !!dataTemplate
-      });
-    } else {
-      // 3. Supprimer les anciennes lignes générées
-      datesContainer
-        .querySelectorAll('[data-tz-concurrence-generated="true"]')
-        .forEach(element => element.remove());
-
-      dataContainer
-        .querySelectorAll('[data-tz-concurrence-generated="true"]')
-        .forEach(element => element.remove());
-
-      // Masquer les modèles originaux
-      dateTemplate.style.display = 'none';
-      dataTemplate.style.display = 'none';
-
-      // 3 bis. Largeur de la colonne fixe
-      const isMobileCompetition = window.matchMedia(
-        '(max-width: 479px)'
-      ).matches;
-
-      const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
-
-      datesContainer.style.setProperty(
-        'width', dateColumnWidth, 'important'
-      );
-      datesContainer.style.setProperty(
-        'min-width', dateColumnWidth, 'important'
-      );
-      datesContainer.style.setProperty(
-        'max-width', dateColumnWidth, 'important'
-      );
-      datesContainer.style.setProperty(
-        'flex', '0 0 ' + dateColumnWidth, 'important'
-      );
-      datesContainer.style.setProperty(
-        'box-sizing', 'border-box', 'important'
-      );
-
-      // 4. Format des dates
-      const formatDate = value => {
-        if (!value) return '—';
-
-        const parts = String(value).split('-').map(Number);
-
-        if (parts.length !== 3 || parts.some(Number.isNaN)) {
-          return '—';
-        }
-
-        const date = new Date(parts[0], parts[1] - 1, parts[2]);
-
-        if (isMobileCompetition) {
-          const jour = new Intl.DateTimeFormat('fr-FR', {
-            weekday: 'short'
-          }).format(date).replace(/\.$/, '');
-
-          const mois = new Intl.DateTimeFormat('fr-FR', {
-            month: 'short'
-          }).format(date).replace(/\.$/, '');
-
-          const jourCapitalise =
-            jour.charAt(0).toUpperCase() + jour.slice(1);
-
-          const moisCapitalise =
-            mois.charAt(0).toUpperCase() + mois.slice(1);
-
-          const numeroFormate = String(parts[2]).padStart(2, '0');
-
-          return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
-        }
-
-        const jour = new Intl.DateTimeFormat('fr-FR', {
-          weekday: 'long'
-        }).format(date);
-
-        const mois = new Intl.DateTimeFormat('fr-FR', {
-          month: 'long'
-        }).format(date);
-
-        const jourCapitalise =
-          jour.charAt(0).toUpperCase() + jour.slice(1);
-
-        const moisCapitalise =
-          mois.charAt(0).toUpperCase() + mois.slice(1);
-
-        const numeroFormate = String(parts[2]).padStart(2, '0');
-
-        if (parts[2] === 1) {
-          return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
-        }
-
-        return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
-      };
-
-      // 5. Format des tarifs en euros
-      const formatPrice = value => {
-        if (value === null || value === undefined || value === '') {
-          return '—';
-        }
-
-        const number = Number(value);
-
-        if (!Number.isFinite(number)) return '—';
-
-        return number.toLocaleString('fr-FR', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2
-        }) + ' €';
-      };
-
-      // 6. Alternance des fonds
-      const getRowBackground = index =>
-        index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
-
-      // 7. Générer les dates et lignes tarifaires
-      competitionData.forEach((row, index) => {
-        const rowBackground = getRowBackground(index);
-
-       
-        // --------------------------------------------------
-        // COLONNE FIXE DES DATES
-        // --------------------------------------------------
-        const dateClone = dateTemplate.cloneNode(true);
-
-        dateClone.removeAttribute('id');
-        dateClone.setAttribute(
-          'data-tz-concurrence-generated',
-          'true'
-        );
-
-        // Affichage et alignement
-        dateClone.style.setProperty('display', 'flex', 'important');
-        dateClone.style.setProperty('align-items', 'center', 'important');
-        dateClone.style.setProperty('justify-content', 'center', 'important');
-
-        // Largeur de la colonne fixe
-        dateClone.style.setProperty(
-          'width', dateColumnWidth, 'important'
-        );
-        dateClone.style.setProperty(
-          'min-width', dateColumnWidth, 'important'
-        );
-        dateClone.style.setProperty(
-          'max-width', dateColumnWidth, 'important'
-        );
-        dateClone.style.setProperty(
-          'flex', '0 0 ' + dateColumnWidth, 'important'
-        );
-
-        // Hauteur harmonisée avec les lignes tarifaires
-        dateClone.style.setProperty('height', '35px', 'important');
-        dateClone.style.setProperty('min-height', '35px', 'important');
-        dateClone.style.setProperty('max-height', '35px', 'important');
-
-        // Bordure et coins arrondis
-        dateClone.style.setProperty(
-          'border', '1px solid #d1d1d6', 'important'
-        );
-        dateClone.style.setProperty(
-          'border-radius', '10px', 'important'
-        );
-
-        // Espacement sous chaque date
-        dateClone.style.setProperty(
-          'margin', '0 0 12px 0', 'important'
-        );
-
-        // Texte et dimensions internes
-        dateClone.style.setProperty(
-          'padding', '0 5px', 'important'
-        );
-        dateClone.style.setProperty(
-          'box-sizing', 'border-box', 'important'
-        );
-        dateClone.style.setProperty(
-          'text-align', 'center', 'important'
-        );
-        dateClone.style.setProperty(
-          'white-space', 'nowrap', 'important'
-        );
-        dateClone.style.setProperty(
-          'overflow', 'visible', 'important'
-        );
-
-        // Police harmonisée : desktop et mobile
-        dateClone.style.setProperty(
-          'font-family', 'Inter, sans-serif', 'important'
-        );
-        dateClone.style.setProperty(
-          'font-size', '14px', 'important'
-        );
-        dateClone.style.setProperty(
-          'font-weight', '400', 'important'
-        );
-        dateClone.style.setProperty(
-          'font-style', 'normal', 'important'
-        );
-        dateClone.style.setProperty(
-          'line-height', '20px', 'important'
-        );
-        dateClone.style.setProperty(
-          'letter-spacing', 'normal', 'important'
-        );
-        dateClone.style.setProperty(
-          'color', '#333333', 'important'
-        );
-
-        // Fond de la ligne
-        dateClone.style.setProperty(
-          'background-color', rowBackground, 'important'
-        );
-
-        // Contenu de la date
-        dateClone.innerHTML = formatDate(row.date);
-
-        // Ajout au conteneur
-        datesContainer.appendChild(dateClone);
-
+        const result06 = await response06.json();
+        const competitors = result06?.competitors ?? {};
+        const competitionData = Array.isArray(result06?.data)
+          ? result06.data
+          : [];
 
         // --------------------------------------------------
-        // COLONNE DES TARIFS
+        // 1. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
         // --------------------------------------------------
-        const dataClone = dataTemplate.cloneNode(true);
 
-        dataClone.removeAttribute('id');
-        dataClone.setAttribute(
-          'data-tz-concurrence-generated',
-          'true'
-        );
+        let hotelInfo = null;
 
-        dataClone.style.display = '';
-        dataClone.style.backgroundColor = 'transparent';
+        try {
+          const hotelSlug = window.location.pathname
+            .split('/')
+            .filter(Boolean)
+            .pop();
 
-        // Hauteur et espacement des lignes sur mobile
-        if (isMobileCompetition) {
-          dataClone.style.setProperty('display', 'flex', 'important');
-          dataClone.style.setProperty('height', '35px', 'important');
-          dataClone.style.setProperty('min-height', '35px', 'important');
-          dataClone.style.setProperty('max-height', '35px', 'important');
-          dataClone.style.setProperty(
-            'margin', '0 0 12px 0', 'important'
-          );
-          dataClone.style.setProperty(
-            'box-sizing', 'border-box', 'important'
+          const { data, error } = await window.supabaseClient
+            .from('data-store-hotels')
+            .select(`
+              nom_hotel,
+              nom_booking_comp_1,
+              nom_booking_comp_2,
+              nom_booking_comp_3
+            `)
+            .eq('nom_hotel', hotelSlug)
+            .maybeSingle();
+
+          if (error) {
+            console.error(
+              '[API06] Erreur récupération fiche hôtel :',
+              error
+            );
+          } else {
+            hotelInfo = data;
+          }
+        } catch (hotelError) {
+          console.error(
+            '[API06] Erreur Supabase :',
+            hotelError
           );
         }
 
-        // Appliquer le fond aux cinq cases
-        dataClone.querySelectorAll(
-          '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
-        ).forEach(cell => {
-          cell.style.setProperty(
-            'background-color',
-            rowBackground,
-            'important'
-          );
-        });
+        // Nom commercial de l'hôtel principal
+        const hotelName =
+          hotelInfo?.nom_hotel === 'citadineseurometropolestrasbourg'
+            ? 'Citadines Eurométropole Strasbourg'
+            : hotelInfo?.nom_hotel || 'Non renseigné';
 
-        const fields = [
-          ['tarif-mon-hotel', row.hotel_price],
-          ['tarif-concurrent-1', row.competitor_1_price],
-          ['tarif-concurrent-2', row.competitor_2_price],
-          ['tarif-concurrent-3', row.competitor_3_price],
-          ['tarif-median', row.competitor_median]
+        // Noms des concurrents : priorité aux données Supabase
+        const competitor1Name =
+          hotelInfo?.nom_booking_comp_1 ||
+          competitors.competitor_1_name;
+
+        const competitor2Name =
+          hotelInfo?.nom_booking_comp_2 ||
+          competitors.competitor_2_name;
+
+        const competitor3Name =
+          hotelInfo?.nom_booking_comp_3 ||
+          competitors.competitor_3_name;
+
+        const headerNames = [
+          ['name-mon-hotel', hotelName],
+          ['name-concurrent-1', competitor1Name],
+          ['name-concurrent-2', competitor2Name],
+          ['name-concurrent-3', competitor3Name]
         ];
 
-        fields.forEach(([fieldId, value]) => {
-          const cell = dataClone.querySelector(`#${fieldId}`);
+        headerNames.forEach(([id, name]) => {
+          const element = document.getElementById(id);
 
-          if (!cell) {
-            console.warn(
-              `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
-            );
-            return;
+          if (element) {
+            element.textContent = name || 'Non renseigné';
+          } else {
+            console.warn(`[API06] Élément #${id} introuvable.`);
           }
-
-          cell.textContent =
-  value === null || value === undefined || value === ''
-    ? '—'
-    : `${Math.round(Number(value)).toLocaleString('fr-FR')} €`;
-
-          // Couleur du tarif de l'hôtel selon la médiane
-          if (fieldId === 'tarif-mon-hotel') {
-            const hasHotelPrice =
-              value !== null &&
-              value !== undefined &&
-              value !== '';
-
-            const hasMedian =
-              row.competitor_median !== null &&
-              row.competitor_median !== undefined &&
-              row.competitor_median !== '';
-
-            const hotelPrice = Number(value);
-            const medianPrice = Number(row.competitor_median);
-
-            if (
-              !hasHotelPrice ||
-              !hasMedian ||
-              !Number.isFinite(hotelPrice) ||
-              !Number.isFinite(medianPrice)
-            ) {
-              cell.style.color = '#6B7280';
-            } else if (hotelPrice >= medianPrice) {
-              cell.style.color = '#16A34A';
-            } else {
-              cell.style.color = '#DC2626';
-            }
-          }
-
-          cell.removeAttribute('id');
         });
 
-        dataContainer.appendChild(dataClone);
-      });
+        // Libellé de la médiane
+        const medianElement = document.querySelector('.prix.median');
 
-      console.log('📊 [API06] Concurrence chargée :', {
-        dates: competitionData.length,
-        concurrents: competitors
-      });
+        if (medianElement) {
+          medianElement.textContent = 'Médiane';
+        } else {
+          console.warn(
+            '[API06] Élément .prix.median introuvable.'
+          );
+        }
+
+        // --------------------------------------------------
+        // 2. CONTENEURS ET MODÈLES WEBFLOW
+        // --------------------------------------------------
+
+        const datesContainer = document.getElementById(
+          'colonne-date-fixe-concurrence'
+        );
+
+        const dataContainer = document.getElementById(
+          'colonne-date-scroll-concurrence'
+        );
+
+        const dateTemplate = document.getElementById(
+          'date-concurrence'
+        );
+
+        const dataTemplate = document.getElementById(
+          'line-concurrence'
+        );
+
+        if (
+          !datesContainer ||
+          !dataContainer ||
+          !dateTemplate ||
+          !dataTemplate
+        ) {
+          console.error(
+            '[API06] Conteneurs ou modèles introuvables.',
+            {
+              datesContainer: !!datesContainer,
+              dataContainer: !!dataContainer,
+              dateTemplate: !!dateTemplate,
+              dataTemplate: !!dataTemplate
+            }
+          );
+        } else {
+          // --------------------------------------------------
+          // 3. SUPPRIMER LES ANCIENNES LIGNES GÉNÉRÉES
+          // --------------------------------------------------
+
+          datesContainer
+            .querySelectorAll(
+              '[data-tz-concurrence-generated="true"]'
+            )
+            .forEach(element => element.remove());
+
+          dataContainer
+            .querySelectorAll(
+              '[data-tz-concurrence-generated="true"]'
+            )
+            .forEach(element => element.remove());
+
+          // Masquer les modèles originaux
+          dateTemplate.style.display = 'none';
+          dataTemplate.style.display = 'none';
+
+          // --------------------------------------------------
+          // 3 BIS. LARGEUR DE LA COLONNE FIXE
+          // --------------------------------------------------
+
+          const isMobileCompetition = window.matchMedia(
+            '(max-width: 479px)'
+          ).matches;
+
+          const dateColumnWidth = isMobileCompetition
+            ? '165px'
+            : '220px';
+
+          datesContainer.style.setProperty(
+            'width',
+            dateColumnWidth,
+            'important'
+          );
+
+          datesContainer.style.setProperty(
+            'min-width',
+            dateColumnWidth,
+            'important'
+          );
+
+          datesContainer.style.setProperty(
+            'max-width',
+            dateColumnWidth,
+            'important'
+          );
+
+          datesContainer.style.setProperty(
+            'flex',
+            '0 0 ' + dateColumnWidth,
+            'important'
+          );
+
+          datesContainer.style.setProperty(
+            'box-sizing',
+            'border-box',
+            'important'
+          );
+
+          // --------------------------------------------------
+          // 4. FORMAT DES DATES
+          // --------------------------------------------------
+
+          const formatDate = value => {
+            if (!value) return '—';
+
+            const parts = String(value).split('-').map(Number);
+
+            if (
+              parts.length !== 3 ||
+              parts.some(Number.isNaN)
+            ) {
+              return '—';
+            }
+
+            const date = new Date(
+              parts[0],
+              parts[1] - 1,
+              parts[2]
+            );
+
+            if (isMobileCompetition) {
+              const jour = new Intl.DateTimeFormat('fr-FR', {
+                weekday: 'short'
+              })
+                .format(date)
+                .replace(/\.$/, '');
+
+              const mois = new Intl.DateTimeFormat('fr-FR', {
+                month: 'short'
+              })
+                .format(date)
+                .replace(/\.$/, '');
+
+              const jourCapitalise =
+                jour.charAt(0).toUpperCase() + jour.slice(1);
+
+              const moisCapitalise =
+                mois.charAt(0).toUpperCase() + mois.slice(1);
+
+              const numeroFormate = String(parts[2]).padStart(
+                2,
+                '0'
+              );
+
+              return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
+            }
+
+            const jour = new Intl.DateTimeFormat('fr-FR', {
+              weekday: 'long'
+            }).format(date);
+
+            const mois = new Intl.DateTimeFormat('fr-FR', {
+              month: 'long'
+            }).format(date);
+
+            const jourCapitalise =
+              jour.charAt(0).toUpperCase() + jour.slice(1);
+
+            const moisCapitalise =
+              mois.charAt(0).toUpperCase() + mois.slice(1);
+
+            const numeroFormate = String(parts[2]).padStart(
+              2,
+              '0'
+            );
+
+            if (parts[2] === 1) {
+              return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
+            }
+
+            return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
+          };
+
+          // --------------------------------------------------
+          // 5. FORMAT DES TARIFS EN EUROS
+          // --------------------------------------------------
+
+          const formatPrice = value => {
+            if (
+              value === null ||
+              value === undefined ||
+              value === ''
+            ) {
+              return '—';
+            }
+
+            const number = Number(value);
+
+            if (!Number.isFinite(number)) return '—';
+
+            return (
+              number.toLocaleString('fr-FR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              }) + ' €'
+            );
+          };
+
+          // --------------------------------------------------
+          // 6. ALTERNANCE DES FONDS
+          // --------------------------------------------------
+
+          const getRowBackground = index =>
+            index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
+
+          // --------------------------------------------------
+          // 7. GÉNÉRER LES DATES ET LIGNES TARIFAIRES
+          // --------------------------------------------------
+
+          competitionData.forEach((row, index) => {
+            const rowBackground = getRowBackground(index);
+
+            // ----------------------------------------------
+            // COLONNE FIXE DES DATES
+            // ----------------------------------------------
+
+            const dateClone = dateTemplate.cloneNode(true);
+
+            dateClone.removeAttribute('id');
+
+            dateClone.setAttribute(
+              'data-tz-concurrence-generated',
+              'true'
+            );
+
+            dateClone.style.setProperty(
+              'display',
+              'flex',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'align-items',
+              'center',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'justify-content',
+              'center',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'width',
+              dateColumnWidth,
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'min-width',
+              dateColumnWidth,
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'max-width',
+              dateColumnWidth,
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'flex',
+              '0 0 ' + dateColumnWidth,
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'height',
+              '35px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'min-height',
+              '35px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'max-height',
+              '35px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'border',
+              '1px solid #d1d1d6',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'border-radius',
+              '10px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'margin',
+              '0 0 12px 0',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'padding',
+              '0 5px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'box-sizing',
+              'border-box',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'text-align',
+              'center',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'white-space',
+              'nowrap',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'overflow',
+              'visible',
+              'important'
+            );
+
+            // Police harmonisée desktop et mobile
+            dateClone.style.setProperty(
+              'font-family',
+              'Inter, sans-serif',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'font-size',
+              '14px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'font-weight',
+              '400',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'font-style',
+              'normal',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'line-height',
+              '20px',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'letter-spacing',
+              'normal',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'color',
+              '#333333',
+              'important'
+            );
+
+            dateClone.style.setProperty(
+              'background-color',
+              rowBackground,
+              'important'
+            );
+
+            dateClone.innerHTML = formatDate(row.date);
+
+            datesContainer.appendChild(dateClone);
+
+            // ----------------------------------------------
+            // COLONNE DES TARIFS
+            // ----------------------------------------------
+
+            const dataClone = dataTemplate.cloneNode(true);
+
+            dataClone.removeAttribute('id');
+
+            dataClone.setAttribute(
+              'data-tz-concurrence-generated',
+              'true'
+            );
+
+            dataClone.style.display = '';
+            dataClone.style.backgroundColor = 'transparent';
+
+            // Hauteur et espacement mobile
+            if (isMobileCompetition) {
+              dataClone.style.setProperty(
+                'display',
+                'flex',
+                'important'
+              );
+
+              dataClone.style.setProperty(
+                'height',
+                '35px',
+                'important'
+              );
+
+              dataClone.style.setProperty(
+                'min-height',
+                '35px',
+                'important'
+              );
+
+              dataClone.style.setProperty(
+                'max-height',
+                '35px',
+                'important'
+              );
+
+              dataClone.style.setProperty(
+                'margin',
+                '0 0 12px 0',
+                'important'
+              );
+
+              dataClone.style.setProperty(
+                'box-sizing',
+                'border-box',
+                'important'
+              );
+            }
+
+            // Appliquer le fond aux cinq cases
+            dataClone.querySelectorAll(
+              '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
+            ).forEach(cell => {
+              cell.style.setProperty(
+                'background-color',
+                rowBackground,
+                'important'
+              );
+            });
+
+            const fields = [
+              ['tarif-mon-hotel', row.hotel_price],
+              ['tarif-concurrent-1', row.competitor_1_price],
+              ['tarif-concurrent-2', row.competitor_2_price],
+              ['tarif-concurrent-3', row.competitor_3_price],
+              ['tarif-median', row.competitor_median]
+            ];
+
+            fields.forEach(([fieldId, value]) => {
+              const cell = dataClone.querySelector(
+                `#${fieldId}`
+              );
+
+              if (!cell) {
+                console.warn(
+                  `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
+                );
+                return;
+              }
+
+              // Tarifs arrondis à l'euro entier
+              if (
+                value === null ||
+                value === undefined ||
+                value === ''
+              ) {
+                cell.textContent = '—';
+              } else {
+                const numericValue = Number(value);
+
+                cell.textContent = Number.isFinite(numericValue)
+                  ? `${Math.round(numericValue).toLocaleString('fr-FR')} €`
+                  : '—';
+              }
+
+              // Couleur du tarif de l'hôtel selon la médiane
+              if (fieldId === 'tarif-mon-hotel') {
+                const hasHotelPrice =
+                  value !== null &&
+                  value !== undefined &&
+                  value !== '';
+
+                const hasMedian =
+                  row.competitor_median !== null &&
+                  row.competitor_median !== undefined &&
+                  row.competitor_median !== '';
+
+                const hotelPrice = Number(value);
+                const medianPrice = Number(
+                  row.competitor_median
+                );
+
+                if (
+                  !hasHotelPrice ||
+                  !hasMedian ||
+                  !Number.isFinite(hotelPrice) ||
+                  !Number.isFinite(medianPrice)
+                ) {
+                  cell.style.color = '#6B7280';
+                } else if (hotelPrice >= medianPrice) {
+                  cell.style.color = '#16A34A';
+                } else {
+                  cell.style.color = '#DC2626';
+                }
+              }
+
+              // Éviter les IDs dupliqués dans les lignes clonées
+              cell.removeAttribute('id');
+            });
+
+            dataContainer.appendChild(dataClone);
+          });
+
+          console.log('📊 [API06] Concurrence chargée :', {
+            dates: competitionData.length,
+            hotel: hotelName,
+            concurrents: [
+              competitor1Name,
+              competitor2Name,
+              competitor3Name
+            ]
+          });
+        }
+      }
+    } catch (err06) {
+      console.error(
+        '[API06] Erreur de chargement :',
+        err06
+      );
     }
-  }
-} catch (err06) {
-  console.error('[API06] Erreur de chargement :', err06);
-}
+
  
 
  // 8. API08 — PERFORMANCE
