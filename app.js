@@ -3377,7 +3377,8 @@ try {
        dateTemplate.style.display = 'none';
        dataTemplate.style.display = 'none';
 
-       // Format des dates
+
+       // Format des dates : long sur desktop, court sur mobile
        const formatDate = value => {
          if (!value) return '—';
 
@@ -3389,17 +3390,39 @@ try {
 
          const date = new Date(parts[0], parts[1] - 1, parts[2]);
 
+         // Détecter le mobile
+         const isMobile = window.matchMedia(
+           '(max-width: 479px)'
+         ).matches;
+
+         if (isMobile) {
+           const jour = new Intl.DateTimeFormat('fr-FR', {
+             weekday: 'short'
+           }).format(date).replace('.', '');
+
+           const mois = new Intl.DateTimeFormat('fr-FR', {
+             month: 'short'
+           }).format(date).replace('.', '');
+
+           const jourCapitalise =
+             jour.charAt(0).toUpperCase() + jour.slice(1);
+
+           const moisCapitalise =
+             mois.charAt(0).toUpperCase() + mois.slice(1);
+
+           const numeroFormate = String(parts[2]).padStart(2, '0');
+
+           return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
+         }
+
+         // Format desktop conservé
          const jour = new Intl.DateTimeFormat('fr-FR', {
            weekday: 'long'
          }).format(date);
 
-         const jourNumero = parts[2];
-
          const mois = new Intl.DateTimeFormat('fr-FR', {
            month: 'long'
          }).format(date);
-
-         const annee = parts[0];
 
          const jourCapitalise =
            jour.charAt(0).toUpperCase() + jour.slice(1);
@@ -3407,14 +3430,15 @@ try {
          const moisCapitalise =
            mois.charAt(0).toUpperCase() + mois.slice(1);
 
-         const numeroFormate = String(jourNumero).padStart(2, '0');
+         const numeroFormate = String(parts[2]).padStart(2, '0');
 
-         if (jourNumero === 1) {
-           return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${annee}`;
+         if (parts[2] === 1) {
+           return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
          }
 
-         return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${annee}`;
+         return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
        };
+
 
        // Format des variations avec couleurs
        const formatVariation = (value, suffix = '') => {
