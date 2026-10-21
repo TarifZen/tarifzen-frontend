@@ -3963,7 +3963,7 @@ try {
 
             dateClone.style.setProperty(
               'border',
-              '1px solid #d1d1d6',
+              '1px solid #6b7280',
               'important'
             );
 
