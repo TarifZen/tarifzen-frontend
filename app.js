@@ -3570,6 +3570,7 @@ try {
     
     
 
+    
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -3586,13 +3587,14 @@ try {
         console.error('[API06] Erreur HTTP :', response06.status);
       } else {
         const result06 = await response06.json();
+
         const competitors = result06?.competitors ?? {};
         const competitionData = Array.isArray(result06?.data)
           ? result06.data
           : [];
 
         // --------------------------------------------------
-        // 1. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
+        // 1. RÉCUPÉRATION DE LA FICHE HÔTEL
         // --------------------------------------------------
 
         let hotelInfo = null;
@@ -3629,13 +3631,15 @@ try {
           );
         }
 
-        // Nom commercial de l'hôtel principal
+        // --------------------------------------------------
+        // 2. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
+        // --------------------------------------------------
+
         const hotelName =
           hotelInfo?.nom_hotel === 'citadineseurometropolestrasbourg'
             ? 'Citadines Eurométropole Strasbourg'
             : hotelInfo?.nom_hotel || 'Non renseigné';
 
-        // Noms des concurrents : priorité aux données Supabase
         const competitor1Name =
           hotelInfo?.nom_booking_comp_1 ||
           competitors.competitor_1_name;
@@ -3665,7 +3669,6 @@ try {
           }
         });
 
-        // Libellé de la médiane
         const medianElement = document.querySelector('.prix.median');
 
         if (medianElement) {
@@ -3677,7 +3680,7 @@ try {
         }
 
         // --------------------------------------------------
-        // 2. CONTENEURS ET MODÈLES WEBFLOW
+        // 3. CONTENEURS ET MODÈLES WEBFLOW
         // --------------------------------------------------
 
         const datesContainer = document.getElementById(
@@ -3713,7 +3716,7 @@ try {
           );
         } else {
           // --------------------------------------------------
-          // 3. SUPPRIMER LES ANCIENNES LIGNES GÉNÉRÉES
+          // 4. NETTOYAGE DES ANCIENNES LIGNES
           // --------------------------------------------------
 
           datesContainer
@@ -3728,12 +3731,20 @@ try {
             )
             .forEach(element => element.remove());
 
-          // Masquer les modèles originaux
-          dateTemplate.style.display = 'none';
-          dataTemplate.style.display = 'none';
+          dateTemplate.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
+
+          dataTemplate.style.setProperty(
+            'display',
+            'none',
+            'important'
+          );
 
           // --------------------------------------------------
-          // 3 BIS. LARGEUR DE LA COLONNE FIXE
+          // 5. CONFIGURATION DES LARGEURS
           // --------------------------------------------------
 
           const isMobileCompetition = window.matchMedia(
@@ -3744,38 +3755,22 @@ try {
             ? '165px'
             : '220px';
 
-          datesContainer.style.setProperty(
-            'width',
-            dateColumnWidth,
-            'important'
-          );
-
-          datesContainer.style.setProperty(
-            'min-width',
-            dateColumnWidth,
-            'important'
-          );
-
-          datesContainer.style.setProperty(
-            'max-width',
-            dateColumnWidth,
-            'important'
-          );
-
-          datesContainer.style.setProperty(
-            'flex',
-            '0 0 ' + dateColumnWidth,
-            'important'
-          );
-
-          datesContainer.style.setProperty(
-            'box-sizing',
-            'border-box',
-            'important'
-          );
+          [
+            ['width', dateColumnWidth],
+            ['min-width', dateColumnWidth],
+            ['max-width', dateColumnWidth],
+            ['flex', `0 0 ${dateColumnWidth}`],
+            ['box-sizing', 'border-box']
+          ].forEach(([property, value]) => {
+            datesContainer.style.setProperty(
+              property,
+              value,
+              'important'
+            );
+          });
 
           // --------------------------------------------------
-          // 4. FORMAT DES DATES
+          // 6. FORMAT DES DATES
           // --------------------------------------------------
 
           const formatDate = value => {
@@ -3790,46 +3785,29 @@ try {
               return '—';
             }
 
-            const date = new Date(
-              parts[0],
-              parts[1] - 1,
-              parts[2]
-            );
+            const [year, month, day] = parts;
 
-            if (isMobileCompetition) {
-              const jour = new Intl.DateTimeFormat('fr-FR', {
-                weekday: 'short'
-              })
-                .format(date)
-                .replace(/\.$/, '');
+            const date = new Date(year, month - 1, day);
 
-              const mois = new Intl.DateTimeFormat('fr-FR', {
-                month: 'short'
-              })
-                .format(date)
-                .replace(/\.$/, '');
-
-              const jourCapitalise =
-                jour.charAt(0).toUpperCase() + jour.slice(1);
-
-              const moisCapitalise =
-                mois.charAt(0).toUpperCase() + mois.slice(1);
-
-              const numeroFormate = String(parts[2]).padStart(
-                2,
-                '0'
-              );
-
-              return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
+            if (
+              date.getFullYear() !== year ||
+              date.getMonth() !== month - 1 ||
+              date.getDate() !== day
+            ) {
+              return '—';
             }
 
             const jour = new Intl.DateTimeFormat('fr-FR', {
-              weekday: 'long'
-            }).format(date);
+              weekday: isMobileCompetition ? 'short' : 'long'
+            })
+              .format(date)
+              .replace(/\.$/, '');
 
             const mois = new Intl.DateTimeFormat('fr-FR', {
-              month: 'long'
-            }).format(date);
+              month: isMobileCompetition ? 'short' : 'long'
+            })
+              .format(date)
+              .replace(/\.$/, '');
 
             const jourCapitalise =
               jour.charAt(0).toUpperCase() + jour.slice(1);
@@ -3837,59 +3815,35 @@ try {
             const moisCapitalise =
               mois.charAt(0).toUpperCase() + mois.slice(1);
 
-            const numeroFormate = String(parts[2]).padStart(
-              2,
-              '0'
-            );
+            const numeroFormate = String(day).padStart(2, '0');
 
-            if (parts[2] === 1) {
-              return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
+            if (isMobileCompetition) {
+              return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${year}`;
             }
 
-            return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
+            if (day === 1) {
+              return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${year}`;
+            }
+
+            return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${year}`;
           };
 
           // --------------------------------------------------
-          // 5. FORMAT DES TARIFS EN EUROS
-          // --------------------------------------------------
-
-          const formatPrice = value => {
-            if (
-              value === null ||
-              value === undefined ||
-              value === ''
-            ) {
-              return '—';
-            }
-
-            const number = Number(value);
-
-            if (!Number.isFinite(number)) return '—';
-
-            return (
-              number.toLocaleString('fr-FR', {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              }) + ' €'
-            );
-          };
-
-          // --------------------------------------------------
-          // 6. ALTERNANCE DES FONDS
+          // 7. FONDS ALTERNÉS
           // --------------------------------------------------
 
           const getRowBackground = index =>
             index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
 
           // --------------------------------------------------
-          // 7. GÉNÉRER LES DATES ET LIGNES TARIFAIRES
+          // 8. GÉNÉRATION DES DATES ET DES TARIFS
           // --------------------------------------------------
 
           competitionData.forEach((row, index) => {
             const rowBackground = getRowBackground(index);
 
             // ----------------------------------------------
-            // COLONNE FIXE DES DATES
+            // 8A. DATE — COLONNE FIXE
             // ----------------------------------------------
 
             const dateClone = dateTemplate.cloneNode(true);
@@ -3901,169 +3855,52 @@ try {
               'true'
             );
 
-            dateClone.style.setProperty(
-              'display',
-              'flex',
-              'important'
-            );
+            const dateStyles = {
+              display: 'flex',
+              'align-items': 'center',
+              'justify-content': 'center',
+              width: dateColumnWidth,
+              'min-width': dateColumnWidth,
+              'max-width': dateColumnWidth,
+              flex: `0 0 ${dateColumnWidth}`,
+              height: '35px',
+              'min-height': '35px',
+              'max-height': '35px',
+              border: '1px solid #6b7280',
+              'border-radius': '10px',
+              margin: '0 0 12px 0',
+              padding: '0 5px',
+              'box-sizing': 'border-box',
+              'text-align': 'center',
+              'white-space': 'nowrap',
+              overflow: 'visible',
+              'font-family': 'Inter, sans-serif',
+              'font-size': '14px',
+              'font-weight': '400',
+              'font-style': 'normal',
+              'line-height': '20px',
+              'letter-spacing': 'normal',
+              color: '#333333',
+              'background-color': rowBackground,
+              transform: 'none'
+            };
 
-            dateClone.style.setProperty(
-              'align-items',
-              'center',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'justify-content',
-              'center',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'width',
-              dateColumnWidth,
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'min-width',
-              dateColumnWidth,
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'max-width',
-              dateColumnWidth,
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'flex',
-              '0 0 ' + dateColumnWidth,
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'height',
-              '35px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'min-height',
-              '35px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'max-height',
-              '35px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'border',
-              '1px solid #6b7280',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'border-radius',
-              '10px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'margin',
-              '0 0 12px 0',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'padding',
-              '0 5px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'box-sizing',
-              'border-box',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'text-align',
-              'center',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'white-space',
-              'nowrap',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'overflow',
-              'visible',
-              'important'
-            );
-
-            // Police harmonisée desktop et mobile
-            dateClone.style.setProperty(
-              'font-family',
-              'Inter, sans-serif',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'font-size',
-              '14px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'font-weight',
-              '400',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'font-style',
-              'normal',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'line-height',
-              '20px',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'letter-spacing',
-              'normal',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'color',
-              '#333333',
-              'important'
-            );
-
-            dateClone.style.setProperty(
-              'background-color',
-              rowBackground,
-              'important'
+            Object.entries(dateStyles).forEach(
+              ([property, value]) => {
+                dateClone.style.setProperty(
+                  property,
+                  value,
+                  'important'
+                );
+              }
             );
 
             dateClone.innerHTML = formatDate(row.date);
 
             datesContainer.appendChild(dateClone);
 
-                        // ----------------------------------------------
-            // COLONNE DES TARIFS
+            // ----------------------------------------------
+            // 8B. TARIFS — COLONNE DÉFILANTE
             // ----------------------------------------------
 
             const dataClone = dataTemplate.cloneNode(true);
@@ -4075,59 +3912,36 @@ try {
               'true'
             );
 
-            dataClone.style.display = '';
-            dataClone.style.backgroundColor = 'transparent';
+            // Même hauteur et même espacement que les dates,
+            // sur desktop comme sur mobile.
+            const dataStyles = {
+              display: 'flex',
+              height: '35px',
+              'min-height': '35px',
+              'max-height': '35px',
+              margin: '0 0 12px 0',
+              padding: '0',
+              'box-sizing': 'border-box',
+              transform: 'none'
+            };
 
-            // Hauteur et espacement mobile
-            if (isMobileCompetition) {
-              dataClone.style.setProperty(
-                'display',
-                'flex',
-                'important'
-              );
+            Object.entries(dataStyles).forEach(
+              ([property, value]) => {
+                dataClone.style.setProperty(
+                  property,
+                  value,
+                  'important'
+                );
+              }
+            );
 
-              dataClone.style.setProperty(
-                'height',
-                '35px',
-                'important'
-              );
+            dataClone.style.setProperty(
+              'background-color',
+              'transparent',
+              'important'
+            );
 
-              dataClone.style.setProperty(
-                'min-height',
-                '35px',
-                'important'
-              );
-
-              dataClone.style.setProperty(
-                'max-height',
-                '35px',
-                'important'
-              );
-
-              dataClone.style.setProperty(
-                'margin',
-                '0 0 12px 0',
-                'important'
-              );
-
-              dataClone.style.setProperty(
-                'box-sizing',
-                'border-box',
-                'important'
-              );
-            }
-
-            // Appliquer le fond aux cinq cases
-            dataClone.querySelectorAll(
-              '#tarif-mon-hotel, #tarif-concurrent-1, #tarif-concurrent-2, #tarif-concurrent-3, #tarif-median'
-            ).forEach(cell => {
-              cell.style.setProperty(
-                'background-color',
-                rowBackground,
-                'important'
-              );
-            });
-
+            // Les cinq cases tarifaires
             const fields = [
               ['tarif-mon-hotel', row.hotel_price],
               ['tarif-concurrent-1', row.competitor_1_price],
@@ -4137,9 +3951,7 @@ try {
             ];
 
             fields.forEach(([fieldId, value]) => {
-              const cell = dataClone.querySelector(
-                `#${fieldId}`
-              );
+              const cell = dataClone.querySelector(`#${fieldId}`);
 
               if (!cell) {
                 console.warn(
@@ -4147,6 +3959,13 @@ try {
                 );
                 return;
               }
+
+              // Fond alterné des cases
+              cell.style.setProperty(
+                'background-color',
+                rowBackground,
+                'important'
+              );
 
               // Tarifs arrondis à l'euro entier
               if (
@@ -4163,7 +3982,7 @@ try {
                   : '—';
               }
 
-              // Couleur du tarif de l'hôtel selon la médiane
+              // Couleur du prix de l'hôtel selon la médiane
               if (fieldId === 'tarif-mon-hotel') {
                 const hasHotelPrice =
                   value !== null &&
@@ -4186,15 +4005,23 @@ try {
                   !Number.isFinite(hotelPrice) ||
                   !Number.isFinite(medianPrice)
                 ) {
-                  cell.style.color = '#6B7280';
-                } else if (hotelPrice >= medianPrice) {
-                  cell.style.color = '#16A34A';
+                  cell.style.setProperty(
+                    'color',
+                    '#6B7280',
+                    'important'
+                  );
                 } else {
-                  cell.style.color = '#DC2626';
+                  cell.style.setProperty(
+                    'color',
+                    hotelPrice >= medianPrice
+                      ? '#16A34A'
+                      : '#DC2626',
+                    'important'
+                  );
                 }
               }
 
-              // Éviter les IDs dupliqués dans les lignes clonées
+              // Éviter les IDs dupliqués dans les clones
               cell.removeAttribute('id');
             });
 
@@ -4202,92 +4029,73 @@ try {
           });
 
           // --------------------------------------------------
-          // 8. ALIGNEMENT PRÉCIS DES DATES ET DES TARIFS
+          // 9. CONTRÔLE DE L'ALIGNEMENT
           // --------------------------------------------------
 
           requestAnimationFrame(() => {
-            const firstDate = datesContainer.querySelector(
-              ':scope > [data-tz-concurrence-generated="true"]'
+            const generatedDates = [
+              ...datesContainer.querySelectorAll(
+                ':scope > [data-tz-concurrence-generated="true"]'
+              )
+            ];
+
+            const generatedRows = [
+              ...dataContainer.querySelectorAll(
+                ':scope > [data-tz-concurrence-generated="true"]'
+              )
+            ];
+
+            const count = Math.min(
+              generatedDates.length,
+              generatedRows.length
             );
 
-            const firstDataRow = dataContainer.querySelector(
-              ':scope > [data-tz-concurrence-generated="true"]'
-            );
-
-            if (!firstDate || !firstDataRow) {
+            if (count === 0) {
               console.warn(
-                '[API06] Alignement impossible : première date ou première ligne tarifaire introuvable.',
-                {
-                  firstDateFound: !!firstDate,
-                  firstDataRowFound: !!firstDataRow
-                }
+                '[API06] Aucune ligne disponible pour contrôler l’alignement.'
               );
               return;
             }
 
-            // Annuler tout ancien décalage avant la mesure
-            datesContainer
-              .querySelectorAll(
-                ':scope > [data-tz-concurrence-generated="true"]'
-              )
-              .forEach(dateElement => {
-                dateElement.style.setProperty(
-                  'transform',
-                  'none',
-                  'important'
-                );
+            const alignment = Array.from(
+              { length: count },
+              (_, index) => {
+                const dateRect =
+                  generatedDates[index].getBoundingClientRect();
 
-                dateElement.style.setProperty(
-                  'top',
-                  '0px',
-                  'important'
-                );
-              });
+                const rowRect =
+                  generatedRows[index].getBoundingClientRect();
 
-            // Mesurer après suppression des anciens décalages
-            const dateTop =
-              firstDate.getBoundingClientRect().top;
+                return {
+                  ligne: index + 1,
+                  date: generatedDates[index].innerText.trim(),
+                  topDate: Number(dateRect.top.toFixed(2)),
+                  topTarifs: Number(rowRect.top.toFixed(2)),
+                  ecart: Number(
+                    (rowRect.top - dateRect.top).toFixed(2)
+                  ),
+                  hauteurDate: Number(dateRect.height.toFixed(2)),
+                  hauteurTarifs: Number(rowRect.height.toFixed(2))
+                };
+              }
+            );
 
-            const dataTop =
-              firstDataRow.getBoundingClientRect().top;
-
-            // Écart vertical réel entre les deux premières lignes
-            const offset = dataTop - dateTop;
-
-            // Appliquer exactement le même décalage à chaque date
-            datesContainer
-              .querySelectorAll(
-                ':scope > [data-tz-concurrence-generated="true"]'
-              )
-              .forEach(dateElement => {
-                dateElement.style.setProperty(
-                  'transform',
-                  `translateY(${offset}px)`,
-                  'important'
-                );
-              });
+            console.table(alignment);
 
             console.log(
-              '[API06] Alignement dates/tarifs :',
+              '📊 [API06] Contrôle concurrence :',
               {
-                premiereDateTop: Math.round(dateTop * 100) / 100,
-                premiereLigneTarifTop:
-                  Math.round(dataTop * 100) / 100,
-                decalageApplique:
-                  Math.round(offset * 100) / 100,
+                dates: generatedDates.length,
+                lignesTarifaires: generatedRows.length,
+                hotel: hotelName,
+                concurrents: [
+                  competitor1Name,
+                  competitor2Name,
+                  competitor3Name
+                ],
                 mobile: isMobileCompetition
               }
             );
-          });
-
-                    console.log('📊 [API06] Concurrence chargée :', {
-            dates: competitionData.length,
-            hotel: hotelName,
-            concurrents: [
-              competitor1Name,
-              competitor2Name,
-              competitor3Name
-            ]
           });
         }
       }
