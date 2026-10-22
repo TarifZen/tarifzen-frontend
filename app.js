@@ -3912,10 +3912,12 @@ try {
               'true'
             );
 
-            // Même hauteur et même espacement que les dates,
-            // sur desktop comme sur mobile.
+
+            // Même hauteur pour les lignes tarifaires.
+            // Desktop : grille responsive alignée sur le header.
+            // Mobile : conserver le fonctionnement FLEX existant.
             const dataStyles = {
-              display: 'flex',
+              display: isMobileCompetition ? 'flex' : 'grid',
               height: '35px',
               'min-height': '35px',
               'max-height': '35px',
@@ -3924,6 +3926,20 @@ try {
               'box-sizing': 'border-box',
               transform: 'none'
             };
+
+            // Corrections DESKTOP uniquement.
+            if (!isMobileCompetition) {
+              dataStyles.width = '100%';
+              dataStyles['min-width'] = '0';
+              dataStyles['grid-template-columns'] =
+                'repeat(5, minmax(0, 1fr))';
+              dataStyles['column-gap'] = '10px';
+
+              // Même espace sous le header que pour les dates.
+              if (index === 0) {
+                dataStyles['margin-top'] = '8px';
+              }
+            }
 
             Object.entries(dataStyles).forEach(
               ([property, value]) => {
@@ -3934,6 +3950,7 @@ try {
                 );
               }
             );
+
 
             dataClone.style.setProperty(
               'background-color',
