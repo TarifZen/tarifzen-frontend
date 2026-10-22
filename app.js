@@ -3928,14 +3928,18 @@ try {
               transform: 'none'
             };
 
+
             // Corrections DESKTOP uniquement.
             if (!isMobileCompetition) {
-              dataStyles.width = 'calc(100% - 10px)';
+              dataStyles.width = '100%';
               dataStyles['min-width'] = '0';
               dataStyles['grid-template-columns'] =
                 'repeat(5, minmax(0, 1fr))';
               dataStyles['column-gap'] = '10px';
-              dataStyles['margin-left'] = '10px';
+
+              // Conserver exactement l'alignement horizontal
+              // du header et de la colonne des dates.
+              dataStyles['margin-left'] = '0px';
 
               // Espace sous le header : 22 px.
               if (index === 0) {
@@ -3945,6 +3949,7 @@ try {
               // Intervalle entre les lignes : 55 px.
               dataStyles['margin-bottom'] = '20px';
             }
+
 
             Object.entries(dataStyles).forEach(
               ([property, value]) => {
