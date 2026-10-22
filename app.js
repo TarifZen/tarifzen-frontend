@@ -3913,8 +3913,9 @@ try {
             );
 
 
+
             // Même hauteur pour les lignes tarifaires.
-            // Desktop : grille responsive alignée sur le header.
+            // Desktop : alignement et espacements inspirés de Pickup.
             // Mobile : conserver le fonctionnement FLEX existant.
             const dataStyles = {
               display: isMobileCompetition ? 'flex' : 'grid',
@@ -3929,16 +3930,20 @@ try {
 
             // Corrections DESKTOP uniquement.
             if (!isMobileCompetition) {
-              dataStyles.width = '100%';
+              dataStyles.width = 'calc(100% - 10px)';
               dataStyles['min-width'] = '0';
               dataStyles['grid-template-columns'] =
                 'repeat(5, minmax(0, 1fr))';
               dataStyles['column-gap'] = '10px';
+              dataStyles['margin-left'] = '10px';
 
-              // Même espace sous le header que pour les dates.
+              // Espace sous le header : 22 px.
               if (index === 0) {
-                dataStyles['margin-top'] = '8px';
+                dataStyles['margin-top'] = '22px';
               }
+
+              // Intervalle entre les lignes : 55 px.
+              dataStyles['margin-bottom'] = '20px';
             }
 
             Object.entries(dataStyles).forEach(
@@ -3950,6 +3955,7 @@ try {
                 );
               }
             );
+
 
 
             dataClone.style.setProperty(
