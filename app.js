@@ -4925,18 +4925,6 @@ if (messageElement) {
 }
 
 
-  if (Number.isFinite(realGain) && realGain > 0) {
-    messageElement.querySelectorAll('div').forEach(line => {
-      if (line.textContent.includes('Gain réel constaté :')) {
-        line.innerHTML = line.innerHTML.replace(
-          /(Gain réel constaté\s*:\s*)(.*)/i,
-          '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
-        );
-      }
-    });
-  }
-}
-
     // Prix et hausses : arrondis uniquement à l'affichage
     setText(card, '#prix-avant-historic', formatEuro(item.price_before));
     setText(card, '#prix-apres-historic', formatEuro(item.price_after));
