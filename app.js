@@ -4817,6 +4817,7 @@ console.log('[API07] Message transmis à la popup :', {
 });
 
 
+ 
  // ======================================================
  // AFFICHAGE DU MESSAGE COURT SUR LA CARTE HISTORIQUE
  // ======================================================
@@ -4825,8 +4826,8 @@ if (messageElement) {
   let cardMessage = normalizedOriginalMessage ||
     'Détail de la recommandation indisponible.';
 
-  // Pour une action appliquée, afficher la décision réelle
-  // de l'hôtelier plutôt que la recommandation initiale.
+  // Pour une action appliquée, afficher uniquement
+  // la décision réellement prise par l'hôtelier.
   if (item.action === 'APPLIED') {
     const appliedChange = Number(item.applied_price_change);
     const appliedTarget = Number(item.price_after);
@@ -4844,18 +4845,27 @@ if (messageElement) {
       Number.isFinite(appliedTarget);
 
     if (hasAppliedChange && hasAppliedTarget) {
-      const variationText = formatVariation(appliedChange);
       const targetText = formatEuro(appliedTarget);
 
-      // Conserver l'explication initiale, sans la hausse
-      // ni le tarif cible recommandés par TarifZen.
+      // Conserver uniquement la première partie explicative
+      // et supprimer la variation préconisée par TarifZen.
       const explanation = normalizedOriginalMessage
         .split(/\n\n/)
         .filter(Boolean)[0] || '';
 
+      const actionLabel =
+        appliedChange > 0 ? 'Augmentation' :
+        appliedChange < 0 ? 'Baisse' : 'Ajustement';
+
+      const amountText = formatEuro(Math.abs(appliedChange));
+
+      const signedAmountText = appliedChange > 0
+        ? `+${amountText}`
+        : amountText;
+
       cardMessage = [
         explanation,
-        `${appliedChange >= 0 ? 'Augmentation' : 'Baisse'} de ${variationText.replace(/^[+-]/, '')} ${appliedChange >= 0 ? 'appliquée' : 'appliquée'}. Tarif cible : ${targetText}.`
+        `${actionLabel} de ${signedAmountText} appliquée. Tarif cible : ${targetText}.`
       ].filter(Boolean).join('\n\n');
     }
   }
@@ -4911,6 +4921,8 @@ if (messageElement) {
       }
     });
   }
+}
+
 
   if (Number.isFinite(realGain) && realGain > 0) {
     messageElement.querySelectorAll('div').forEach(line => {
