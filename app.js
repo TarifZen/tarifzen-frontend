@@ -4519,21 +4519,15 @@ async function initEventsPage() {
   }
 }
 
+
 /* ============================================================
    API07 — RENDU DES CARTES HISTORIQUE
    ============================================================ */
-function renderHistory(historyData, activeTab = 'APPLIED') {
 
-  // Conteneurs des deux onglets
+function renderHistory(historyData, activeTab = 'APPLIED') {
   const treatedContainer = document.querySelector('#notif-list-historic');
   const ignoredContainer = document.querySelector('#notif-list-historic-ignore');
-
-  // Conteneur correspondant à l'onglet actif
-  const container = activeTab === 'IGNORED'
-    ? ignoredContainer
-    : treatedContainer;
-
-  // Modèle commun des cartes
+  const container = activeTab === 'IGNORED' ? ignoredContainer : treatedContainer;
   const template = document.querySelector('#card-historic');
 
   if (!container || !template) {
@@ -4545,23 +4539,13 @@ function renderHistory(historyData, activeTab = 'APPLIED') {
     return;
   }
 
-
-  // Le modèle reste toujours masqué.
-  // Seules les cartes clonées contenant des données sont affichées.
   template.style.display = 'none';
-
-  // Les clones reprennent l'affichage prévu pour les cartes réelles.
   template.dataset.historyTemplateDisplay = 'block';
 
-  
+  container
+    .querySelectorAll('[data-tz-history-generated="true"]')
+    .forEach(card => card.remove());
 
-  // Supprimer uniquement les anciennes cartes de l'onglet rendu
-container
-  .querySelectorAll('[data-tz-history-generated="true"]')
-  .forEach(card => card.remove());
-
-
-  // Filtrer et trier les actions de l'onglet actif
   const filteredData = (Array.isArray(historyData) ? historyData : [])
     .filter(item => item.action === activeTab)
     .sort((a, b) => {
@@ -4570,54 +4554,69 @@ container
       return dateB - dateA;
     });
 
-  // Affichage du message si l'historique de l'onglet est vide
   const emptyTraitee = document.querySelector('.empty-historic-traitee');
   const emptyIgnore = document.querySelector('.empty-historic-ignore');
 
   if (emptyTraitee) {
     emptyTraitee.style.display =
-      activeTab === 'APPLIED' && filteredData.length === 0
-        ? 'block'
-        : 'none';
+      activeTab === 'APPLIED' && filteredData.length === 0 ? 'block' : 'none';
   }
 
   if (emptyIgnore) {
     emptyIgnore.style.display =
-      activeTab === 'IGNORED' && filteredData.length === 0
-        ? 'block'
-        : 'none';
+      activeTab === 'IGNORED' && filteredData.length === 0 ? 'block' : 'none';
   }
 
   // ------------------------------------------------------------
   // Formatage
   // ------------------------------------------------------------
-  
-const formatDate = value => {
-  if (!value) return '—';
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
+  const formatDate = value => {
+    if (!value) return '—';
 
-  const formatted = new Intl.DateTimeFormat('fr-FR', {
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Paris'
-  }).format(date);
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
 
-  // Première lettre du mois en majuscule
-  return formatted.replace(
-    /(\d{2}\s+)([a-zà-ÿ])/i,
-    (match, prefix, letter) => prefix + letter.toLocaleUpperCase('fr-FR')
-  );
-};
+    const formatted = new Intl.DateTimeFormat('fr-FR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/Paris'
+    }).format(date);
 
+    return formatted.replace(
+      /(\d{2}\s+)([a-zà-ÿ])/i,
+      (match, prefix, letter) =>
+        prefix + letter.toLocaleUpperCase('fr-FR')
+    );
+  };
 
-  // Arrondi à l'euro uniquement pour l'affichage
+  const formatRecommendationDate = value => {
+    if (!value) return '—';
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return '—';
+
+    const formatted = new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      timeZone: 'Europe/Paris'
+    }).format(date);
+
+    return formatted.replace(
+      /^([a-zà-ÿ]+)(\s+\d{2}\s+)([a-zà-ÿ])/i,
+      (match, weekday, separator, month) =>
+        weekday.charAt(0).toLocaleUpperCase('fr-FR') +
+        weekday.slice(1) +
+        separator +
+        month.toLocaleUpperCase('fr-FR')
+    );
+  };
+
   const formatEuro = value => {
-    if (value === null || value === undefined || value === '') {
-      return '—';
-    }
+    if (value === null || value === undefined || value === '') return '—';
 
     const number = Number(value);
     if (!Number.isFinite(number)) return '—';
@@ -4630,11 +4629,8 @@ const formatDate = value => {
     }).format(Math.round(number));
   };
 
-  // Hausse exprimée en euros, et non en pourcentage
   const formatVariation = value => {
-    if (value === null || value === undefined || value === '') {
-      return '—';
-    }
+    if (value === null || value === undefined || value === '') return '—';
 
     const number = Number(value);
     if (!Number.isFinite(number)) return '—';
@@ -4665,9 +4661,8 @@ const formatDate = value => {
 
   // ------------------------------------------------------------
   // Événements API09
-  // Même règle que les cartes API02 :
-  // event.start_date === item.date
   // ------------------------------------------------------------
+
   const events = Array.isArray(window.tarifZenEventsData)
     ? window.tarifZenEventsData
     : [];
@@ -4685,64 +4680,36 @@ const formatDate = value => {
   // ------------------------------------------------------------
   // Création des cartes
   // ------------------------------------------------------------
+
   filteredData.forEach(item => {
     const card = template.cloneNode(true);
 
     card.removeAttribute('id');
     card.dataset.tzHistoryGenerated = 'true';
-    card.style.display =
-      template.dataset.historyTemplateDisplay || 'block';
+    card.style.display = template.dataset.historyTemplateDisplay || 'block';
 
     // Dates
-    
-const formatRecommendationDate = value => {
-  if (!value) return '—';
+    setText(
+      card,
+      '#date-reco-historic',
+      formatRecommendationDate(item.date)
+    );
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return '—';
+    const dateLabel = card.querySelector('.text-block-151');
 
-  const formatted = new Intl.DateTimeFormat('fr-FR', {
-    weekday: 'long',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-    timeZone: 'Europe/Paris'
-  }).format(date);
+    if (dateLabel) {
+      dateLabel.textContent = item.action === 'IGNORED'
+        ? 'Ignorée le :'
+        : 'Appliquée le :';
+    }
 
-  // Majuscule au jour et au mois
-  return formatted.replace(
-    /^([a-zà-ÿ]+)(\s+\d{2}\s+)([a-zà-ÿ])/i,
-    (match, weekday, separator, month) =>
-      weekday.charAt(0).toLocaleUpperCase('fr-FR') +
-      weekday.slice(1) +
-      separator +
-      month.toLocaleUpperCase('fr-FR')
-  );
-};
+    setText(
+      card,
+      '#date-application-historic',
+      formatDate(item.created_at)
+    );
 
-setText(
-  card,
-  '#date-reco-historic',
-  formatRecommendationDate(item.date)
-);
-
-    // Libellé adapté au type d'action
-const dateLabel = card.querySelector('.text-block-151');
-
-if (dateLabel) {
-  dateLabel.textContent = item.action === 'IGNORED'
-    ? 'Ignorée le :'
-    : 'Appliquée le :';
-}
-
-// Date de traitement de l'action
-setText(
-  card,
-  '#date-application-historic',
-  formatDate(item.created_at)
-);
-
-    // Titre original de la recommandation
+    // Titre
     const title = cleanText(item.title);
 
     setText(
@@ -4755,176 +4722,158 @@ setText(
       )
     );
 
+    // ----------------------------------------------------------
+    // Messages : court sur la carte, long dans la popup
+    // ----------------------------------------------------------
 
-// ======================================================
-// MESSAGE ORIGINAL + GAINS AFFICHÉS DANS LE MESSAGE
-// ======================================================
+    const originalMessage = item.message
+      ? String(item.message).trim()
+      : '';
 
-// Message court utilisé sur la mini-carte
-const originalMessage = item.message
-  ? String(item.message).trim()
-  : '';
+    const longMessage = item.long_message
+      ? String(item.long_message).trim()
+      : originalMessage;
 
-// Message long destiné à la popup d'information
-const longMessage = item.long_message
-  ? String(item.long_message).trim()
-  : originalMessage;
+    const normalizedOriginalMessage = originalMessage
+      .replace(/\r\n/g, '\n')
+      .replace(/\r/g, '\n')
+      .replace(/\n+/g, '\n');
 
-console.log('[API07] Messages disponibles pour la popup :', {
-  message: item.message,
-  long_message: item.long_message,
-  keys: Object.keys(item),
-  messageLength: item.message?.length,
-  longMessageLength: item.long_message?.length
-});
+    const messageElement = card.querySelector('#text-reco-historic');
 
-// Normalisation du message court affiché sur la carte
-const normalizedOriginalMessage = originalMessage
-  .replace(/\r\n/g, '\n')
-  .replace(/\r/g, '\n')
-  .replace(/\n+/g, '\n')
-  .replace(
-    /(Augmentation\s+de[^\n]*)\n\s*(Tarif\s+cible\s*:[^\n]*)/i,
-    '$1 $2'
-  );
+    // Message long conservé pour la popup
+    const historyInfoIcon = card.querySelector(
+      '.icon-info-mini, .icon-info-carte, .info-trigger, .info'
+    );
 
-const messageElement = card.querySelector('#text-reco-historic');
-
-// ======================================================
-// MESSAGE COMPLET TRANSMIS À LA POPUP D'INFORMATION
-// ======================================================
-
-const historyInfoIcon = card.querySelector(
-  '.icon-info-mini, .icon-info-carte, .info-trigger, .info'
-);
-
-if (historyInfoIcon) {
-  historyInfoIcon.setAttribute(
-    'data-message',
-    longMessage
-  );
-
-  historyInfoIcon.setAttribute(
-    'data-date',
-    item.date || ''
-  );
-}
-
-console.log('[API07] Message transmis à la popup :', {
-  iconFound: !!historyInfoIcon,
-  messageLength: historyInfoIcon?.getAttribute('data-message')?.length,
-  message: historyInfoIcon?.getAttribute('data-message')
-});
-
-
- 
- // ======================================================
- // AFFICHAGE DU MESSAGE COURT SUR LA CARTE HISTORIQUE
- // ======================================================
-
-if (messageElement) {
-  let cardMessage = normalizedOriginalMessage ||
-    'Détail de la recommandation indisponible.';
-
-  // Pour une action appliquée, afficher uniquement
-  // la décision réellement prise par l'hôtelier.
-  if (item.action === 'APPLIED') {
-    const appliedChange = Number(item.applied_price_change);
-    const appliedTarget = Number(item.price_after);
-
-    const hasAppliedChange =
-      item.applied_price_change !== null &&
-      item.applied_price_change !== undefined &&
-      item.applied_price_change !== '' &&
-      Number.isFinite(appliedChange);
-
-    const hasAppliedTarget =
-      item.price_after !== null &&
-      item.price_after !== undefined &&
-      item.price_after !== '' &&
-      Number.isFinite(appliedTarget);
-
-    if (hasAppliedChange && hasAppliedTarget) {
-      const targetText = formatEuro(appliedTarget);
-
-      // Conserver uniquement la première partie explicative
-      // et supprimer la variation préconisée par TarifZen.
-      const explanation = normalizedOriginalMessage
-        .split(/\n\n/)
-        .filter(Boolean)[0] || '';
-
-      const actionLabel =
-        appliedChange > 0 ? 'Augmentation' :
-        appliedChange < 0 ? 'Baisse' : 'Ajustement';
-
-      const amountText = formatEuro(Math.abs(appliedChange));
-
-      const signedAmountText = appliedChange > 0
-        ? `+${amountText}`
-        : amountText;
-
-      cardMessage = [
-        explanation,
-        `${actionLabel} de ${signedAmountText} appliquée. Tarif cible : ${targetText}.`
-      ].filter(Boolean).join('\n\n');
+    if (historyInfoIcon) {
+      historyInfoIcon.setAttribute('data-message', longMessage);
+      historyInfoIcon.setAttribute('data-date', item.date || '');
     }
-  }
 
-  const messageLines = [cardMessage];
+    // ----------------------------------------------------------
+    // Message court affiché sur la carte
+    // ----------------------------------------------------------
 
-  
-  const potentialGain = Number(item.gain_potential);
+    if (messageElement) {
+      let cardMessage = normalizedOriginalMessage ||
+        'Détail de la recommandation indisponible.';
 
-  if (
-    item.gain_potential !== null &&
-    item.gain_potential !== undefined &&
-    item.gain_potential !== '' &&
-    Number.isFinite(potentialGain)
-  ) {
-    messageLines.push(
-      `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
-    );
-  }
+      if (item.action === 'APPLIED') {
+        const appliedChange = Number(item.applied_price_change);
+        const appliedTarget = Number(item.price_after);
 
-  const realGain = Number(item.gain_real);
+        const hasAppliedChange =
+          item.applied_price_change !== null &&
+          item.applied_price_change !== undefined &&
+          item.applied_price_change !== '' &&
+          Number.isFinite(appliedChange);
 
-  if (
-    item.gain_real !== null &&
-    item.gain_real !== undefined &&
-    item.gain_real !== '' &&
-    Number.isFinite(realGain) &&
-    realGain > 0
-  ) {
-    messageLines.push(
-      `Gain réel constaté : ${formatEuro(realGain)}.`
-    );
-  }
+        const hasAppliedTarget =
+          item.price_after !== null &&
+          item.price_after !== undefined &&
+          item.price_after !== '' &&
+          Number.isFinite(appliedTarget);
 
-  const escapeHtml = text => String(text)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
+        if (hasAppliedChange && hasAppliedTarget) {
+          // Garder seulement l'explication initiale.
+          // La variation préconisée reste dans la popup.
+          const explanation = normalizedOriginalMessage
+            .split('\n')
+            .map(line => line.trim())
+            .filter(Boolean)
+            .find(line =>
+              !/^(Augmentation|Baisse|Ajustement)\s+de\b/i.test(line) &&
+              !/^Tarif\s+cible\s*:/i.test(line)
+            ) || '';
 
-  const messageWithLineBreaks = messageLines
-    .map(line => escapeHtml(line))
-    .join('\n');
+          const actionLabel =
+            appliedChange > 0 ? 'Augmentation' :
+            appliedChange < 0 ? 'Baisse' : 'Ajustement';
 
-  messageElement.innerHTML = formatShortMessage(messageWithLineBreaks);
-  messageElement.style.whiteSpace = 'normal';
+          const amountText = appliedChange > 0
+            ? formatVariation(appliedChange)
+            : formatEuro(Math.abs(appliedChange));
 
-  if (Number.isFinite(potentialGain) && potentialGain > 0) {
-    messageElement.querySelectorAll('div').forEach(line => {
-      if (line.textContent.includes('Gain potentiel estimé :')) {
-        line.innerHTML = line.innerHTML.replace(
-          /(Gain potentiel estimé\s*:\s*)(.*)/i,
-          '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+          const targetText = formatEuro(appliedTarget);
+
+          cardMessage = [
+            explanation,
+            `${actionLabel} de ${amountText} appliquée. Tarif cible : ${targetText}.`
+          ].filter(Boolean).join('\n');
+        }
+      }
+
+      const messageLines = [cardMessage];
+
+      const potentialGain = Number(item.gain_potential);
+
+      if (
+        item.gain_potential !== null &&
+        item.gain_potential !== undefined &&
+        item.gain_potential !== '' &&
+        Number.isFinite(potentialGain)
+      ) {
+        messageLines.push(
+          `Gain potentiel estimé : ${formatEuro(potentialGain)}.`
         );
       }
-    });
-  }
-}
 
-    // Prix et hausses : arrondis uniquement à l'affichage
+      const realGain = Number(item.gain_real);
+
+      if (
+        item.gain_real !== null &&
+        item.gain_real !== undefined &&
+        item.gain_real !== '' &&
+        Number.isFinite(realGain) &&
+        realGain > 0
+      ) {
+        messageLines.push(
+          `Gain réel constaté : ${formatEuro(realGain)}.`
+        );
+      }
+
+      const escapeHtml = text => String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+
+      const messageWithLineBreaks = messageLines
+        .map(line => escapeHtml(line))
+        .join('\n');
+
+      messageElement.innerHTML = formatShortMessage(messageWithLineBreaks);
+      messageElement.style.whiteSpace = 'normal';
+
+      // Mise en forme du gain potentiel
+      if (Number.isFinite(potentialGain) && potentialGain > 0) {
+        messageElement.querySelectorAll('div').forEach(line => {
+          if (line.textContent.includes('Gain potentiel estimé :')) {
+            line.innerHTML = line.innerHTML.replace(
+              /(Gain potentiel estimé\s*:\s*)(.*)/i,
+              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+            );
+          }
+        });
+      }
+
+      // Mise en forme du gain réel
+      if (Number.isFinite(realGain) && realGain > 0) {
+        messageElement.querySelectorAll('div').forEach(line => {
+          if (line.textContent.includes('Gain réel constaté :')) {
+            line.innerHTML = line.innerHTML.replace(
+              /(Gain réel constaté\s*:\s*)(.*)/i,
+              '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+            );
+          }
+        });
+      }
+    }
+
+    // ----------------------------------------------------------
+    // Prix et gains
+    // ----------------------------------------------------------
+
     setText(card, '#prix-avant-historic', formatEuro(item.price_before));
     setText(card, '#prix-apres-historic', formatEuro(item.price_after));
 
@@ -4940,11 +4889,13 @@ if (messageElement) {
       formatVariation(item.applied_price_change)
     );
 
-    // Gains
     setText(card, '#gain-potentiel-historic', formatEuro(item.gain_potential));
     setText(card, '#gain-reel-historic', formatEuro(item.gain_real));
 
-    // Restrictions : ignorer les chaînes qui ne contiennent que des espaces
+    // ----------------------------------------------------------
+    // Restrictions
+    // ----------------------------------------------------------
+
     const appliedRestriction = cleanText(item.applied_restriction);
     const recommendedRestriction = cleanText(item.recommended_restriction);
     const restriction = appliedRestriction || recommendedRestriction;
@@ -4956,7 +4907,10 @@ if (messageElement) {
       restrictionElement.style.display = restriction ? '' : 'none';
     }
 
-    // Événement : uniquement icône + nom, sans dates
+    // ----------------------------------------------------------
+    // Événement
+    // ----------------------------------------------------------
+
     const eventElement = card.querySelector('#event-historic');
 
     if (eventElement) {
@@ -4979,7 +4933,10 @@ if (messageElement) {
       }
     }
 
-    // Score RM d'origine
+    // ----------------------------------------------------------
+    // Score RM
+    // ----------------------------------------------------------
+
     const scoreElement = card.querySelector('#text-score-rm-historic');
 
     if (scoreElement) {
@@ -4994,8 +4951,11 @@ if (messageElement) {
           : '—';
     }
 
+    // ----------------------------------------------------------
     // Badges de priorité
-    // Règle TarifZen : priorité <= 5 = rouge ; priorité >= 6 = orange
+    // Priorité <= 5 : rouge ; priorité >= 6 : orange
+    // ----------------------------------------------------------
+
     const orangeBadge = card.querySelector('#badge-rm-orange-historic');
     const redBadge = card.querySelector('#badge-rm-rouge-historic');
 
@@ -5003,21 +4963,20 @@ if (messageElement) {
     if (redBadge) redBadge.style.display = 'none';
 
     const priority = Number(item.priority);
+
     const hasPriority =
       item.priority !== null &&
       item.priority !== undefined &&
       item.priority !== '' &&
       Number.isFinite(priority);
 
-    
-if (hasPriority) {
-  if (priority <= 5) {
-    if (redBadge) redBadge.style.display = 'block';
-  } else {
-    if (orangeBadge) orangeBadge.style.display = 'block';
-  }
-}
-
+    if (hasPriority) {
+      if (priority <= 5) {
+        if (redBadge) redBadge.style.display = 'block';
+      } else {
+        if (orangeBadge) orangeBadge.style.display = 'block';
+      }
+    }
 
     container.appendChild(card);
   });
@@ -5028,9 +4987,11 @@ if (hasPriority) {
     events_count: events.length
   });
 }
+
 /* ============================================================
    API07 — INITIALISATION DE L'HISTORIQUE
    ============================================================ */
+
 async function initHistory() {
   try {
     // 1. Vérifier la session Supabase
@@ -5120,7 +5081,6 @@ async function initHistory() {
       ? historyResult.data
       : [];
 
-    // Conserver les données pour les changements d'onglet
     window.tarifZenHistoryData = historyData;
 
     console.log('[API07] Historique chargé :', {
@@ -5129,32 +5089,29 @@ async function initHistory() {
       data: historyData
     });
 
-    
-console.table(
-  historyData
-    .filter(item => item.action === 'APPLIED')
-    .map(item => ({
-      recommendation_id: item.recommendation_id,
-      date: item.date,
-      title: item.title,
-      price_before: item.price_before,
-      price_after: item.price_after,
-      recommended_price_change: item.recommended_price_change,
-      applied_price_change: item.applied_price_change
-    }))
-);
+    console.table(
+      historyData
+        .filter(item => item.action === 'APPLIED')
+        .map(item => ({
+          recommendation_id: item.recommendation_id,
+          date: item.date,
+          title: item.title,
+          price_before: item.price_before,
+          price_after: item.price_after,
+          recommended_price_change: item.recommended_price_change,
+          applied_price_change: item.applied_price_change
+        }))
+    );
 
+    console.log('[API07] Répartition des actions :', {
+      APPLIED: historyData.filter(item => item.action === 'APPLIED').length,
+      IGNORED: historyData.filter(item => item.action === 'IGNORED').length,
+      autres: historyData.filter(
+        item => !['APPLIED', 'IGNORED'].includes(item.action)
+      ).length
+    });
 
-console.log('[API07] Répartition des actions :', {
-  APPLIED: historyData.filter(item => item.action === 'APPLIED').length,
-  IGNORED: historyData.filter(item => item.action === 'IGNORED').length,
-  autres: historyData.filter(
-    item => !['APPLIED', 'IGNORED'].includes(item.action)
-  ).length
-});
-
-    // 6. Charger les événements API09 pour le même hôtel
-    // Une erreur API09 ne doit pas empêcher l'affichage de l'historique.
+    // 6. Charger les événements API09
     let allEvents = [];
 
     try {
@@ -5191,7 +5148,6 @@ console.log('[API07] Répartition des actions :', {
         count: allEvents.length,
         events: allEvents
       });
-
     } catch (eventsError) {
       window.tarifZenEventsData = [];
 
@@ -5201,13 +5157,10 @@ console.log('[API07] Répartition des actions :', {
       );
     }
 
-    
-    
     // 7. Afficher les actions appliquées par défaut
     renderHistory(historyData, 'APPLIED');
 
-    
-    // 8. Afficher les actions ignorées lors de l'ouverture de l'onglet Webflow
+    // 8. Afficher les actions ignorées lors de l'ouverture de l'onglet
     const ignoredTabLink = document.querySelector(
       '.w-tab-link[href="#w-tabs-2-data-w-pane-1"]'
     );
@@ -5219,13 +5172,11 @@ console.log('[API07] Répartition des actions :', {
     } else {
       console.warn('[API07] Lien Webflow de l’onglet "Autres" introuvable.');
     }
-
-
-
   } catch (error) {
     console.error('[API07] Erreur de chargement :', error.message);
   }
 }
+
 
 /* ============================================================
    LANCEMENT AU CHARGEMENT DU DOM
