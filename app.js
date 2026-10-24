@@ -4816,15 +4816,51 @@ console.log('[API07] Message transmis à la popup :', {
   message: historyInfoIcon?.getAttribute('data-message')
 });
 
-// ======================================================
-// AFFICHAGE DU MESSAGE COURT SUR LA CARTE HISTORIQUE
-// ======================================================
+
+ // ======================================================
+ // AFFICHAGE DU MESSAGE COURT SUR LA CARTE HISTORIQUE
+ // ======================================================
 
 if (messageElement) {
-  const messageLines = [
-    normalizedOriginalMessage ||
-      'Détail de la recommandation indisponible.'
-  ];
+  let cardMessage = normalizedOriginalMessage ||
+    'Détail de la recommandation indisponible.';
+
+  // Pour une action appliquée, afficher la décision réelle
+  // de l'hôtelier plutôt que la recommandation initiale.
+  if (item.action === 'APPLIED') {
+    const appliedChange = Number(item.applied_price_change);
+    const appliedTarget = Number(item.price_after);
+
+    const hasAppliedChange =
+      item.applied_price_change !== null &&
+      item.applied_price_change !== undefined &&
+      item.applied_price_change !== '' &&
+      Number.isFinite(appliedChange);
+
+    const hasAppliedTarget =
+      item.price_after !== null &&
+      item.price_after !== undefined &&
+      item.price_after !== '' &&
+      Number.isFinite(appliedTarget);
+
+    if (hasAppliedChange && hasAppliedTarget) {
+      const variationText = formatVariation(appliedChange);
+      const targetText = formatEuro(appliedTarget);
+
+      // Conserver l'explication initiale, sans la hausse
+      // ni le tarif cible recommandés par TarifZen.
+      const explanation = normalizedOriginalMessage
+        .split(/\n\n/)
+        .filter(Boolean)[0] || '';
+
+      cardMessage = [
+        explanation,
+        `${appliedChange >= 0 ? 'Augmentation' : 'Baisse'} de ${variationText.replace(/^[+-]/, '')} ${appliedChange >= 0 ? 'appliquée' : 'appliquée'}. Tarif cible : ${targetText}.`
+      ].filter(Boolean).join('\n\n');
+    }
+  }
+
+  const messageLines = [cardMessage];
 
   const potentialGain = Number(item.gain_potential);
 
@@ -4875,6 +4911,19 @@ if (messageElement) {
       }
     });
   }
+
+  if (Number.isFinite(realGain) && realGain > 0) {
+    messageElement.querySelectorAll('div').forEach(line => {
+      if (line.textContent.includes('Gain réel constaté :')) {
+        line.innerHTML = line.innerHTML.replace(
+          /(Gain réel constaté\s*:\s*)(.*)/i,
+          '$1<span style="color:#27ae60;font-weight:600;">$2</span>'
+        );
+      }
+    });
+  }
+}
+
 
   if (Number.isFinite(realGain) && realGain > 0) {
     messageElement.querySelectorAll('div').forEach(line => {
