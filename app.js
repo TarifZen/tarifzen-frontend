@@ -5093,15 +5093,21 @@ async function initHistory() {
       data: historyData
     });
 
-    console.table(
-  historyData.map(item => ({
-    action: item.action,
-    recommendation_id: item.recommendation_id,
-    date: item.date,
-    created_at: item.created_at,
-    title: item.title
-  }))
+    
+console.table(
+  historyData
+    .filter(item => item.action === 'APPLIED')
+    .map(item => ({
+      recommendation_id: item.recommendation_id,
+      date: item.date,
+      title: item.title,
+      price_before: item.price_before,
+      price_after: item.price_after,
+      recommended_price_change: item.recommended_price_change,
+      applied_price_change: item.applied_price_change
+    }))
 );
+
 
 console.log('[API07] Répartition des actions :', {
   APPLIED: historyData.filter(item => item.action === 'APPLIED').length,
