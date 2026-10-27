@@ -424,6 +424,7 @@ function initStaticHeader() {
     }, 150);
 }
 
+
 /**
  * 3. MISE À JOUR DE L'INTERFACE GLOBALE
  */
@@ -432,55 +433,147 @@ function updateStatusCounters() {
 }
 
 function refreshUI() {
+    // ==========================================================
+    // 1. MASQUER LA CARTE MODÈLE DE L'HISTORIQUE
+    // ==========================================================
     const modelCard = document.querySelector('.div-block-16');
-    if (modelCard && !modelCard.closest('#conteneur-cartes-historique')) {
+
+    if (
+        modelCard &&
+        !modelCard.closest('#conteneur-cartes-historique')
+    ) {
         modelCard.style.setProperty('display', 'none', 'important');
     }
-    document.querySelectorAll('.date-affichage, .date-application, .date-jour, .text-date-applic').forEach(el => {
-      let txt = el.innerText.trim();
+
+    // ==========================================================
+    // 2. MASQUER LES CARTES MODÈLES DU FORMULAIRE CACHÉ
+    // ==========================================================
+    const hiddenForm = document.querySelector('#wf-form-Hidden-form');
+
+    if (hiddenForm) {
+        hiddenForm
+            .querySelectorAll('.reco-card-item')
+            .forEach(card => {
+                card.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            });
+    }
+
+    // ==========================================================
+    // 3. FORMATAGE DES DATES D'AFFICHAGE
+    // ==========================================================
+    document.querySelectorAll(
+        '.date-affichage, .date-application, .date-jour, .text-date-applic'
+    ).forEach(el => {
+        const txt = el.innerText.trim();
+
         if (txt.toLowerCase().includes('appliqué le')) {
-            let parts = txt.split(':');
-            let datePart = parts.length > 1 ? parts[1].trim() : "";
-            if (datePart) el.innerText = "Appliqué le : " + formatDateFr(datePart);
+            const parts = txt.split(':');
+            const datePart = parts.length > 1
+                ? parts[1].trim()
+                : '';
+
+            if (datePart) {
+                el.innerText = 'Appliqué le : ' + formatDateFr(datePart);
+            }
         } else if (txt.length > 1) {
             el.innerText = formatDateFr(txt);
         }
     });
-    const items = document.querySelectorAll('.collection-item-3, .reco-card-item');
+
+    // ==========================================================
+    // 4. CIBLER UNIQUEMENT LES CARTES HORS FORMULAIRE CACHÉ
+    // ==========================================================
+    const items = [
+        ...document.querySelectorAll(
+            '.collection-item-3, .reco-card-item'
+        )
+    ].filter(item => !item.closest('#wf-form-Hidden-form'));
+
+    // ==========================================================
+    // 5. AFFICHAGE ET MISE EN FORME DES CARTES
+    // ==========================================================
     items.forEach((item, i) => {
         if (window.innerWidth <= 767) {
             item.style.display = (i === 0) ? 'block' : 'none';
         } else {
             item.style.display = (i < 5) ? 'block' : 'none';
         }
-        const priorityAttr = (item.getAttribute('data-priorite') || item.getAttribute('data-status') || "").toLowerCase();
-        const bO = item.querySelector('.bottom-orange, .bandeau-orange, #bottom-orange'), bR = item.querySelector('.bottom-red, .bottom-rouge, .bandeau-rouge, #bottom-rouge');
-        if (priorityAttr.includes("analyse")) {
-            if (bO) bO.style.display = 'block'; if (bR) bR.style.display = 'none';
+
+        const priorityAttr = (
+            item.getAttribute('data-priorite') ||
+            item.getAttribute('data-status') ||
+            ''
+        ).toLowerCase();
+
+        const bO = item.querySelector(
+            '.bottom-orange, .bandeau-orange, #bottom-orange'
+        );
+
+        const bR = item.querySelector(
+            '.bottom-red, .bottom-rouge, .bandeau-rouge, #bottom-rouge'
+        );
+
+        if (priorityAttr.includes('analyse')) {
+            if (bO) bO.style.display = 'block';
+            if (bR) bR.style.display = 'none';
         } else {
-            if (bR) bR.style.display = 'block'; if (bO) bO.style.display = 'none';
+            if (bR) bR.style.display = 'block';
+            if (bO) bO.style.display = 'none';
         }
-        item.querySelectorAll('.date-main-card, .div-block-17, .text-date-carte, .text-date-bottom, .reco-date, .reco-date-bottom').forEach(el => {
-            let txt = el.innerText.trim();
-            if (txt.length > 1) el.innerText = formatDateFr(txt);
+
+        item.querySelectorAll(
+            '.date-main-card, .div-block-17, .text-date-carte, .text-date-bottom, .reco-date, .reco-date-bottom'
+        ).forEach(el => {
+            const txt = el.innerText.trim();
+
+            if (txt.length > 1) {
+                el.innerText = formatDateFr(txt);
+            }
         });
-const dateBottom = item.querySelector(
-    '#reco-date-bottom, .text-date-bottom, .reco-date-bottom'
-);
 
-if (dateBottom) {
-    const firstRecoCard = document.querySelector(
-        '.reco-card-item.is-urgent'
-    );
+        // ======================================================
+        // 6. DATE EN BAS DE CARTE
+        // ======================================================
+        const dateBottom = item.querySelector(
+            '#reco-date-bottom, .text-date-bottom, .reco-date-bottom'
+        );
 
-    if (item === firstRecoCard) {
-        dateBottom.style.setProperty('display', 'none', 'important');
-    } else {
-        dateBottom.style.setProperty('display', 'block', 'important');
-    }
-}
+        if (dateBottom) {
+            const firstRecoCard = document.querySelector(
+                '#recommandations-container .reco-card-item.is-urgent'
+            );
+
+            if (item === firstRecoCard) {
+                dateBottom.style.setProperty(
+                    'display',
+                    'none',
+                    'important'
+                );
+            } else {
+                dateBottom.style.setProperty(
+                    'display',
+                    'block',
+                    'important'
+                );
+            }
+        }
+
+        // ======================================================
+        // 7. BADGE
+        // ======================================================
         const badge = item.querySelector('.text-block-73');
-        if (badge) badge.style.setProperty('display', (i === 0) ? 'none' : 'block', 'important');
+
+        if (badge) {
+            badge.style.setProperty(
+                'display',
+                (i === 0) ? 'none' : 'block',
+                'important'
+            );
+        }
     });
 }
 
