@@ -3785,15 +3785,17 @@ try {
           }
         });
 
-        const medianElement = document.querySelector('.prix.median');
+
+        const medianElement = document.getElementById('tarif-median');
 
         if (medianElement) {
           medianElement.textContent = 'Médiane';
         } else {
           console.warn(
-            '[API06] Élément .prix.median introuvable.'
+            '[API06] Élément #tarif-median introuvable.'
           );
         }
+
 
         // --------------------------------------------------
         // 3. CONTENEURS ET MODÈLES WEBFLOW
