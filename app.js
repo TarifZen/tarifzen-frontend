@@ -3888,6 +3888,7 @@ try {
           // 6. FORMAT DES DATES
           // --------------------------------------------------
 
+         
           const formatDate = value => {
             if (!value) return '—';
 
@@ -3912,8 +3913,9 @@ try {
               return '—';
             }
 
+            // Format du jour et du mois selon le support
             const jour = new Intl.DateTimeFormat('fr-FR', {
-              weekday: isMobileCompetition ? 'short' : 'long'
+              weekday: isMobileCompetition ? 'short' : 'short'
             })
               .format(date)
               .replace(/\.$/, '');
@@ -3932,15 +3934,13 @@ try {
 
             const numeroFormate = String(day).padStart(2, '0');
 
+            // MOBILE : format existant conservé
             if (isMobileCompetition) {
               return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${year}`;
             }
 
-            if (day === 1) {
-              return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${year}`;
-            }
-
-            return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${year}`;
+            // DESKTOP : jour abrégé, mois en toutes lettres
+            return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise} ${year}`;
           };
 
           // --------------------------------------------------
