@@ -3412,6 +3412,42 @@ try {
     console.log('📅 [API09] Réponse complète :', result09);
     console.log('📅 [API09] Événements à venir :', result09?.data?.upcoming);
     console.log('📅 [API09] Événements chargés :', eventsAPI09);
+    
+    // Actualiser uniquement les événements des cartes déjà affichées
+    document
+      .querySelectorAll('#recommandations-container .reco-card-item')
+      .forEach(card => {
+        const dateReco = card.getAttribute('data-popup-date') || '';
+        const eventEl = card.querySelector('#reco-event');
+        const eventContainer = card.querySelector('.card-content-event');
+
+        if (!eventEl || !eventContainer) return;
+
+        const matchingEvents = eventsAPI09.filter(event =>
+          event.start_date === dateReco
+        );
+
+        const impactIcons = {
+          fort: '🔥',
+          moyen: '⚡',
+          faible: '📅'
+        };
+
+        eventEl.textContent = matchingEvents
+          .map(event => {
+            const impactKey = String(event.impact || '')
+              .trim()
+              .toLowerCase();
+
+            const icon = impactIcons[impactKey] || '📅';
+            return `${icon} ${event.name}`;
+          })
+          .join(' · ');
+
+        eventContainer.style.display =
+          matchingEvents.length > 0 ? 'block' : 'none';
+      });
+
   }
 } catch (err09) {
   console.error('[API09] Erreur inattendue :', err09.message);
