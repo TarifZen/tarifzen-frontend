@@ -3129,48 +3129,14 @@ return;
 }
 
 const requestHeaders = {
-'Accept': 'application/json',
-'Authorization': `Bearer ${cleanToken}`
+  'Accept': 'application/json',
+  'Authorization': `Bearer ${cleanToken}`
 };
 
- // 3 bis. API09 — ÉVÉNEMENTS
- let eventsAPI09 = [];
+// Événements initialisés avant leur utilisation par API02
+let eventsAPI09 = [];
 
- try {
-   const response09 = await fetch(
-     `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
-     {
-       method: 'GET',
-       headers: requestHeaders
-     }
-   );
-
-   if (!response09.ok) {
-     console.error(
-       `[API09 - HTTP ${response09.status}] Erreur lors de la récupération des événements.`
-     );
-   } else {
-     const result09 = await response09.json();
-
-     eventsAPI09 = [
-       ...(result09?.data?.upcoming || []),
-       ...(result09?.data?.ongoing || [])
-     ];
-
-     console.log('📅 [API09] Réponse complète :', result09);
-
-console.log('📅 [API09] Événements à venir :', result09?.data?.upcoming);
-
-console.log('📅 [API09] Événements chargés :', eventsAPI09);
-   }
- } catch (err09) {
-   console.error('[API09] Erreur inattendue :', err09.message);
- }
-
-  
-
-
- // Masquer le compteur avant le chargement des données API
+// Masquer le compteur avant le chargement des données API
 const elRecosTotalInitial =
   document.getElementById('recommendations_total');
 
@@ -3196,7 +3162,7 @@ try {
         ? result02.data
         : [];
 
-    // Transmission des recommandations ET des événements API09
+    // Rendu immédiat des recommandations, sans attendre API09
     renderRecommandations(
       recommendations,
       eventsAPI09
@@ -3223,9 +3189,7 @@ try {
   renderRecommandations([], eventsAPI09);
 }
 
-
-
- // 5. API03 — DASHBOARD
+// 5. API03 — DASHBOARD
 try {
   const response03 = await fetch(
     `${API_BASE_URL}/api/v1/dashboard/today?hotel_id=${encodeURIComponent(targetHotelId)}`,
@@ -3337,7 +3301,6 @@ try {
     elGainReel.style.visibility = 'visible';
   }
 
-  
   // RENTABILITÉ DU MOIS
   const elProfitability =
     document.getElementById('profitability-month');
@@ -3349,8 +3312,6 @@ try {
     elProfitability.style.visibility = 'visible';
   }
 
-
- 
   // ÉVÉNEMENTS DU MOIS
   const elEvents =
     document.getElementById('events_month');
@@ -3406,7 +3367,6 @@ try {
     elN1Adr.style.visibility = 'visible';
   }
 
-
   // TEXTE DE SYNTHÈSE
   const elSummary =
     document.getElementById('summary-text');
@@ -3427,8 +3387,35 @@ try {
   );
 }
 
+// 6. API09 — ÉVÉNEMENTS
+try {
+  const response09 = await fetch(
+    `${API_BASE_URL}/api/v1/events?hotel_id=${encodeURIComponent(targetHotelId)}`,
+    {
+      method: 'GET',
+      headers: requestHeaders
+    }
+  );
 
+  if (!response09.ok) {
+    console.error(
+      `[API09 - HTTP ${response09.status}] Erreur lors de la récupération des événements.`
+    );
+  } else {
+    const result09 = await response09.json();
 
+    eventsAPI09 = [
+      ...(result09?.data?.upcoming || []),
+      ...(result09?.data?.ongoing || [])
+    ];
+
+    console.log('📅 [API09] Réponse complète :', result09);
+    console.log('📅 [API09] Événements à venir :', result09?.data?.upcoming);
+    console.log('📅 [API09] Événements chargés :', eventsAPI09);
+  }
+} catch (err09) {
+  console.error('[API09] Erreur inattendue :', err09.message);
+}
 
  
  // 6. API05 — PICK UP
