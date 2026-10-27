@@ -3509,7 +3509,8 @@ try {
        dataTemplate.style.display = 'none';
 
 
-       // Format des dates : long sur desktop, court sur mobile
+      
+       // Format des dates : desktop abrégé, mobile inchangé
        const formatDate = value => {
          if (!value) return '—';
 
@@ -3526,6 +3527,7 @@ try {
            '(max-width: 479px)'
          ).matches;
 
+         // MOBILE : conserver strictement le format existant
          if (isMobile) {
            const jour = new Intl.DateTimeFormat('fr-FR', {
              weekday: 'short'
@@ -3546,10 +3548,10 @@ try {
            return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${parts[0]}`;
          }
 
-         // Format desktop conservé
+         // DESKTOP : jour abrégé, mois en toutes lettres
          const jour = new Intl.DateTimeFormat('fr-FR', {
-           weekday: 'long'
-         }).format(date);
+           weekday: 'short'
+         }).format(date).replace(/\.$/, '');
 
          const mois = new Intl.DateTimeFormat('fr-FR', {
            month: 'long'
@@ -3563,13 +3565,8 @@ try {
 
          const numeroFormate = String(parts[2]).padStart(2, '0');
 
-         if (parts[2] === 1) {
-           return `${jourCapitalise} ${numeroFormate}<sup>er</sup> ${moisCapitalise} ${parts[0]}`;
-         }
-
-         return `${jourCapitalise} ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
+         return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise} ${parts[0]}`;
        };
-
 
        // Format des variations avec couleurs
        const formatVariation = (value, suffix = '') => {
