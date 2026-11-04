@@ -3684,6 +3684,7 @@ try {
     
 
     
+    
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -3782,7 +3783,6 @@ try {
           }
         });
 
-
         const medianElement = document.getElementById('tarif-median');
 
         if (medianElement) {
@@ -3792,7 +3792,6 @@ try {
             '[API06] Élément #tarif-median introuvable.'
           );
         }
-
 
         // --------------------------------------------------
         // 3. CONTENEURS ET MODÈLES WEBFLOW
@@ -3888,7 +3887,6 @@ try {
           // 6. FORMAT DES DATES
           // --------------------------------------------------
 
-         
           const formatDate = value => {
             if (!value) return '—';
 
@@ -3913,9 +3911,8 @@ try {
               return '—';
             }
 
-            // Format du jour et du mois selon le support
             const jour = new Intl.DateTimeFormat('fr-FR', {
-              weekday: isMobileCompetition ? 'short' : 'short'
+              weekday: 'short'
             })
               .format(date)
               .replace(/\.$/, '');
@@ -3934,12 +3931,10 @@ try {
 
             const numeroFormate = String(day).padStart(2, '0');
 
-            // MOBILE : format existant conservé
             if (isMobileCompetition) {
               return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${year}`;
             }
 
-            // DESKTOP : jour abrégé, mois en toutes lettres
             return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise} ${year}`;
           };
 
@@ -4027,9 +4022,7 @@ try {
               'true'
             );
 
-
-
-                       // Desktop : grille responsive alignée sur le header.
+            // Desktop : grille responsive alignée sur le header.
             // Mobile : conserver le fonctionnement FLEX existant.
             const dataStyles = {
               display: isMobileCompetition ? 'flex' : 'grid',
@@ -4042,7 +4035,6 @@ try {
               transform: 'none'
             };
 
-            // Corrections DESKTOP uniquement.
             if (!isMobileCompetition) {
               dataStyles.width = '100%';
               dataStyles['min-width'] = '0';
@@ -4050,7 +4042,6 @@ try {
                 'repeat(5, minmax(0, 1fr))';
               dataStyles['column-gap'] = '10px';
 
-              // Même espace sous le header que pour les dates.
               if (index === 0) {
                 dataStyles['margin-top'] = '8px';
               }
@@ -4066,18 +4057,6 @@ try {
               }
             );
 
-            Object.entries(dataStyles).forEach(
-              ([property, value]) => {
-                dataClone.style.setProperty(
-                  property,
-                  value,
-                  'important'
-                );
-              }
-            );
-
-
-
             dataClone.style.setProperty(
               'background-color',
               'transparent',
@@ -4086,14 +4065,14 @@ try {
 
             // Les cinq cases tarifaires
             const fields = [
-              ['tarif-mon-hotel', row.hotel_price],
-              ['tarif-concurrent-1', row.competitor_1_price],
-              ['tarif-concurrent-2', row.competitor_2_price],
-              ['tarif-concurrent-3', row.competitor_3_price],
-              ['tarif-median', row.competitor_median]
+              ['tarif-mon-hotel', row.hotel_price, row.hotel_status],
+              ['tarif-concurrent-1', row.competitor_1_price, row.competitor_1_status],
+              ['tarif-concurrent-2', row.competitor_2_price, row.competitor_2_status],
+              ['tarif-concurrent-3', row.competitor_3_price, row.competitor_3_status],
+              ['tarif-median', row.competitor_median, null]
             ];
 
-            fields.forEach(([fieldId, value]) => {
+            fields.forEach(([fieldId, value, status]) => {
               const cell = dataClone.querySelector(`#${fieldId}`);
 
               if (!cell) {
@@ -4110,19 +4089,73 @@ try {
                 'important'
               );
 
-              // Tarifs arrondis à l'euro entier
+              // Réinitialisation du contenu
+              cell.replaceChildren();
+
+              // Tarif absent : hôtel ou concurrent complet.
               if (
                 value === null ||
                 value === undefined ||
                 value === ''
               ) {
-                cell.textContent = '—';
+                cell.textContent = 'Complet';
+                cell.style.setProperty(
+                  'color',
+                  '#6B7280',
+                  'important'
+                );
+                cell.style.setProperty(
+                  'font-size',
+                  '12px',
+                  'important'
+                );
               } else {
                 const numericValue = Number(value);
 
-                cell.textContent = Number.isFinite(numericValue)
-                  ? `${Math.round(numericValue).toLocaleString('fr-FR')} €`
-                  : '—';
+                if (!Number.isFinite(numericValue)) {
+                  cell.textContent = '—';
+                } else {
+                  // Conteneur du prix et de la pastille éventuelle.
+                  const content = document.createElement('div');
+
+                  content.style.display = 'flex';
+                  content.style.alignItems = 'center';
+                  content.style.justifyContent = 'center';
+                  content.style.gap = '4px';
+                  content.style.width = '100%';
+                  content.style.height = '100%';
+                  content.style.whiteSpace = 'nowrap';
+
+                  const priceElement = document.createElement('span');
+
+                  priceElement.textContent =
+                    `${Math.round(numericValue).toLocaleString('fr-FR')} €`;
+
+                  content.appendChild(priceElement);
+
+                  // Pastille minimum stay : MS2, MS3, MS4...
+                  const msMatch =
+                    typeof status === 'string' &&
+                    /^MS\d+$/.test(status);
+
+                  if (msMatch) {
+                    const badge = document.createElement('span');
+
+                    badge.textContent = status;
+                    badge.style.display = 'inline-block';
+                    badge.style.padding = '2px 5px';
+                    badge.style.borderRadius = '5px';
+                    badge.style.backgroundColor = '#FEF3C7';
+                    badge.style.color = '#92400E';
+                    badge.style.fontSize = '10px';
+                    badge.style.fontWeight = '600';
+                    badge.style.lineHeight = '14px';
+
+                    content.appendChild(badge);
+                  }
+
+                  cell.appendChild(content);
+                }
               }
 
               // Couleur du prix de l'hôtel selon la médiane
