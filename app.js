@@ -4092,24 +4092,30 @@ try {
               // Réinitialisation du contenu
               cell.replaceChildren();
 
-              // Tarif absent : hôtel ou concurrent complet.
-              if (
-                value === null ||
-                value === undefined ||
-                value === ''
-              ) {
-                cell.textContent = 'Complet';
-                cell.style.setProperty(
-                  'color',
-                  '#6B7280',
-                  'important'
-                );
-                cell.style.setProperty(
-                  'font-size',
-                  '12px',
-                  'important'
-                );
-              } else {
+// Tarif absent : distinguer indisponibilité et absence de données.
+if (
+  value === null ||
+  value === undefined ||
+  value === ''
+) {
+  if (status === 'UNAVAILABLE') {
+    // Booking confirme que l'établissement est complet.
+    cell.textContent = 'Complet';
+    cell.style.setProperty(
+      'color',
+      '#6B7280',
+      'important'
+    );
+    cell.style.setProperty(
+      'font-size',
+      '12px',
+      'important'
+    );
+  } else {
+    // Tarif absent sans confirmation d'indisponibilité.
+    cell.textContent = '—';
+  }
+} else {
                 const numericValue = Number(value);
 
                 if (!Number.isFinite(numericValue)) {
