@@ -3728,7 +3728,8 @@ dateClone.tabIndex = 0;
         const competitionData = Array.isArray(result06?.data)
           ? result06.data
           : [];
-
+console.log('[API06] première ligne reçue :', competitionData[0]);
+        
         // --------------------------------------------------
         // 1. RÉCUPÉRATION DE LA FICHE HÔTEL
         // --------------------------------------------------
