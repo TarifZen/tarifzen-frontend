@@ -3632,6 +3632,7 @@ if (row.created_at) {
     }).format(updatedAt);
 
     dateClone.title = `Tarifs actualisés le ${formattedUpdate}`;
+    console.log('[API06] Infobulle date :', dateClone.title);
   }
 }
 
