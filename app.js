@@ -3851,6 +3851,14 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
           'line-concurrence'
         );
 
+        console.log('[API06] Vérification des conteneurs :', {
+  datesContainer,
+  datesContainerConnected: datesContainer?.isConnected,
+  datesContainerParent: datesContainer?.parentElement,
+  dateTemplate,
+  dateTemplateParent: dateTemplate?.parentElement
+});
+
         if (
           !datesContainer ||
           !dataContainer ||
