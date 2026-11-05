@@ -3614,7 +3614,28 @@ try {
          dateClone.style.display = '';
          dateClone.style.backgroundColor = rowBackground;
 
-         dateClone.innerHTML = formatDate(row.date);
+         dateClone.textContent = formatDate(row.date);
+
+// Infobulle indiquant la dernière actualisation de cette date
+if (row.created_at) {
+  const updatedAt = new Date(row.created_at);
+
+  if (!Number.isNaN(updatedAt.getTime())) {
+    const formattedUpdate = new Intl.DateTimeFormat('fr-FR', {
+      weekday: 'long',
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      timeZone: 'Europe/Paris'
+    }).format(updatedAt);
+
+    dateClone.title = `Tarifs actualisés le ${formattedUpdate}`;
+  }
+}
+
+dateClone.tabIndex = 0;
          dateClone.style.color = '#111111';
 
          datesContainer.appendChild(dateClone);
