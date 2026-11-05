@@ -3609,6 +3609,9 @@ try {
          // Clone de la date dans la colonne fixe
          const dateClone = dateTemplate.cloneNode(true);
 
+         console.log('[API06] Date créée :', dateClone);
+console.log('[API06] Parent :', dateClone.parentElement);
+
          dateClone.removeAttribute('id');
          dateClone.setAttribute('data-tz-pickup-generated', 'true');
          dateClone.style.display = '';
