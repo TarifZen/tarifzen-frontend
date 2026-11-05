@@ -3858,7 +3858,13 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
   dateTemplate,
   dateTemplateParent: dateTemplate?.parentElement
 });
-
+console.log('[API06] Dimensions concurrence :', {
+  datesContainer: datesContainer.getBoundingClientRect(),
+  parent: datesContainer.parentElement.getBoundingClientRect(),
+  dataContainer: dataContainer.getBoundingClientRect(),
+  dateTemplate: dateTemplate.getBoundingClientRect()
+});
+        
         if (
           !datesContainer ||
           !dataContainer ||
