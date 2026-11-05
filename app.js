@@ -3617,9 +3617,9 @@ try {
          dateClone.textContent = formatDate(row.date);
 
 // Infobulle indiquant la dernière actualisation de cette date
-if (row.created_at) {
-  const updatedAt = new Date(row.created_at);
-
+if (row.last_updated_at) {
+  const updatedAt = new Date(row.last_updated_at);
+  
   if (!Number.isNaN(updatedAt.getTime())) {
     const formattedUpdate = new Intl.DateTimeFormat('fr-FR', {
       weekday: 'long',
