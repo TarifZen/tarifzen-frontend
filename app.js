@@ -3619,10 +3619,10 @@ console.log('[API06] Parent :', dateClone.parentElement);
 
          dateClone.textContent = formatDate(row.date);
 
-// Infobulle indiquant la dernière actualisation de cette date
+// Infobulle stylisée : dernière actualisation de cette date
 if (row.last_updated_at) {
   const updatedAt = new Date(row.last_updated_at);
-  
+
   if (!Number.isNaN(updatedAt.getTime())) {
     const formattedUpdate = new Intl.DateTimeFormat('fr-FR', {
       weekday: 'long',
@@ -3634,23 +3634,16 @@ if (row.last_updated_at) {
       timeZone: 'Europe/Paris'
     }).format(updatedAt);
 
-    dateClone.title = `Tarifs actualisés le ${formattedUpdate}`;
+    dateClone.removeAttribute('title');
+    dateClone.setAttribute(
+      'data-tz-tooltip',
+      `Tarifs actualisés le ${formattedUpdate}`
+    );
+    dateClone.setAttribute('data-tz-pickup-generated', 'true');
     dateClone.style.cursor = 'help';
-    dateClone.style.position = 'relative';
     dateClone.style.zIndex = '9999';
-    
-    dateClone.addEventListener('mouseenter', () => {
-  console.log('[API06] SURVOL DATE OK :', dateClone.textContent);
-});
-
-dateClone.addEventListener('mouseleave', () => {
-  console.log('[API06] FIN SURVOL DATE');
-});
-    
-    console.log('[API06] Infobulle date :', dateClone.title);
   }
 }
-
 dateClone.tabIndex = 0;
          dateClone.style.color = '#111111';
 
@@ -4031,7 +4024,12 @@ console.log('[API06] Date ajoutée :', {
             const updatedAt = formatLastUpdated(row.last_updated_at);
 
             if (updatedAt) {
-              dateClone.title = `Tarifs actualisés le ${updatedAt}`;
+             dateClone.removeAttribute('title');
+
+dateClone.setAttribute(
+  'data-tz-tooltip',
+  `Tarifs actualisés le ${updatedAt}`
+);
               dateClone.setAttribute('tabindex', '0');
             } else {
               dateClone.removeAttribute('title');
