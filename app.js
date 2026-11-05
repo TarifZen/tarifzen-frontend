@@ -3613,7 +3613,6 @@ try {
 console.log('[API06] Parent :', dateClone.parentElement);
 
          dateClone.removeAttribute('id');
-         dateClone.setAttribute('data-tz-pickup-generated', 'true');
          dateClone.style.display = '';
          dateClone.style.backgroundColor = rowBackground;
 
@@ -3634,15 +3633,7 @@ if (row.last_updated_at) {
       timeZone: 'Europe/Paris'
     }).format(updatedAt);
 
-    dateClone.removeAttribute('title');
-    dateClone.setAttribute(
-      'data-tz-tooltip',
-      `Tarifs actualisés le ${formattedUpdate}`
-    );
-    dateClone.setAttribute('data-tz-pickup-generated', 'true');
-    dateClone.style.cursor = 'help';
-    dateClone.style.zIndex = '9999';
-  }
+    }
 }
 dateClone.tabIndex = 0;
          dateClone.style.color = '#111111';
