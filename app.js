@@ -3655,7 +3655,14 @@ dateClone.tabIndex = 0;
          dateClone.style.color = '#111111';
 
          datesContainer.appendChild(dateClone);
-
+         
+console.log('[API06] Date ajoutée :', {
+  texte: dateClone.textContent,
+  connectee: dateClone.isConnected,
+  dimensions: dateClone.getBoundingClientRect(),
+  parent: dateClone.parentElement?.id,
+  titre: dateClone.title
+});
          
          // Clone de la ligne de données
          const dataClone = dataTemplate.cloneNode(true);
