@@ -3632,6 +3632,9 @@ if (row.last_updated_at) {
     }).format(updatedAt);
 
     dateClone.title = `Tarifs actualisés le ${formattedUpdate}`;
+    dateClone.style.cursor = 'help';
+    dateClone.style.position = 'relative';
+    dateClone.style.zIndex = '9999';
     console.log('[API06] Infobulle date :', dateClone.title);
   }
 }
