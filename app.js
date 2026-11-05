@@ -3729,6 +3729,7 @@ console.log('[API06] Date ajoutée :', {
 
     
     
+  
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -3750,8 +3751,7 @@ console.log('[API06] Date ajoutée :', {
         const competitionData = Array.isArray(result06?.data)
           ? result06.data
           : [];
-console.log('[API06] première ligne reçue :', competitionData[0]);
-        
+
         // --------------------------------------------------
         // 1. RÉCUPÉRATION DE LA FICHE HÔTEL
         // --------------------------------------------------
@@ -3776,22 +3776,16 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
             .maybeSingle();
 
           if (error) {
-            console.error(
-              '[API06] Erreur récupération fiche hôtel :',
-              error
-            );
+            console.error('[API06] Erreur récupération fiche hôtel :', error);
           } else {
             hotelInfo = data;
           }
         } catch (hotelError) {
-          console.error(
-            '[API06] Erreur Supabase :',
-            hotelError
-          );
+          console.error('[API06] Erreur Supabase :', hotelError);
         }
 
         // --------------------------------------------------
-        // 2. EN-TÊTES : HÔTEL, CONCURRENTS ET MÉDIANE
+        // 2. EN-TÊTES
         // --------------------------------------------------
 
         const hotelName =
@@ -3800,16 +3794,13 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
             : hotelInfo?.nom_hotel || 'Non renseigné';
 
         const competitor1Name =
-          hotelInfo?.nom_booking_comp_1 ||
-          competitors.competitor_1_name;
+          hotelInfo?.nom_booking_comp_1 || competitors.competitor_1_name;
 
         const competitor2Name =
-          hotelInfo?.nom_booking_comp_2 ||
-          competitors.competitor_2_name;
+          hotelInfo?.nom_booking_comp_2 || competitors.competitor_2_name;
 
         const competitor3Name =
-          hotelInfo?.nom_booking_comp_3 ||
-          competitors.competitor_3_name;
+          hotelInfo?.nom_booking_comp_3 || competitors.competitor_3_name;
 
         const headerNames = [
           ['name-mon-hotel', hotelName],
@@ -3833,9 +3824,7 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
         if (medianElement) {
           medianElement.textContent = 'Médiane';
         } else {
-          console.warn(
-            '[API06] Élément #tarif-median introuvable.'
-          );
+          console.warn('[API06] Élément #tarif-median introuvable.');
         }
 
         // --------------------------------------------------
@@ -3850,71 +3839,37 @@ console.log('[API06] première ligne reçue :', competitionData[0]);
           'colonne-date-scroll-concurrence'
         );
 
-        const dateTemplate = document.getElementById(
-          'date-concurrence'
-        );
+        const dateTemplate = document.getElementById('date-concurrence');
+        const dataTemplate = document.getElementById('line-concurrence');
 
-        const dataTemplate = document.getElementById(
-          'line-concurrence'
-        );
-
-        console.log('[API06] Vérification des conteneurs :', {
-  datesContainer,
-  datesContainerConnected: datesContainer?.isConnected,
-  datesContainerParent: datesContainer?.parentElement,
-  dateTemplate,
-  dateTemplateParent: dateTemplate?.parentElement
-});
-console.log('[API06] Dimensions concurrence :', {
-  datesContainer: datesContainer.getBoundingClientRect(),
-  parent: datesContainer.parentElement.getBoundingClientRect(),
-  dataContainer: dataContainer.getBoundingClientRect(),
-  dateTemplate: dateTemplate.getBoundingClientRect()
-});
-        
         if (
           !datesContainer ||
           !dataContainer ||
           !dateTemplate ||
           !dataTemplate
         ) {
-          console.error(
-            '[API06] Conteneurs ou modèles introuvables.',
-            {
-              datesContainer: !!datesContainer,
-              dataContainer: !!dataContainer,
-              dateTemplate: !!dateTemplate,
-              dataTemplate: !!dataTemplate
-            }
-          );
+          console.error('[API06] Conteneurs ou modèles introuvables.', {
+            datesContainer: !!datesContainer,
+            dataContainer: !!dataContainer,
+            dateTemplate: !!dateTemplate,
+            dataTemplate: !!dataTemplate
+          });
         } else {
+
           // --------------------------------------------------
           // 4. NETTOYAGE DES ANCIENNES LIGNES
           // --------------------------------------------------
 
           datesContainer
-            .querySelectorAll(
-              '[data-tz-concurrence-generated="true"]'
-            )
+            .querySelectorAll('[data-tz-concurrence-generated="true"]')
             .forEach(element => element.remove());
 
           dataContainer
-            .querySelectorAll(
-              '[data-tz-concurrence-generated="true"]'
-            )
+            .querySelectorAll('[data-tz-concurrence-generated="true"]')
             .forEach(element => element.remove());
 
-          dateTemplate.style.setProperty(
-            'display',
-            'none',
-            'important'
-          );
-
-          dataTemplate.style.setProperty(
-            'display',
-            'none',
-            'important'
-          );
+          dateTemplate.style.setProperty('display', 'none', 'important');
+          dataTemplate.style.setProperty('display', 'none', 'important');
 
           // --------------------------------------------------
           // 5. CONFIGURATION DES LARGEURS
@@ -3924,9 +3879,7 @@ console.log('[API06] Dimensions concurrence :', {
             '(max-width: 479px)'
           ).matches;
 
-          const dateColumnWidth = isMobileCompetition
-            ? '165px'
-            : '220px';
+          const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
 
           [
             ['width', dateColumnWidth],
@@ -3935,11 +3888,7 @@ console.log('[API06] Dimensions concurrence :', {
             ['flex', `0 0 ${dateColumnWidth}`],
             ['box-sizing', 'border-box']
           ].forEach(([property, value]) => {
-            datesContainer.style.setProperty(
-              property,
-              value,
-              'important'
-            );
+            datesContainer.style.setProperty(property, value, 'important');
           });
 
           // --------------------------------------------------
@@ -3959,7 +3908,6 @@ console.log('[API06] Dimensions concurrence :', {
             }
 
             const [year, month, day] = parts;
-
             const date = new Date(year, month - 1, day);
 
             if (
@@ -3972,15 +3920,11 @@ console.log('[API06] Dimensions concurrence :', {
 
             const jour = new Intl.DateTimeFormat('fr-FR', {
               weekday: 'short'
-            })
-              .format(date)
-              .replace(/\.$/, '');
+            }).format(date).replace(/\.$/, '');
 
             const mois = new Intl.DateTimeFormat('fr-FR', {
               month: isMobileCompetition ? 'short' : 'long'
-            })
-              .format(date)
-              .replace(/\.$/, '');
+            }).format(date).replace(/\.$/, '');
 
             const jourCapitalise =
               jour.charAt(0).toUpperCase() + jour.slice(1);
@@ -3998,21 +3942,43 @@ console.log('[API06] Dimensions concurrence :', {
           };
 
           // --------------------------------------------------
-          // 7. FONDS ALTERNÉS
+          // 7. FORMAT DE LA DATE DE MISE À JOUR
+          // --------------------------------------------------
+
+          const formatLastUpdated = value => {
+            if (!value) return null;
+
+            const date = new Date(value);
+
+            if (Number.isNaN(date.getTime())) return null;
+
+            return new Intl.DateTimeFormat('fr-FR', {
+              weekday: 'long',
+              day: '2-digit',
+              month: 'long',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: 'Europe/Paris'
+            }).format(date);
+          };
+
+          // --------------------------------------------------
+          // 8. FONDS ALTERNÉS
           // --------------------------------------------------
 
           const getRowBackground = index =>
             index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
 
           // --------------------------------------------------
-          // 8. GÉNÉRATION DES DATES ET DES TARIFS
+          // 9. GÉNÉRATION DES DATES ET DES TARIFS
           // --------------------------------------------------
 
           competitionData.forEach((row, index) => {
             const rowBackground = getRowBackground(index);
 
             // ----------------------------------------------
-            // 8A. DATE — COLONNE FIXE
+            // 9A. DATE — COLONNE FIXE CONCURRENCE
             // ----------------------------------------------
 
             const dateClone = dateTemplate.cloneNode(true);
@@ -4051,25 +4017,31 @@ console.log('[API06] Dimensions concurrence :', {
               'letter-spacing': 'normal',
               color: '#333333',
               'background-color': rowBackground,
-              transform: 'none'
+              transform: 'none',
+              cursor: 'help'
             };
 
-            Object.entries(dateStyles).forEach(
-              ([property, value]) => {
-                dateClone.style.setProperty(
-                  property,
-                  value,
-                  'important'
-                );
-              }
-            );
+            Object.entries(dateStyles).forEach(([property, value]) => {
+              dateClone.style.setProperty(property, value, 'important');
+            });
 
             dateClone.innerHTML = formatDate(row.date);
+
+            // Infobulle : dernière observation des tarifs
+            const updatedAt = formatLastUpdated(row.last_updated_at);
+
+            if (updatedAt) {
+              dateClone.title = `Tarifs actualisés le ${updatedAt}`;
+              dateClone.setAttribute('tabindex', '0');
+            } else {
+              dateClone.removeAttribute('title');
+              dateClone.removeAttribute('tabindex');
+            }
 
             datesContainer.appendChild(dateClone);
 
             // ----------------------------------------------
-            // 8B. TARIFS — COLONNE DÉFILANTE
+            // 9B. TARIFS — COLONNE DÉFILANTE
             // ----------------------------------------------
 
             const dataClone = dataTemplate.cloneNode(true);
@@ -4081,8 +4053,6 @@ console.log('[API06] Dimensions concurrence :', {
               'true'
             );
 
-            // Desktop : grille responsive alignée sur le header.
-            // Mobile : conserver le fonctionnement FLEX existant.
             const dataStyles = {
               display: isMobileCompetition ? 'flex' : 'grid',
               height: '35px',
@@ -4106,15 +4076,9 @@ console.log('[API06] Dimensions concurrence :', {
               }
             }
 
-            Object.entries(dataStyles).forEach(
-              ([property, value]) => {
-                dataClone.style.setProperty(
-                  property,
-                  value,
-                  'important'
-                );
-              }
-            );
+            Object.entries(dataStyles).forEach(([property, value]) => {
+              dataClone.style.setProperty(property, value, 'important');
+            });
 
             dataClone.style.setProperty(
               'background-color',
@@ -4122,7 +4086,6 @@ console.log('[API06] Dimensions concurrence :', {
               'important'
             );
 
-            // Les cinq cases tarifaires
             const fields = [
               ['tarif-mon-hotel', row.hotel_price, row.hotel_status],
               ['tarif-concurrent-1', row.competitor_1_price, row.competitor_1_status],
@@ -4141,46 +4104,33 @@ console.log('[API06] Dimensions concurrence :', {
                 return;
               }
 
-              // Fond alterné des cases
               cell.style.setProperty(
                 'background-color',
                 rowBackground,
                 'important'
               );
 
-              // Réinitialisation du contenu
               cell.replaceChildren();
 
-// Tarif absent : distinguer indisponibilité et absence de données.
-if (
-  value === null ||
-  value === undefined ||
-  value === ''
-) {
-  if (status === 'UNAVAILABLE') {
-    // Booking confirme que l'établissement est complet.
-    cell.textContent = 'Complet';
-    cell.style.setProperty(
-      'color',
-      '#6B7280',
-      'important'
-    );
-    cell.style.setProperty(
-      'font-size',
-      '12px',
-      'important'
-    );
-  } else {
-    // Tarif absent sans confirmation d'indisponibilité.
-    cell.textContent = '—';
-  }
-} else {
+              // Tarif absent : distinguer indisponibilité et absence de données.
+              if (
+                value === null ||
+                value === undefined ||
+                value === ''
+              ) {
+                if (status === 'UNAVAILABLE') {
+                  cell.textContent = 'Complet';
+                  cell.style.setProperty('color', '#6B7280', 'important');
+                  cell.style.setProperty('font-size', '12px', 'important');
+                } else {
+                  cell.textContent = '—';
+                }
+              } else {
                 const numericValue = Number(value);
 
                 if (!Number.isFinite(numericValue)) {
                   cell.textContent = '—';
                 } else {
-                  // Conteneur du prix et de la pastille éventuelle.
                   const content = document.createElement('div');
 
                   content.style.display = 'flex';
@@ -4198,7 +4148,6 @@ if (
 
                   content.appendChild(priceElement);
 
-                  // Pastille minimum stay : MS2, MS3, MS4...
                   const msMatch =
                     typeof status === 'string' &&
                     /^MS\d+$/.test(status);
@@ -4236,9 +4185,7 @@ if (
                   row.competitor_median !== '';
 
                 const hotelPrice = Number(value);
-                const medianPrice = Number(
-                  row.competitor_median
-                );
+                const medianPrice = Number(row.competitor_median);
 
                 if (
                   !hasHotelPrice ||
@@ -4246,23 +4193,16 @@ if (
                   !Number.isFinite(hotelPrice) ||
                   !Number.isFinite(medianPrice)
                 ) {
-                  cell.style.setProperty(
-                    'color',
-                    '#6B7280',
-                    'important'
-                  );
+                  cell.style.setProperty('color', '#6B7280', 'important');
                 } else {
                   cell.style.setProperty(
                     'color',
-                    hotelPrice >= medianPrice
-                      ? '#16A34A'
-                      : '#DC2626',
+                    hotelPrice >= medianPrice ? '#16A34A' : '#DC2626',
                     'important'
                   );
                 }
               }
 
-              // Éviter les IDs dupliqués dans les clones
               cell.removeAttribute('id');
             });
 
@@ -4270,7 +4210,7 @@ if (
           });
 
           // --------------------------------------------------
-          // 9. CONTRÔLE DE L'ALIGNEMENT
+          // 10. CONTRÔLE DE L'ALIGNEMENT
           // --------------------------------------------------
 
           requestAnimationFrame(() => {
@@ -4323,28 +4263,22 @@ if (
 
             console.table(alignment);
 
-            console.log(
-              '📊 [API06] Contrôle concurrence :',
-              {
-                dates: generatedDates.length,
-                lignesTarifaires: generatedRows.length,
-                hotel: hotelName,
-                concurrents: [
-                  competitor1Name,
-                  competitor2Name,
-                  competitor3Name
-                ],
-                mobile: isMobileCompetition
-              }
-            );
+            console.log('📊 [API06] Contrôle concurrence :', {
+              dates: generatedDates.length,
+              lignesTarifaires: generatedRows.length,
+              hotel: hotelName,
+              concurrents: [
+                competitor1Name,
+                competitor2Name,
+                competitor3Name
+              ],
+              mobile: isMobileCompetition
+            });
           });
         }
       }
     } catch (err06) {
-      console.error(
-        '[API06] Erreur de chargement :',
-        err06
-      );
+      console.error('[API06] Erreur de chargement :', err06);
     }
 
  
