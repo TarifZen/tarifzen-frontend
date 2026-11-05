@@ -3635,6 +3635,15 @@ if (row.last_updated_at) {
     dateClone.style.cursor = 'help';
     dateClone.style.position = 'relative';
     dateClone.style.zIndex = '9999';
+    
+    dateClone.addEventListener('mouseenter', () => {
+  console.log('[API06] SURVOL DATE OK :', dateClone.textContent);
+});
+
+dateClone.addEventListener('mouseleave', () => {
+  console.log('[API06] FIN SURVOL DATE');
+});
+    
     console.log('[API06] Infobulle date :', dateClone.title);
   }
 }
