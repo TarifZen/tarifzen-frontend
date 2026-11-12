@@ -3714,6 +3714,7 @@ console.log('[API06] Date ajoutée :', {
     
     
   
+
     // ----------------------------------------------------------
     // API06 — CONCURRENCE
     // ----------------------------------------------------------
@@ -4015,12 +4016,13 @@ console.log('[API06] Date ajoutée :', {
             const updatedAt = formatLastUpdated(row.last_updated_at);
 
             if (updatedAt) {
-             dateClone.removeAttribute('title');
+              dateClone.removeAttribute('title');
 
-dateClone.setAttribute(
-  'data-tz-tooltip',
-  `Tarifs actualisés le ${updatedAt}`
-);
+              dateClone.setAttribute(
+                'data-tz-tooltip',
+                `Tarifs actualisés le ${updatedAt}`
+              );
+
               dateClone.setAttribute('tabindex', '0');
             } else {
               dateClone.removeAttribute('title');
@@ -4075,15 +4077,41 @@ dateClone.setAttribute(
               'important'
             );
 
+            // Tarifs, disponibilités et variations associées
             const fields = [
-              ['tarif-mon-hotel', row.hotel_price, row.hotel_status],
-              ['tarif-concurrent-1', row.competitor_1_price, row.competitor_1_status],
-              ['tarif-concurrent-2', row.competitor_2_price, row.competitor_2_status],
-              ['tarif-concurrent-3', row.competitor_3_price, row.competitor_3_status],
-              ['tarif-median', row.competitor_median, null]
+              [
+                'tarif-mon-hotel',
+                row.hotel_price,
+                row.hotel_status,
+                row.hotel_price_variation
+              ],
+              [
+                'tarif-concurrent-1',
+                row.competitor_1_price,
+                row.competitor_1_status,
+                row.competitor_1_price_variation
+              ],
+              [
+                'tarif-concurrent-2',
+                row.competitor_2_price,
+                row.competitor_2_status,
+                row.competitor_2_price_variation
+              ],
+              [
+                'tarif-concurrent-3',
+                row.competitor_3_price,
+                row.competitor_3_status,
+                row.competitor_3_price_variation
+              ],
+              [
+                'tarif-median',
+                row.competitor_median,
+                null,
+                null
+              ]
             ];
 
-            fields.forEach(([fieldId, value, status]) => {
+            fields.forEach(([fieldId, value, status, variation]) => {
               const cell = dataClone.querySelector(`#${fieldId}`);
 
               if (!cell) {
@@ -4130,6 +4158,7 @@ dateClone.setAttribute(
                   content.style.height = '100%';
                   content.style.whiteSpace = 'nowrap';
 
+                  // Prix actuel
                   const priceElement = document.createElement('span');
 
                   priceElement.textContent =
@@ -4137,6 +4166,33 @@ dateClone.setAttribute(
 
                   content.appendChild(priceElement);
 
+                  // Variation depuis le relevé précédent
+                  const numericVariation = Number(variation);
+
+                  if (
+                    variation !== null &&
+                    variation !== undefined &&
+                    variation !== '' &&
+                    Number.isFinite(numericVariation) &&
+                    numericVariation !== 0
+                  ) {
+                    const variationElement = document.createElement('span');
+
+                    const sign = numericVariation > 0 ? '+' : '−';
+
+                    variationElement.textContent =
+                      `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
+
+                    variationElement.style.fontSize = '11px';
+                    variationElement.style.fontWeight = '600';
+                    variationElement.style.whiteSpace = 'nowrap';
+                    variationElement.style.color =
+                      numericVariation > 0 ? '#16A34A' : '#DC2626';
+
+                    content.appendChild(variationElement);
+                  }
+
+                  // Badge de durée minimale de séjour
                   const msMatch =
                     typeof status === 'string' &&
                     /^MS\d+$/.test(status);
@@ -4270,7 +4326,6 @@ dateClone.setAttribute(
       console.error('[API06] Erreur de chargement :', err06);
     }
 
- 
 
  // 8. API08 — PERFORMANCE
  try {
