@@ -4179,38 +4179,39 @@ try {
               content.appendChild(priceElement);
 
               // ----------------------------------------
-              // VARIATION — À DROITE DU PRIX
-              // ----------------------------------------
+// VARIATION — JUSTE À DROITE DU PRIX
+// ----------------------------------------
 
-              const numericVariation = Number(variation);
+let variationElement = null;
 
-              if (
-                variation !== null &&
-                variation !== undefined &&
-                variation !== '' &&
-                Number.isFinite(numericVariation) &&
-                numericVariation !== 0
-              ) {
-                const variationElement = document.createElement('span');
+const numericVariation = Number(variation);
 
-                const sign = numericVariation > 0 ? '+' : '−';
+if (
+  variation !== null &&
+  variation !== undefined &&
+  variation !== '' &&
+  Number.isFinite(numericVariation) &&
+  numericVariation !== 0
+) {
+  variationElement = document.createElement('span');
 
-                variationElement.textContent =
-                  `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
+  const sign = numericVariation > 0 ? '+' : '−';
 
-                variationElement.style.position = 'absolute';
-                variationElement.style.right = '7px';
-                variationElement.style.top = '50%';
-                variationElement.style.transform = 'translateY(-50%)';
-                variationElement.style.fontSize = '10px';
-                variationElement.style.fontWeight = '600';
-                variationElement.style.whiteSpace = 'nowrap';
-                variationElement.style.lineHeight = '12px';
-                variationElement.style.color =
-                  numericVariation > 0 ? '#16A34A' : '#DC2626';
+  variationElement.textContent =
+    `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-                content.appendChild(variationElement);
-              }
+  variationElement.style.position = 'absolute';
+  variationElement.style.top = '50%';
+  variationElement.style.transform = 'translateY(-50%)';
+  variationElement.style.fontSize = '10px';
+  variationElement.style.fontWeight = '600';
+  variationElement.style.whiteSpace = 'nowrap';
+  variationElement.style.lineHeight = '12px';
+  variationElement.style.color =
+    numericVariation > 0 ? '#16A34A' : '#DC2626';
+
+  content.appendChild(variationElement);
+}
 
               // ----------------------------------------
               // BADGE MS2 — EN HAUT À DROITE
@@ -4241,6 +4242,16 @@ try {
               }
 
               cell.appendChild(content);
+
+// Positionner la variation juste après le prix centré
+if (variationElement) {
+  requestAnimationFrame(() => {
+    const priceWidth = priceElement.getBoundingClientRect().width;
+
+    variationElement.style.left =
+      `calc(50% + ${priceWidth / 2 + 4}px)`;
+  });
+}
             }
           }
 
