@@ -3715,617 +3715,643 @@ console.log('[API06] Date ajoutée :', {
     
   
 
-    // ----------------------------------------------------------
-    // API06 — CONCURRENCE
-    // ----------------------------------------------------------
+    
+// ----------------------------------------------------------
+// API06 — CONCURRENCE
+// ----------------------------------------------------------
+try {
+  const response06 = await fetch(
+    `${API_BASE_URL}/api/v1/competition?hotel_id=${encodeURIComponent(targetHotelId)}`,
+    {
+      method: 'GET',
+      headers: requestHeaders
+    }
+  );
+
+  if (!response06.ok) {
+    console.error('[API06] Erreur HTTP :', response06.status);
+  } else {
+    const result06 = await response06.json();
+
+    const competitors = result06?.competitors ?? {};
+    const competitionData = Array.isArray(result06?.data)
+      ? result06.data
+      : [];
+
+    // --------------------------------------------------
+    // 1. RÉCUPÉRATION DE LA FICHE HÔTEL
+    // --------------------------------------------------
+
+    let hotelInfo = null;
+
     try {
-      const response06 = await fetch(
-        `${API_BASE_URL}/api/v1/competition?hotel_id=${encodeURIComponent(targetHotelId)}`,
-        {
-          method: 'GET',
-          headers: requestHeaders
-        }
-      );
+      const hotelSlug = window.location.pathname
+        .split('/')
+        .filter(Boolean)
+        .pop();
 
-      if (!response06.ok) {
-        console.error('[API06] Erreur HTTP :', response06.status);
+      const { data, error } = await window.supabaseClient
+        .from('data-store-hotels')
+        .select(`
+          nom_hotel,
+          nom_booking_comp_1,
+          nom_booking_comp_2,
+          nom_booking_comp_3
+        `)
+        .eq('nom_hotel', hotelSlug)
+        .maybeSingle();
+
+      if (error) {
+        console.error('[API06] Erreur récupération fiche hôtel :', error);
       } else {
-        const result06 = await response06.json();
-
-        const competitors = result06?.competitors ?? {};
-        const competitionData = Array.isArray(result06?.data)
-          ? result06.data
-          : [];
-
-        // --------------------------------------------------
-        // 1. RÉCUPÉRATION DE LA FICHE HÔTEL
-        // --------------------------------------------------
-
-        let hotelInfo = null;
-
-        try {
-          const hotelSlug = window.location.pathname
-            .split('/')
-            .filter(Boolean)
-            .pop();
-
-          const { data, error } = await window.supabaseClient
-            .from('data-store-hotels')
-            .select(`
-              nom_hotel,
-              nom_booking_comp_1,
-              nom_booking_comp_2,
-              nom_booking_comp_3
-            `)
-            .eq('nom_hotel', hotelSlug)
-            .maybeSingle();
-
-          if (error) {
-            console.error('[API06] Erreur récupération fiche hôtel :', error);
-          } else {
-            hotelInfo = data;
-          }
-        } catch (hotelError) {
-          console.error('[API06] Erreur Supabase :', hotelError);
-        }
-
-        // --------------------------------------------------
-        // 2. EN-TÊTES
-        // --------------------------------------------------
-
-        const hotelName =
-          hotelInfo?.nom_hotel === 'citadineseurometropolestrasbourg'
-            ? 'Citadines Eurométropole Strasbourg'
-            : hotelInfo?.nom_hotel || 'Non renseigné';
-
-        const competitor1Name =
-          hotelInfo?.nom_booking_comp_1 || competitors.competitor_1_name;
-
-        const competitor2Name =
-          hotelInfo?.nom_booking_comp_2 || competitors.competitor_2_name;
-
-        const competitor3Name =
-          hotelInfo?.nom_booking_comp_3 || competitors.competitor_3_name;
-
-        const headerNames = [
-          ['name-mon-hotel', hotelName],
-          ['name-concurrent-1', competitor1Name],
-          ['name-concurrent-2', competitor2Name],
-          ['name-concurrent-3', competitor3Name]
-        ];
-
-        headerNames.forEach(([id, name]) => {
-          const element = document.getElementById(id);
-
-          if (element) {
-            element.textContent = name || 'Non renseigné';
-          } else {
-            console.warn(`[API06] Élément #${id} introuvable.`);
-          }
-        });
-
-        const medianElement = document.getElementById('tarif-median');
-
-        if (medianElement) {
-          medianElement.textContent = 'Médiane';
-        } else {
-          console.warn('[API06] Élément #tarif-median introuvable.');
-        }
-
-        // --------------------------------------------------
-        // 3. CONTENEURS ET MODÈLES WEBFLOW
-        // --------------------------------------------------
-
-        const datesContainer = document.getElementById(
-          'colonne-date-fixe-concurrence'
-        );
-
-        const dataContainer = document.getElementById(
-          'colonne-date-scroll-concurrence'
-        );
-
-        const dateTemplate = document.getElementById('date-concurrence');
-        const dataTemplate = document.getElementById('line-concurrence');
-
-        if (
-          !datesContainer ||
-          !dataContainer ||
-          !dateTemplate ||
-          !dataTemplate
-        ) {
-          console.error('[API06] Conteneurs ou modèles introuvables.', {
-            datesContainer: !!datesContainer,
-            dataContainer: !!dataContainer,
-            dateTemplate: !!dateTemplate,
-            dataTemplate: !!dataTemplate
-          });
-        } else {
-
-          // --------------------------------------------------
-          // 4. NETTOYAGE DES ANCIENNES LIGNES
-          // --------------------------------------------------
-
-          datesContainer
-            .querySelectorAll('[data-tz-concurrence-generated="true"]')
-            .forEach(element => element.remove());
-
-          dataContainer
-            .querySelectorAll('[data-tz-concurrence-generated="true"]')
-            .forEach(element => element.remove());
-
-          dateTemplate.style.setProperty('display', 'none', 'important');
-          dataTemplate.style.setProperty('display', 'none', 'important');
-
-          // --------------------------------------------------
-          // 5. CONFIGURATION DES LARGEURS
-          // --------------------------------------------------
-
-          const isMobileCompetition = window.matchMedia(
-            '(max-width: 479px)'
-          ).matches;
-
-          const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
-
-          [
-            ['width', dateColumnWidth],
-            ['min-width', dateColumnWidth],
-            ['max-width', dateColumnWidth],
-            ['flex', `0 0 ${dateColumnWidth}`],
-            ['box-sizing', 'border-box']
-          ].forEach(([property, value]) => {
-            datesContainer.style.setProperty(property, value, 'important');
-          });
-
-          // --------------------------------------------------
-          // 6. FORMAT DES DATES
-          // --------------------------------------------------
-
-          const formatDate = value => {
-            if (!value) return '—';
-
-            const parts = String(value).split('-').map(Number);
-
-            if (
-              parts.length !== 3 ||
-              parts.some(Number.isNaN)
-            ) {
-              return '—';
-            }
-
-            const [year, month, day] = parts;
-            const date = new Date(year, month - 1, day);
-
-            if (
-              date.getFullYear() !== year ||
-              date.getMonth() !== month - 1 ||
-              date.getDate() !== day
-            ) {
-              return '—';
-            }
-
-            const jour = new Intl.DateTimeFormat('fr-FR', {
-              weekday: 'short'
-            }).format(date).replace(/\.$/, '');
-
-            const mois = new Intl.DateTimeFormat('fr-FR', {
-              month: isMobileCompetition ? 'short' : 'long'
-            }).format(date).replace(/\.$/, '');
-
-            const jourCapitalise =
-              jour.charAt(0).toUpperCase() + jour.slice(1);
-
-            const moisCapitalise =
-              mois.charAt(0).toUpperCase() + mois.slice(1);
-
-            const numeroFormate = String(day).padStart(2, '0');
-
-            if (isMobileCompetition) {
-              return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${year}`;
-            }
-
-            return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise} ${year}`;
-          };
-
-          // --------------------------------------------------
-          // 7. FORMAT DE LA DATE DE MISE À JOUR
-          // --------------------------------------------------
-
-          const formatLastUpdated = value => {
-            if (!value) return null;
-
-            const date = new Date(value);
-
-            if (Number.isNaN(date.getTime())) return null;
-
-            return new Intl.DateTimeFormat('fr-FR', {
-              weekday: 'long',
-              day: '2-digit',
-              month: 'long',
-              year: 'numeric',
-              hour: '2-digit',
-              minute: '2-digit',
-              timeZone: 'Europe/Paris'
-            }).format(date);
-          };
-
-          // --------------------------------------------------
-          // 8. FONDS ALTERNÉS
-          // --------------------------------------------------
-
-          const getRowBackground = index =>
-            index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
-
-          // --------------------------------------------------
-          // 9. GÉNÉRATION DES DATES ET DES TARIFS
-          // --------------------------------------------------
-
-          competitionData.forEach((row, index) => {
-            const rowBackground = getRowBackground(index);
-
-            // ----------------------------------------------
-            // 9A. DATE — COLONNE FIXE CONCURRENCE
-            // ----------------------------------------------
-
-            const dateClone = dateTemplate.cloneNode(true);
-
-            dateClone.removeAttribute('id');
-
-            dateClone.setAttribute(
-              'data-tz-concurrence-generated',
-              'true'
-            );
-
-            const dateStyles = {
-              display: 'flex',
-              'align-items': 'center',
-              'justify-content': 'center',
-              width: dateColumnWidth,
-              'min-width': dateColumnWidth,
-              'max-width': dateColumnWidth,
-              flex: `0 0 ${dateColumnWidth}`,
-              height: '35px',
-              'min-height': '35px',
-              'max-height': '35px',
-              border: '1px solid #6b7280',
-              'border-radius': '10px',
-              margin: '0 0 12px 0',
-              padding: '0 5px',
-              'box-sizing': 'border-box',
-              'text-align': 'center',
-              'white-space': 'nowrap',
-              overflow: 'visible',
-              'font-family': 'Inter, sans-serif',
-              'font-size': '14px',
-              'font-weight': '600',
-              'font-style': 'Semi Bold',
-              'line-height': '20px',
-              'letter-spacing': 'normal',
-              color: '#333333',
-              'background-color': rowBackground,
-              transform: 'none',
-              cursor: 'help'
-            };
-
-            Object.entries(dateStyles).forEach(([property, value]) => {
-              dateClone.style.setProperty(property, value, 'important');
-            });
-
-            dateClone.innerHTML = formatDate(row.date);
-
-            // Infobulle : dernière observation des tarifs
-            const updatedAt = formatLastUpdated(row.last_updated_at);
-
-            if (updatedAt) {
-              dateClone.removeAttribute('title');
-
-              dateClone.setAttribute(
-                'data-tz-tooltip',
-                `Tarifs actualisés le ${updatedAt}`
-              );
-
-              dateClone.setAttribute('tabindex', '0');
-            } else {
-              dateClone.removeAttribute('title');
-              dateClone.removeAttribute('tabindex');
-            }
-
-            datesContainer.appendChild(dateClone);
-
-            // ----------------------------------------------
-            // 9B. TARIFS — COLONNE DÉFILANTE
-            // ----------------------------------------------
-
-            const dataClone = dataTemplate.cloneNode(true);
-
-            dataClone.removeAttribute('id');
-
-            dataClone.setAttribute(
-              'data-tz-concurrence-generated',
-              'true'
-            );
-
-            const dataStyles = {
-              display: isMobileCompetition ? 'flex' : 'grid',
-              height: '35px',
-              'min-height': '35px',
-              'max-height': '35px',
-              margin: '0 0 12px 0',
-              padding: '0',
-              'box-sizing': 'border-box',
-              transform: 'none'
-            };
-
-            if (!isMobileCompetition) {
-              dataStyles.width = '100%';
-              dataStyles['min-width'] = '0';
-              dataStyles['grid-template-columns'] =
-                'repeat(5, minmax(0, 1fr))';
-              dataStyles['column-gap'] = '10px';
-
-              if (index === 0) {
-                dataStyles['margin-top'] = '8px';
-              }
-            }
-
-            Object.entries(dataStyles).forEach(([property, value]) => {
-              dataClone.style.setProperty(property, value, 'important');
-            });
-
-            dataClone.style.setProperty(
-              'background-color',
-              'transparent',
-              'important'
-            );
-
-            // Tarifs, disponibilités et variations associées
-            const fields = [
-              [
-                'tarif-mon-hotel',
-                row.hotel_price,
-                row.hotel_status,
-                row.hotel_price_variation
-              ],
-              [
-                'tarif-concurrent-1',
-                row.competitor_1_price,
-                row.competitor_1_status,
-                row.competitor_1_price_variation
-              ],
-              [
-                'tarif-concurrent-2',
-                row.competitor_2_price,
-                row.competitor_2_status,
-                row.competitor_2_price_variation
-              ],
-              [
-                'tarif-concurrent-3',
-                row.competitor_3_price,
-                row.competitor_3_status,
-                row.competitor_3_price_variation
-              ],
-              [
-                'tarif-median',
-                row.competitor_median,
-                null,
-                null
-              ]
-            ];
-
-            fields.forEach(([fieldId, value, status, variation]) => {
-              const cell = dataClone.querySelector(`#${fieldId}`);
-
-              if (!cell) {
-                console.warn(
-                  `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
-                );
-                return;
-              }
-
-              cell.style.setProperty(
-                'background-color',
-                rowBackground,
-                'important'
-              );
-
-              cell.replaceChildren();
-
-              // Tarif absent : distinguer indisponibilité et absence de données.
-              if (
-                value === null ||
-                value === undefined ||
-                value === ''
-              ) {
-                if (status === 'UNAVAILABLE') {
-                  cell.textContent = 'Complet';
-                  cell.style.setProperty('color', '#6B7280', 'important');
-                  cell.style.setProperty('font-size', '12px', 'important');
-                } else {
-                  cell.textContent = '—';
-                }
-              } else {
-                const numericValue = Number(value);
-
-                if (!Number.isFinite(numericValue)) {
-                  cell.textContent = '—';
-                } else {
-                  const content = document.createElement('div');
-
-                  content.style.display = 'flex';
-                  content.style.alignItems = 'center';
-                  content.style.justifyContent = 'center';
-                  content.style.gap = '4px';
-                  content.style.width = '100%';
-                  content.style.height = '100%';
-                  content.style.whiteSpace = 'nowrap';
-
-                  // Prix actuel
-                  const priceElement = document.createElement('span');
-
-                  priceElement.textContent =
-                    `${Math.round(numericValue).toLocaleString('fr-FR')} €`;
-
-                  content.appendChild(priceElement);
-
-                  // Variation depuis le relevé précédent
-                  const numericVariation = Number(variation);
-
-                  if (
-                    variation !== null &&
-                    variation !== undefined &&
-                    variation !== '' &&
-                    Number.isFinite(numericVariation) &&
-                    numericVariation !== 0
-                  ) {
-                    const variationElement = document.createElement('span');
-
-                    const sign = numericVariation > 0 ? '+' : '−';
-
-                    variationElement.textContent =
-                      `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
-
-                    variationElement.style.fontSize = '11px';
-                    variationElement.style.fontWeight = '600';
-                    variationElement.style.whiteSpace = 'nowrap';
-                    variationElement.style.color =
-                      numericVariation > 0 ? '#16A34A' : '#DC2626';
-
-                    content.appendChild(variationElement);
-                  }
-
-                  // Badge de durée minimale de séjour
-                  const msMatch =
-                    typeof status === 'string' &&
-                    /^MS\d+$/.test(status);
-
-                  if (msMatch) {
-                    const badge = document.createElement('span');
-
-                    badge.textContent = status;
-                    badge.style.display = 'inline-block';
-                    badge.style.padding = '2px 5px';
-                    badge.style.borderRadius = '5px';
-                    badge.style.backgroundColor = '#FEF3C7';
-                    badge.style.color = '#92400E';
-                    badge.style.fontSize = '10px';
-                    badge.style.fontWeight = '600';
-                    badge.style.lineHeight = '14px';
-
-                    content.appendChild(badge);
-                  }
-
-                  cell.appendChild(content);
-                }
-              }
-
-              // Couleur du prix de l'hôtel selon la médiane
-              if (fieldId === 'tarif-mon-hotel') {
-                const hasHotelPrice =
-                  value !== null &&
-                  value !== undefined &&
-                  value !== '';
-
-                const hasMedian =
-                  row.competitor_median !== null &&
-                  row.competitor_median !== undefined &&
-                  row.competitor_median !== '';
-
-                const hotelPrice = Number(value);
-                const medianPrice = Number(row.competitor_median);
-
-                if (
-                  !hasHotelPrice ||
-                  !hasMedian ||
-                  !Number.isFinite(hotelPrice) ||
-                  !Number.isFinite(medianPrice)
-                ) {
-                  cell.style.setProperty('color', '#6B7280', 'important');
-                } else {
-                  cell.style.setProperty(
-                    'color',
-                    hotelPrice >= medianPrice ? '#16A34A' : '#DC2626',
-                    'important'
-                  );
-                }
-              }
-
-              cell.removeAttribute('id');
-            });
-
-            dataContainer.appendChild(dataClone);
-          });
-
-          // --------------------------------------------------
-          // 10. CONTRÔLE DE L'ALIGNEMENT
-          // --------------------------------------------------
-
-          requestAnimationFrame(() => {
-            const generatedDates = [
-              ...datesContainer.querySelectorAll(
-                ':scope > [data-tz-concurrence-generated="true"]'
-              )
-            ];
-
-            const generatedRows = [
-              ...dataContainer.querySelectorAll(
-                ':scope > [data-tz-concurrence-generated="true"]'
-              )
-            ];
-
-            const count = Math.min(
-              generatedDates.length,
-              generatedRows.length
-            );
-
-            if (count === 0) {
-              console.warn(
-                '[API06] Aucune ligne disponible pour contrôler l’alignement.'
-              );
-              return;
-            }
-
-            const alignment = Array.from(
-              { length: count },
-              (_, index) => {
-                const dateRect =
-                  generatedDates[index].getBoundingClientRect();
-
-                const rowRect =
-                  generatedRows[index].getBoundingClientRect();
-
-                return {
-                  ligne: index + 1,
-                  date: generatedDates[index].innerText.trim(),
-                  topDate: Number(dateRect.top.toFixed(2)),
-                  topTarifs: Number(rowRect.top.toFixed(2)),
-                  ecart: Number(
-                    (rowRect.top - dateRect.top).toFixed(2)
-                  ),
-                  hauteurDate: Number(dateRect.height.toFixed(2)),
-                  hauteurTarifs: Number(rowRect.height.toFixed(2))
-                };
-              }
-            );
-
-            console.table(alignment);
-
-            console.log('📊 [API06] Contrôle concurrence :', {
-              dates: generatedDates.length,
-              lignesTarifaires: generatedRows.length,
-              hotel: hotelName,
-              concurrents: [
-                competitor1Name,
-                competitor2Name,
-                competitor3Name
-              ],
-              mobile: isMobileCompetition
-            });
-          });
-        }
+        hotelInfo = data;
       }
-    } catch (err06) {
-      console.error('[API06] Erreur de chargement :', err06);
+    } catch (hotelError) {
+      console.error('[API06] Erreur Supabase :', hotelError);
     }
 
+    // --------------------------------------------------
+    // 2. EN-TÊTES
+    // --------------------------------------------------
+
+    const hotelName =
+      hotelInfo?.nom_hotel === 'citadineseurometropolestrasbourg'
+        ? 'Citadines Eurométropole Strasbourg'
+        : hotelInfo?.nom_hotel || 'Non renseigné';
+
+    const competitor1Name =
+      hotelInfo?.nom_booking_comp_1 || competitors.competitor_1_name;
+
+    const competitor2Name =
+      hotelInfo?.nom_booking_comp_2 || competitors.competitor_2_name;
+
+    const competitor3Name =
+      hotelInfo?.nom_booking_comp_3 || competitors.competitor_3_name;
+
+    const headerNames = [
+      ['name-mon-hotel', hotelName],
+      ['name-concurrent-1', competitor1Name],
+      ['name-concurrent-2', competitor2Name],
+      ['name-concurrent-3', competitor3Name]
+    ];
+
+    headerNames.forEach(([id, name]) => {
+      const element = document.getElementById(id);
+
+      if (element) {
+        element.textContent = name || 'Non renseigné';
+      } else {
+        console.warn(`[API06] Élément #${id} introuvable.`);
+      }
+    });
+
+    const medianElement = document.getElementById('tarif-median');
+
+    if (medianElement) {
+      medianElement.textContent = 'Médiane';
+    } else {
+      console.warn('[API06] Élément #tarif-median introuvable.');
+    }
+
+    // --------------------------------------------------
+    // 3. CONTENEURS ET MODÈLES WEBFLOW
+    // --------------------------------------------------
+
+    const datesContainer = document.getElementById(
+      'colonne-date-fixe-concurrence'
+    );
+
+    const dataContainer = document.getElementById(
+      'colonne-date-scroll-concurrence'
+    );
+
+    const dateTemplate = document.getElementById('date-concurrence');
+    const dataTemplate = document.getElementById('line-concurrence');
+
+    if (
+      !datesContainer ||
+      !dataContainer ||
+      !dateTemplate ||
+      !dataTemplate
+    ) {
+      console.error('[API06] Conteneurs ou modèles introuvables.', {
+        datesContainer: !!datesContainer,
+        dataContainer: !!dataContainer,
+        dateTemplate: !!dateTemplate,
+        dataTemplate: !!dataTemplate
+      });
+    } else {
+
+      // --------------------------------------------------
+      // 4. NETTOYAGE DES ANCIENNES LIGNES
+      // --------------------------------------------------
+
+      datesContainer
+        .querySelectorAll('[data-tz-concurrence-generated="true"]')
+        .forEach(element => element.remove());
+
+      dataContainer
+        .querySelectorAll('[data-tz-concurrence-generated="true"]')
+        .forEach(element => element.remove());
+
+      dateTemplate.style.setProperty('display', 'none', 'important');
+      dataTemplate.style.setProperty('display', 'none', 'important');
+
+      // --------------------------------------------------
+      // 5. CONFIGURATION DES LARGEURS
+      // --------------------------------------------------
+
+      const isMobileCompetition = window.matchMedia(
+        '(max-width: 479px)'
+      ).matches;
+
+      const dateColumnWidth = isMobileCompetition ? '165px' : '220px';
+
+      [
+        ['width', dateColumnWidth],
+        ['min-width', dateColumnWidth],
+        ['max-width', dateColumnWidth],
+        ['flex', `0 0 ${dateColumnWidth}`],
+        ['box-sizing', 'border-box']
+      ].forEach(([property, value]) => {
+        datesContainer.style.setProperty(property, value, 'important');
+      });
+
+      // --------------------------------------------------
+      // 6. FORMAT DES DATES
+      // --------------------------------------------------
+
+      const formatDate = value => {
+        if (!value) return '—';
+
+        const parts = String(value).split('-').map(Number);
+
+        if (
+          parts.length !== 3 ||
+          parts.some(Number.isNaN)
+        ) {
+          return '—';
+        }
+
+        const [year, month, day] = parts;
+        const date = new Date(year, month - 1, day);
+
+        if (
+          date.getFullYear() !== year ||
+          date.getMonth() !== month - 1 ||
+          date.getDate() !== day
+        ) {
+          return '—';
+        }
+
+        const jour = new Intl.DateTimeFormat('fr-FR', {
+          weekday: 'short'
+        }).format(date).replace(/\.$/, '');
+
+        const mois = new Intl.DateTimeFormat('fr-FR', {
+          month: isMobileCompetition ? 'short' : 'long'
+        }).format(date).replace(/\.$/, '');
+
+        const jourCapitalise =
+          jour.charAt(0).toUpperCase() + jour.slice(1);
+
+        const moisCapitalise =
+          mois.charAt(0).toUpperCase() + mois.slice(1);
+
+        const numeroFormate = String(day).padStart(2, '0');
+
+        if (isMobileCompetition) {
+          return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise}. ${year}`;
+        }
+
+        return `${jourCapitalise}. ${numeroFormate} ${moisCapitalise} ${year}`;
+      };
+
+      // --------------------------------------------------
+      // 7. FORMAT DE LA DATE DE MISE À JOUR
+      // --------------------------------------------------
+
+      const formatLastUpdated = value => {
+        if (!value) return null;
+
+        const date = new Date(value);
+
+        if (Number.isNaN(date.getTime())) return null;
+
+        return new Intl.DateTimeFormat('fr-FR', {
+          weekday: 'long',
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Europe/Paris'
+        }).format(date);
+      };
+
+      // --------------------------------------------------
+      // 8. FONDS ALTERNÉS
+      // --------------------------------------------------
+
+      const getRowBackground = index =>
+        index % 2 === 0 ? '#FFFFFF' : '#E8F0FE';
+
+      // --------------------------------------------------
+      // 9. GÉNÉRATION DES DATES ET DES TARIFS
+      // --------------------------------------------------
+
+      competitionData.forEach((row, index) => {
+        const rowBackground = getRowBackground(index);
+
+        // ----------------------------------------------
+        // 9A. DATE — COLONNE FIXE CONCURRENCE
+        // ----------------------------------------------
+
+        const dateClone = dateTemplate.cloneNode(true);
+
+        dateClone.removeAttribute('id');
+
+        dateClone.setAttribute(
+          'data-tz-concurrence-generated',
+          'true'
+        );
+
+        const dateStyles = {
+          display: 'flex',
+          'align-items': 'center',
+          'justify-content': 'center',
+          width: dateColumnWidth,
+          'min-width': dateColumnWidth,
+          'max-width': dateColumnWidth,
+          flex: `0 0 ${dateColumnWidth}`,
+          height: '35px',
+          'min-height': '35px',
+          'max-height': '35px',
+          border: '1px solid #6b7280',
+          'border-radius': '10px',
+          margin: '0 0 12px 0',
+          padding: '0 5px',
+          'box-sizing': 'border-box',
+          'text-align': 'center',
+          'white-space': 'nowrap',
+          overflow: 'visible',
+          'font-family': 'Inter, sans-serif',
+          'font-size': '14px',
+          'font-weight': '600',
+          'font-style': 'Semi Bold',
+          'line-height': '20px',
+          'letter-spacing': 'normal',
+          color: '#333333',
+          'background-color': rowBackground,
+          transform: 'none',
+          cursor: 'help'
+        };
+
+        Object.entries(dateStyles).forEach(([property, value]) => {
+          dateClone.style.setProperty(property, value, 'important');
+        });
+
+        dateClone.innerHTML = formatDate(row.date);
+
+        // Infobulle : dernière observation des tarifs
+        const updatedAt = formatLastUpdated(row.last_updated_at);
+
+        if (updatedAt) {
+          dateClone.removeAttribute('title');
+
+          dateClone.setAttribute(
+            'data-tz-tooltip',
+            `Tarifs actualisés le ${updatedAt}`
+          );
+
+          dateClone.setAttribute('tabindex', '0');
+        } else {
+          dateClone.removeAttribute('title');
+          dateClone.removeAttribute('tabindex');
+        }
+
+        datesContainer.appendChild(dateClone);
+
+        // ----------------------------------------------
+        // 9B. TARIFS — COLONNE DÉFILANTE
+        // ----------------------------------------------
+
+        const dataClone = dataTemplate.cloneNode(true);
+
+        dataClone.removeAttribute('id');
+
+        dataClone.setAttribute(
+          'data-tz-concurrence-generated',
+          'true'
+        );
+
+        const dataStyles = {
+          display: isMobileCompetition ? 'flex' : 'grid',
+          height: '35px',
+          'min-height': '35px',
+          'max-height': '35px',
+          margin: '0 0 12px 0',
+          padding: '0',
+          'box-sizing': 'border-box',
+          transform: 'none'
+        };
+
+        if (!isMobileCompetition) {
+          dataStyles.width = '100%';
+          dataStyles['min-width'] = '0';
+          dataStyles['grid-template-columns'] =
+            'repeat(5, minmax(0, 1fr))';
+          dataStyles['column-gap'] = '10px';
+
+          if (index === 0) {
+            dataStyles['margin-top'] = '8px';
+          }
+        }
+
+        Object.entries(dataStyles).forEach(([property, value]) => {
+          dataClone.style.setProperty(property, value, 'important');
+        });
+
+        dataClone.style.setProperty(
+          'background-color',
+          'transparent',
+          'important'
+        );
+
+        // Tarifs, disponibilités et variations associées
+        const fields = [
+          [
+            'tarif-mon-hotel',
+            row.hotel_price,
+            row.hotel_status,
+            row.hotel_price_variation
+          ],
+          [
+            'tarif-concurrent-1',
+            row.competitor_1_price,
+            row.competitor_1_status,
+            row.competitor_1_price_variation
+          ],
+          [
+            'tarif-concurrent-2',
+            row.competitor_2_price,
+            row.competitor_2_status,
+            row.competitor_2_price_variation
+          ],
+          [
+            'tarif-concurrent-3',
+            row.competitor_3_price,
+            row.competitor_3_status,
+            row.competitor_3_price_variation
+          ],
+          [
+            'tarif-median',
+            row.competitor_median,
+            null,
+            null
+          ]
+        ];
+
+        fields.forEach(([fieldId, value, status, variation]) => {
+          const cell = dataClone.querySelector(`#${fieldId}`);
+
+          if (!cell) {
+            console.warn(
+              `[API06] Champ #${fieldId} introuvable dans la ligne modèle.`
+            );
+            return;
+          }
+
+          cell.style.setProperty(
+            'background-color',
+            rowBackground,
+            'important'
+          );
+
+          cell.replaceChildren();
+
+          // Tarif absent : distinguer indisponibilité et absence de données.
+          if (
+            value === null ||
+            value === undefined ||
+            value === ''
+          ) {
+            if (status === 'UNAVAILABLE') {
+              cell.textContent = 'Complet';
+              cell.style.setProperty('color', '#6B7280', 'important');
+              cell.style.setProperty('font-size', '12px', 'important');
+            } else {
+              cell.textContent = '—';
+            }
+          } else {
+            const numericValue = Number(value);
+
+            if (!Number.isFinite(numericValue)) {
+              cell.textContent = '—';
+            } else {
+              // Conteneur indépendant pour positionner chaque élément.
+              const content = document.createElement('div');
+
+              content.style.position = 'relative';
+              content.style.display = 'block';
+              content.style.width = '100%';
+              content.style.height = '100%';
+              content.style.minWidth = '0';
+              content.style.boxSizing = 'border-box';
+
+              // ----------------------------------------
+              // PRIX ACTUEL — TOUJOURS CENTRÉ
+              // ----------------------------------------
+
+              const priceElement = document.createElement('span');
+
+              priceElement.textContent =
+                `${Math.round(numericValue).toLocaleString('fr-FR')} €`;
+
+              priceElement.style.position = 'absolute';
+              priceElement.style.left = '50%';
+              priceElement.style.top = '50%';
+              priceElement.style.transform = 'translate(-50%, -50%)';
+              priceElement.style.whiteSpace = 'nowrap';
+              priceElement.style.fontWeight = '600';
+              priceElement.style.textAlign = 'center';
+
+              content.appendChild(priceElement);
+
+              // ----------------------------------------
+              // VARIATION — À DROITE DU PRIX
+              // ----------------------------------------
+
+              const numericVariation = Number(variation);
+
+              if (
+                variation !== null &&
+                variation !== undefined &&
+                variation !== '' &&
+                Number.isFinite(numericVariation) &&
+                numericVariation !== 0
+              ) {
+                const variationElement = document.createElement('span');
+
+                const sign = numericVariation > 0 ? '+' : '−';
+
+                variationElement.textContent =
+                  `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
+
+                variationElement.style.position = 'absolute';
+                variationElement.style.right = '7px';
+                variationElement.style.top = '50%';
+                variationElement.style.transform = 'translateY(-50%)';
+                variationElement.style.fontSize = '10px';
+                variationElement.style.fontWeight = '600';
+                variationElement.style.whiteSpace = 'nowrap';
+                variationElement.style.lineHeight = '12px';
+                variationElement.style.color =
+                  numericVariation > 0 ? '#16A34A' : '#DC2626';
+
+                content.appendChild(variationElement);
+              }
+
+              // ----------------------------------------
+              // BADGE MS2 — EN HAUT À DROITE
+              // ----------------------------------------
+
+              const msMatch =
+                typeof status === 'string' &&
+                /^MS\d+$/.test(status);
+
+              if (msMatch) {
+                const badge = document.createElement('span');
+
+                badge.textContent = status;
+                badge.style.position = 'absolute';
+                badge.style.top = '2px';
+                badge.style.right = '5px';
+                badge.style.display = 'inline-block';
+                badge.style.padding = '1px 4px';
+                badge.style.borderRadius = '5px';
+                badge.style.backgroundColor = '#FEF3C7';
+                badge.style.color = '#92400E';
+                badge.style.fontSize = '9px';
+                badge.style.fontWeight = '600';
+                badge.style.lineHeight = '12px';
+                badge.style.whiteSpace = 'nowrap';
+
+                content.appendChild(badge);
+              }
+
+              cell.appendChild(content);
+            }
+          }
+
+          // Couleur du prix de l'hôtel selon la médiane
+          if (fieldId === 'tarif-mon-hotel') {
+            const hasHotelPrice =
+              value !== null &&
+              value !== undefined &&
+              value !== '';
+
+            const hasMedian =
+              row.competitor_median !== null &&
+              row.competitor_median !== undefined &&
+              row.competitor_median !== '';
+
+            const hotelPrice = Number(value);
+            const medianPrice = Number(row.competitor_median);
+
+            if (
+              !hasHotelPrice ||
+              !hasMedian ||
+              !Number.isFinite(hotelPrice) ||
+              !Number.isFinite(medianPrice)
+            ) {
+              cell.style.setProperty('color', '#6B7280', 'important');
+            } else {
+              cell.style.setProperty(
+                'color',
+                hotelPrice >= medianPrice ? '#16A34A' : '#DC2626',
+                'important'
+              );
+            }
+          }
+
+          cell.removeAttribute('id');
+        });
+
+        dataContainer.appendChild(dataClone);
+      });
+
+      // --------------------------------------------------
+      // 10. CONTRÔLE DE L'ALIGNEMENT
+      // --------------------------------------------------
+
+      requestAnimationFrame(() => {
+        const generatedDates = [
+          ...datesContainer.querySelectorAll(
+            ':scope > [data-tz-concurrence-generated="true"]'
+          )
+        ];
+
+        const generatedRows = [
+          ...dataContainer.querySelectorAll(
+            ':scope > [data-tz-concurrence-generated="true"]'
+          )
+        ];
+
+        const count = Math.min(
+          generatedDates.length,
+          generatedRows.length
+        );
+
+        if (count === 0) {
+          console.warn(
+            '[API06] Aucune ligne disponible pour contrôler l’alignement.'
+          );
+          return;
+        }
+
+        const alignment = Array.from(
+          { length: count },
+          (_, index) => {
+            const dateRect =
+              generatedDates[index].getBoundingClientRect();
+
+            const rowRect =
+              generatedRows[index].getBoundingClientRect();
+
+            return {
+              ligne: index + 1,
+              date: generatedDates[index].innerText.trim(),
+              topDate: Number(dateRect.top.toFixed(2)),
+              topTarifs: Number(rowRect.top.toFixed(2)),
+              ecart: Number(
+                (rowRect.top - dateRect.top).toFixed(2)
+              ),
+              hauteurDate: Number(dateRect.height.toFixed(2)),
+              hauteurTarifs: Number(rowRect.height.toFixed(2))
+            };
+          }
+        );
+
+        console.table(alignment);
+
+        console.log('📊 [API06] Contrôle concurrence :', {
+          dates: generatedDates.length,
+          lignesTarifaires: generatedRows.length,
+          hotel: hotelName,
+          concurrents: [
+            competitor1Name,
+            competitor2Name,
+            competitor3Name
+          ],
+          mobile: isMobileCompetition
+        });
+      });
+    }
+  }
+} catch (err06) {
+  console.error('[API06] Erreur de chargement :', err06);
+}
 
  // 8. API08 — PERFORMANCE
  try {
