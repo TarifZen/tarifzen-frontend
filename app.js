@@ -4226,7 +4226,7 @@ if (
 
                 badge.textContent = status;
                 badge.style.position = 'absolute';
-                badge.style.top = '2px';
+                badge.style.top = '4px';
                 badge.style.right = '5px';
                 badge.style.display = 'inline-block';
                 badge.style.padding = '1px 4px';
@@ -4243,13 +4243,16 @@ if (
 
               cell.appendChild(content);
 
-// Positionner la variation juste après le prix centré
+// Positionner la variation après le bord droit réel du prix
 if (variationElement) {
   requestAnimationFrame(() => {
-    const priceWidth = priceElement.getBoundingClientRect().width;
+    const priceRect = priceElement.getBoundingClientRect();
+    const contentRect = content.getBoundingClientRect();
 
-    variationElement.style.left =
-      `calc(50% + ${priceWidth / 2 + 4}px)`;
+    const priceRight = priceRect.right - contentRect.left;
+
+    variationElement.style.left = `${priceRight + 6}px`;
+    variationElement.style.right = 'auto';
   });
 }
             }
