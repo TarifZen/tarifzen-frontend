@@ -3319,8 +3319,8 @@ try {
     document.getElementById('profitability-month');
 
   if (elProfitability) {
-    elProfitability.innerText =
-      formatProfitability(data.profitability);
+   elProfitability.innerHTML =
+  formatProfitability(data.profitability);
 
     elProfitability.style.visibility = 'visible';
   }
