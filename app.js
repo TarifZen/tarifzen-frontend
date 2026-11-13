@@ -3156,7 +3156,13 @@ try {
 
   if (response02.ok) {
     const result02 = await response02.json();
-
+    
+console.log('[DEBUG API02]', {
+  count: result02?.count,
+  dataLength: result02?.data?.length,
+  total: result02?.total
+});
+    
     const recommendations =
       result02 && result02.data
         ? result02.data
