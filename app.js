@@ -4197,8 +4197,9 @@ try {
 
               content.appendChild(priceElement);
 
+             
               // ----------------------------------------
-              // VARIATION — JUSTE APRÈS LE PRIX
+              // VARIATION — À CÔTÉ DU PRIX
               // ----------------------------------------
 
               const numericVariation = Number(variation);
@@ -4217,21 +4218,40 @@ try {
                 variationElement.textContent =
                   `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-                
+                // Positionnement selon le format d'écran
                 variationElement.style.gridColumn = isMobile ? '1' : '3';
                 variationElement.style.gridRow = '1';
-                variationElement.style.justifySelf = isMobile ? 'end' : 'start';
+
+                variationElement.style.justifySelf = isMobile
+                  ? 'end'
+                  : 'start';
+
                 variationElement.style.alignSelf = 'center';
-                variationElement.style.marginLeft = isMobile ? '0' : '6px';
-                variationElement.style.marginRight = isMobile ? '6px' : '0';
+
+                variationElement.style.marginLeft = isMobile
+                  ? '0'
+                  : '6px';
+
+                variationElement.style.marginRight = isMobile
+                  ? '6px'
+                  : '0';
+
                 variationElement.style.position = 'relative';
                 variationElement.style.zIndex = '1';
-                variationElement.style.fontSize = isMobile ? '10px' : '11px';
+
+                // Taille : 10 px mobile / 11 px ordinateur
+                variationElement.style.fontSize = isMobile
+                  ? '10px'
+                  : '11px';
+
                 variationElement.style.fontWeight = '600';
                 variationElement.style.whiteSpace = 'nowrap';
                 variationElement.style.lineHeight = '12px';
-                variationElement.style.color = numericVariation > 0 ? '#16A34A' : '#DC2626';
 
+                // Couleur selon le sens de variation
+                variationElement.style.color = numericVariation > 0
+                  ? '#16A34A'
+                  : '#DC2626';
 
                 content.appendChild(variationElement);
               }
