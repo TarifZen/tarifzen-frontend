@@ -3717,6 +3717,7 @@ console.log('[] Date ajoutée :', {
 
     
 
+
 // ----------------------------------------------------------
 // API06 — CONCURRENCE
 // ----------------------------------------------------------
@@ -4163,7 +4164,7 @@ try {
               // Trois zones :
               // 1. espace gauche
               // 2. tarif centré
-              // 3. variation à droite du tarif
+              // 3. variation à droite du tarif sur ordinateur
 
               content.style.gridTemplateColumns =
                 'minmax(0, 1fr) auto minmax(0, 1fr)';
@@ -4197,7 +4198,6 @@ try {
 
               content.appendChild(priceElement);
 
-             
               // ----------------------------------------
               // VARIATION — À CÔTÉ DU PRIX
               // ----------------------------------------
@@ -4218,40 +4218,38 @@ try {
                 variationElement.textContent =
                   `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-                // Positionnement selon le format d'écran
-                variationElement.style.gridColumn = isMobile ? '1' : '3';
+                // Mobile : variation à gauche du prix
+                // Ordinateur : variation à droite du prix
+                variationElement.style.gridColumn =
+                  isMobileCompetition ? '1' : '3';
+
                 variationElement.style.gridRow = '1';
 
-                variationElement.style.justifySelf = isMobile
-                  ? 'end'
-                  : 'start';
+                variationElement.style.justifySelf =
+                  isMobileCompetition ? 'end' : 'start';
 
                 variationElement.style.alignSelf = 'center';
 
-                variationElement.style.marginLeft = isMobile
-                  ? '0'
-                  : '6px';
+                variationElement.style.marginLeft =
+                  isMobileCompetition ? '0' : '6px';
 
-                variationElement.style.marginRight = isMobile
-                  ? '6px'
-                  : '0';
+                variationElement.style.marginRight =
+                  isMobileCompetition ? '6px' : '0';
 
                 variationElement.style.position = 'relative';
                 variationElement.style.zIndex = '1';
 
                 // Taille : 10 px mobile / 11 px ordinateur
-                variationElement.style.fontSize = isMobile
-                  ? '10px'
-                  : '11px';
+                variationElement.style.fontSize =
+                  isMobileCompetition ? '10px' : '11px';
 
                 variationElement.style.fontWeight = '600';
                 variationElement.style.whiteSpace = 'nowrap';
                 variationElement.style.lineHeight = '12px';
 
                 // Couleur selon le sens de variation
-                variationElement.style.color = numericVariation > 0
-                  ? '#16A34A'
-                  : '#DC2626';
+                variationElement.style.color =
+                  numericVariation > 0 ? '#16A34A' : '#DC2626';
 
                 content.appendChild(variationElement);
               }
