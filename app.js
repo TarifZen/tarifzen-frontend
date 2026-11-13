@@ -2332,7 +2332,7 @@ function formatProfitability(val) {
   if (val === null || val === undefined || isNaN(val)) return "-";
 
   if (val >= 0) {
-    return "TarifZen rentabilisé ";
+    return '<span style="color: #16A34A; font-weight: 700;">✓</span> TarifZen rentabilisé';
   }
 
   const remaining = formatFrenchNumber(Math.abs(val));
