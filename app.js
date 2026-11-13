@@ -3718,6 +3718,7 @@ console.log('[] Date ajoutée :', {
     
 
 
+
 // ----------------------------------------------------------
 // API06 — CONCURRENCE
 // ----------------------------------------------------------
@@ -4164,7 +4165,7 @@ try {
               // Trois zones :
               // 1. espace gauche
               // 2. tarif centré
-              // 3. variation à droite du tarif sur ordinateur
+              // 3. variation à droite du tarif
 
               content.style.gridTemplateColumns =
                 'minmax(0, 1fr) auto minmax(0, 1fr)';
@@ -4199,7 +4200,7 @@ try {
               content.appendChild(priceElement);
 
               // ----------------------------------------
-              // VARIATION — À CÔTÉ DU PRIX
+              // VARIATION — TOUJOURS À DROITE DU PRIX
               // ----------------------------------------
 
               const numericVariation = Number(variation);
@@ -4218,24 +4219,13 @@ try {
                 variationElement.textContent =
                   `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-                // Mobile : variation à gauche du prix
-                // Ordinateur : variation à droite du prix
-                variationElement.style.gridColumn =
-                  isMobileCompetition ? '1' : '3';
-
+                // La variation reste à droite du prix
+                variationElement.style.gridColumn = '3';
                 variationElement.style.gridRow = '1';
-
-                variationElement.style.justifySelf =
-                  isMobileCompetition ? 'end' : 'start';
-
+                variationElement.style.justifySelf = 'start';
                 variationElement.style.alignSelf = 'center';
-
-                variationElement.style.marginLeft =
-                  isMobileCompetition ? '0' : '6px';
-
-                variationElement.style.marginRight =
-                  isMobileCompetition ? '6px' : '0';
-
+                variationElement.style.marginLeft = '6px';
+                variationElement.style.marginRight = '0';
                 variationElement.style.position = 'relative';
                 variationElement.style.zIndex = '1';
 
@@ -4255,7 +4245,7 @@ try {
               }
 
               // ----------------------------------------
-              // BADGE MS2 — EN HAUT À DROITE
+              // BADGE MS2 — GAUCHE MOBILE / DROITE ORDI
               // ----------------------------------------
 
               const msMatch =
@@ -4268,7 +4258,12 @@ try {
                 badge.textContent = status;
                 badge.style.position = 'absolute';
                 badge.style.top = '4px';
-                badge.style.right = '5px';
+
+                // Mobile : badge à gauche
+                // Ordinateur : badge à droite
+                badge.style.left = isMobileCompetition ? '5px' : 'auto';
+                badge.style.right = isMobileCompetition ? 'auto' : '5px';
+
                 badge.style.zIndex = '2';
                 badge.style.display = 'inline-block';
                 badge.style.padding = '1px 4px';
@@ -4395,6 +4390,7 @@ try {
 } catch (err06) {
   console.error('[API06] Erreur de chargement :', err06);
 }
+
 
  // 8. API08 — PERFORMANCE
  try {
