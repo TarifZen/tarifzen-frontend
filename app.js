@@ -4217,19 +4217,21 @@ try {
                 variationElement.textContent =
                   `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-                variationElement.style.gridColumn = '3';
+                
+                variationElement.style.gridColumn = isMobile ? '1' : '3';
                 variationElement.style.gridRow = '1';
-                variationElement.style.justifySelf = 'start';
+                variationElement.style.justifySelf = isMobile ? 'end' : 'start';
                 variationElement.style.alignSelf = 'center';
-                variationElement.style.marginLeft = '6px';
+                variationElement.style.marginLeft = isMobile ? '0' : '6px';
+                variationElement.style.marginRight = isMobile ? '6px' : '0';
                 variationElement.style.position = 'relative';
                 variationElement.style.zIndex = '1';
-                variationElement.style.fontSize = '10px';
+                variationElement.style.fontSize = isMobile ? '10px' : '11px';
                 variationElement.style.fontWeight = '600';
                 variationElement.style.whiteSpace = 'nowrap';
                 variationElement.style.lineHeight = '12px';
-                variationElement.style.color =
-                  numericVariation > 0 ? '#16A34A' : '#DC2626';
+                variationElement.style.color = numericVariation > 0 ? '#16A34A' : '#DC2626';
+
 
                 content.appendChild(variationElement);
               }
