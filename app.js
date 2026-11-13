@@ -3609,8 +3609,8 @@ try {
          // Clone de la date dans la colonne fixe
          const dateClone = dateTemplate.cloneNode(true);
 
-         console.log('[API06] Date créée :', dateClone);
-console.log('[API06] Parent :', dateClone.parentElement);
+         console.log('[] Date créée :', dateClone);
+console.log('[] Parent :', dateClone.parentElement);
 
          dateClone.removeAttribute('id');
          dateClone.style.display = '';
@@ -3640,7 +3640,7 @@ dateClone.tabIndex = 0;
 
          datesContainer.appendChild(dateClone);
          
-console.log('[API06] Date ajoutée :', {
+console.log('[] Date ajoutée :', {
   texte: dateClone.textContent,
   connectee: dateClone.isConnected,
   dimensions: dateClone.getBoundingClientRect(),
@@ -3716,6 +3716,7 @@ console.log('[API06] Date ajoutée :', {
   
 
     
+
 // ----------------------------------------------------------
 // API06 — CONCURRENCE
 // ----------------------------------------------------------
@@ -4149,15 +4150,30 @@ try {
             if (!Number.isFinite(numericValue)) {
               cell.textContent = '—';
             } else {
-              // Conteneur indépendant pour positionner chaque élément.
+
+              // ----------------------------------------
+              // CONTENEUR DE POSITIONNEMENT
+              // ----------------------------------------
+
               const content = document.createElement('div');
 
               content.style.position = 'relative';
-              content.style.display = 'block';
+              content.style.display = 'grid';
+
+              // Trois zones :
+              // 1. espace gauche
+              // 2. tarif centré
+              // 3. variation à droite du tarif
+
+              content.style.gridTemplateColumns =
+                'minmax(0, 1fr) auto minmax(0, 1fr)';
+
+              content.style.alignItems = 'center';
               content.style.width = '100%';
               content.style.height = '100%';
               content.style.minWidth = '0';
               content.style.boxSizing = 'border-box';
+              content.style.overflow = 'visible';
 
               // ----------------------------------------
               // PRIX ACTUEL — TOUJOURS CENTRÉ
@@ -4168,50 +4184,55 @@ try {
               priceElement.textContent =
                 `${Math.round(numericValue).toLocaleString('fr-FR')} €`;
 
-              priceElement.style.position = 'absolute';
-              priceElement.style.left = '50%';
-              priceElement.style.top = '50%';
-              priceElement.style.transform = 'translate(-50%, -50%)';
+              priceElement.style.gridColumn = '2';
+              priceElement.style.gridRow = '1';
+              priceElement.style.justifySelf = 'center';
+              priceElement.style.alignSelf = 'center';
+              priceElement.style.position = 'relative';
+              priceElement.style.zIndex = '1';
               priceElement.style.whiteSpace = 'nowrap';
               priceElement.style.fontWeight = '600';
               priceElement.style.textAlign = 'center';
+              priceElement.style.lineHeight = 'normal';
 
               content.appendChild(priceElement);
 
-// ----------------------------------------
-// VARIATION — JUSTE À DROITE DU PRIX
-// ----------------------------------------
+              // ----------------------------------------
+              // VARIATION — JUSTE APRÈS LE PRIX
+              // ----------------------------------------
 
-let variationElement = null;
+              const numericVariation = Number(variation);
 
-const numericVariation = Number(variation);
+              if (
+                variation !== null &&
+                variation !== undefined &&
+                variation !== '' &&
+                Number.isFinite(numericVariation) &&
+                numericVariation !== 0
+              ) {
+                const variationElement = document.createElement('span');
 
-if (
-  variation !== null &&
-  variation !== undefined &&
-  variation !== '' &&
-  Number.isFinite(numericVariation) &&
-  numericVariation !== 0
-) {
-  variationElement = document.createElement('span');
+                const sign = numericVariation > 0 ? '+' : '−';
 
-  const sign = numericVariation > 0 ? '+' : '−';
+                variationElement.textContent =
+                  `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
 
-  variationElement.textContent =
-    `${sign}${Math.abs(numericVariation).toLocaleString('fr-FR')} €`;
+                variationElement.style.gridColumn = '3';
+                variationElement.style.gridRow = '1';
+                variationElement.style.justifySelf = 'start';
+                variationElement.style.alignSelf = 'center';
+                variationElement.style.marginLeft = '6px';
+                variationElement.style.position = 'relative';
+                variationElement.style.zIndex = '1';
+                variationElement.style.fontSize = '10px';
+                variationElement.style.fontWeight = '600';
+                variationElement.style.whiteSpace = 'nowrap';
+                variationElement.style.lineHeight = '12px';
+                variationElement.style.color =
+                  numericVariation > 0 ? '#16A34A' : '#DC2626';
 
-  variationElement.style.position = 'absolute';
-  variationElement.style.top = '50%';
-  variationElement.style.transform = 'translateY(-50%)';
-  variationElement.style.fontSize = '10px';
-  variationElement.style.fontWeight = '600';
-  variationElement.style.whiteSpace = 'nowrap';
-  variationElement.style.lineHeight = '12px';
-  variationElement.style.color =
-    numericVariation > 0 ? '#16A34A' : '#DC2626';
-
-  content.appendChild(variationElement);
-}
+                content.appendChild(variationElement);
+              }
 
               // ----------------------------------------
               // BADGE MS2 — EN HAUT À DROITE
@@ -4228,6 +4249,7 @@ if (
                 badge.style.position = 'absolute';
                 badge.style.top = '4px';
                 badge.style.right = '5px';
+                badge.style.zIndex = '2';
                 badge.style.display = 'inline-block';
                 badge.style.padding = '1px 4px';
                 badge.style.borderRadius = '5px';
@@ -4242,19 +4264,6 @@ if (
               }
 
               cell.appendChild(content);
-
-// Positionner la variation après le bord droit réel du prix
-if (variationElement) {
-  requestAnimationFrame(() => {
-    const priceRect = priceElement.getBoundingClientRect();
-    const contentRect = content.getBoundingClientRect();
-
-    const priceRight = priceRect.right - contentRect.left;
-
-    variationElement.style.left = `${priceRight + 6}px`;
-    variationElement.style.right = 'auto';
-  });
-}
             }
           }
 
