@@ -2328,16 +2328,23 @@ function formatRecommendationsTotal(count) {
   return `${n} recommandation${n > 1 ? 's' : ''} aujourd'hui`;
 }
 
+
 function formatProfitability(val) {
   if (val === null || val === undefined || isNaN(val)) return "-";
 
   if (val >= 0) {
-    return "🟢 ✓ TarifZen rentabilisé";
+    return `<span style="display:inline-flex; align-items:center; vertical-align:middle; margin-right:5px;">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 18 18" aria-hidden="true">
+        <rect x="1" y="1" width="16" height="16" rx="3" fill="#16A34A"></rect>
+        <path d="M4.5 9L7.5 12L13.5 6" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+      </svg>
+    </span>TarifZen rentabilisé`;
   }
 
   const remaining = formatFrenchNumber(Math.abs(val));
   return `Encore ${remaining} € pour rentabiliser`;
 }
+
   
 function formatDateFR(dateStr) {
   if (!dateStr) return '';
